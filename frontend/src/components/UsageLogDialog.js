@@ -144,7 +144,7 @@ export const UsageLogDialog = ({ open, onClose, onLogged, item }) => {
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-4 relative z-50">
             <Button
               type="button"
               variant="outline"
@@ -156,7 +156,7 @@ export const UsageLogDialog = ({ open, onClose, onLogged, item }) => {
             <Button
               type="submit"
               disabled={loading || formData.quantity_used > (item?.quantity || 0) || formData.quantity_used <= 0}
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 relative z-50"
               data-testid="usage-submit-btn"
             >
               {loading ? (
