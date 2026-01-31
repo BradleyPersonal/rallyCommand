@@ -1,0 +1,174 @@
+{
+  "design_system": {
+    "identity": {
+      "name": "RallyCommand",
+      "archetype": "The Performance Pro",
+      "vibe": "Tactical, Mechanical, High-Contrast, Aggressive",
+      "principles": [
+        "Fusion over Imitation: Mix Motorsport Telemetry with SaaS Precision",
+        "Emotion First: Every screen feels like a pit lane monitor",
+        "Content is King: Data density is beautiful",
+        "Contrast: Neon alerts against deep obsidian backgrounds"
+      ]
+    },
+    "typography": {
+      "font_family": {
+        "headings": "Barlow Condensed, sans-serif",
+        "body": "Inter, sans-serif",
+        "mono": "JetBrains Mono, monospace"
+      },
+      "weights": {
+        "headings": "800",
+        "body": "400",
+        "bold": "700"
+      },
+      "scale": {
+        "h1": "text-5xl md:text-7xl tracking-tighter uppercase",
+        "h2": "text-3xl md:text-5xl tracking-tight uppercase",
+        "h3": "text-2xl md:text-3xl tracking-tight uppercase",
+        "body": "text-base leading-relaxed",
+        "caption": "text-xs tracking-widest uppercase text-muted-foreground"
+      },
+      "imports": [
+        "@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;800&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');"
+      ]
+    },
+    "colors": {
+      "palette": {
+        "background": "#09090B",
+        "foreground": "#FAFAFA",
+        "card": "#121212",
+        "card_foreground": "#FAFAFA",
+        "popover": "#09090B",
+        "popover_foreground": "#FAFAFA",
+        "primary": "#EF4444",
+        "primary_foreground": "#FFFFFF",
+        "secondary": "#27272A",
+        "secondary_foreground": "#FAFAFA",
+        "muted": "#27272A",
+        "muted_foreground": "#A1A1AA",
+        "accent": "#EAB308",
+        "accent_foreground": "#09090B",
+        "destructive": "#7F1D1D",
+        "destructive_foreground": "#FAFAFA",
+        "border": "#27272A",
+        "input": "#27272A",
+        "ring": "#EF4444"
+      },
+      "gradients": {
+        "hero": "linear-gradient(to bottom right, #09090B, #18181B)",
+        "accent_glow": "linear-gradient(90deg, #EF4444 0%, transparent 100%)"
+      }
+    },
+    "layout": {
+      "spacing": {
+        "container_padding": "p-4 md:p-8 lg:p-12",
+        "section_gap": "gap-8 md:gap-12",
+        "item_gap": "gap-4"
+      },
+      "border_radius": {
+        "default": "rounded-none",
+        "card": "rounded-sm",
+        "button": "rounded-sm"
+      },
+      "grids": {
+        "dashboard": "grid grid-cols-1 md:grid-cols-4 gap-4",
+        "inventory": "grid grid-cols-1 gap-0 border border-border"
+      }
+    },
+    "components": {
+      "buttons": {
+        "primary": "bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm font-bold uppercase tracking-wider px-6 py-3 transition-all active:scale-95",
+        "secondary": "bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-sm font-medium uppercase tracking-wider px-6 py-3",
+        "outline": "border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground rounded-sm font-bold uppercase tracking-wider px-6 py-3"
+      },
+      "cards": {
+        "default": "bg-card border border-border/50 p-6 relative overflow-hidden group",
+        "interactive": "bg-card border border-border/50 p-6 hover:border-primary/50 transition-colors cursor-pointer group",
+        "glass": "bg-black/40 backdrop-blur-xl border border-white/10"
+      },
+      "inputs": {
+        "default": "bg-input border-transparent focus:border-primary rounded-sm px-4 py-3 text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-primary transition-all"
+      }
+    },
+    "visual_enhancers": {
+      "textures": "bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay pointer-events-none absolute inset-0",
+      "shadows": {
+        "glow": "shadow-[0_0_20px_rgba(239,68,68,0.3)]",
+        "neon": "drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]"
+      },
+      "animations": {
+        "hover_lift": "hover:-translate-y-1 transition-transform duration-300",
+        "pulse_slow": "animate-pulse duration-[3000ms]"
+      }
+    }
+  },
+  "assets": {
+    "images": {
+      "login_bg": {
+        "url": "https://images.unsplash.com/photo-1769348900282-f3b652f7db50?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzB8MHwxfHNlYXJjaHwxfHxyYWxseSUyMGNhciUyMGFjdGlvbiUyMGRpcnR8ZW58MHx8fHwxNzY5ODk0Njg1fDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Rally car speeding through forest",
+        "usage": "Login page background, Hero section"
+      },
+      "dashboard_hero": {
+        "url": "https://images.unsplash.com/photo-1764506358856-5d2057bb8f49?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzB8MHwxfHNlYXJjaHwyfHxyYWxseSUyMGNhciUyMGFjdGlvbiUyMGRpcnR8ZW58MHx8fHwxNzY5ODk0Njg1fDA&ixlib=rb-4.1.0&q=85",
+        "alt": "White rally car on dirt",
+        "usage": "Dashboard overview header"
+      },
+      "garage_context": {
+        "url": "https://images.unsplash.com/photo-1619505372149-07875c35b313?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwxfHxtZWNoYW5pYyUyMHdvcmtpbmclMjBnYXJhZ2V8ZW58MHx8fHwxNzY5ODk0Njg4fDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Garage context",
+        "usage": "Team section, Maintenance logs"
+      },
+      "parts_placeholder": {
+        "url": "https://images.unsplash.com/photo-1633281256183-c0f106f70d76?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MTJ8MHwxfHNlYXJjaHwxfHxjYXIlMjBlbmdpbmUlMjBwYXJ0cyUyMGFydGlzdGljfGVufDB8fHx8MTc2OTg5NDY5Mnww&ixlib=rb-4.1.0&q=85",
+        "alt": "Engine gears close up",
+        "usage": "Inventory item placeholder"
+      }
+    },
+    "icons": {
+      "library": "lucide-react",
+      "style": "stroke-width={1.5} className='text-primary'"
+    }
+  },
+  "instructions_to_main_agent": {
+    "general": [
+      "Implement the 'Performance Pro' archetype: Dark, Technical, Fast.",
+      "Use 'Barlow Condensed' for all headings to give that race-day feel.",
+      "Use 'JetBrains Mono' for all part numbers, prices, and quantities.",
+      "Ensure all containers have a subtle border (zinc-800) to define structure in the dark theme.",
+      "Use the 'Race Red' (#EF4444) sparingly for CTAs and critical alerts. Do not overuse.",
+      "Inventory tables should look like telemetry data streams: dense, monospaced, high contrast.",
+      "Add 'data-testid' to all interactive elements."
+    ],
+    "layout_rules": [
+      "Dashboard: Use the Bento Grid Mode B (High Density).",
+      "Inventory List: Use a 'Grid Borders' style. Visible borders between rows and columns.",
+      "Forms: Use sharp corners (rounded-sm) and dark inputs with light borders on focus."
+    ],
+    "animations": [
+      "Add subtle entrance animations for table rows (staggered).",
+      "Use 'hover:border-primary' on interactive cards to simulate a 'target lock' effect."
+    ]
+  },
+  "universal_guidelines": [
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy",
+    "Use glass-morphism effects with backdrop filters (12-24px blur)",
+    "You MUST NOT apply universal transition. Eg: transition: all. This results in breaking transforms. Always add transitions for specific interactive elements like button, input excluding transforms",
+    "You MUST NOT center align the app container, ie do not add .App { text-align: center; } in the css file. This disrupts the human natural reading flow of text",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations & color relevant to the app style",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠💭💡🔮🎯📚🎭🎬🎪🎉🎊🎁🎀🎂🍰🎈🎨🎰💰💵💳🏦💎🪙💸🤑📊📈📉💹🔢🏆🥇 etc for icons.",
+    "Every interaction needs micro-animations - hover states, transitions, parallax effects, and entrance animations. Static = dead.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "Subtle grain textures, noise overlays, custom cursors, selection states, and loading animations: separates good from extraordinary.",
+    "Main agent relies on these image URLs. Missing categories (especially sponsor logos) = main agent will use placeholder text which is FORBIDDEN",
+    "Prioritize using pre-existing components from src/components/ui when applicable",
+    "Create new components that match the style and conventions of existing components when needed",
+    "Examine existing components to understand the project's component patterns before creating new ones",
+    "Components MUST use named exports (export const ComponentName = ...)",
+    "Pages MUST use default exports (export default function PageName() {...})",
+    "Use sonner for toasts"
+  ]
+}
