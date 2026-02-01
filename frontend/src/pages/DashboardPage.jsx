@@ -104,40 +104,43 @@ export default function DashboardPage() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Total Items */}
-          <Card className="bg-card border-border/50 stat-card" data-testid="stat-total-items">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground tracking-widest uppercase mb-2">
-                    Total Items
-                  </p>
-                  <p className="text-4xl font-mono font-bold text-foreground">
-                    {stats?.total_items || 0}
-                  </p>
+          <Link to="/inventory">
+            <Card className="bg-card border-border/50 stat-card cursor-pointer hover:border-primary/50 transition-colors" data-testid="stat-total-items">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-xs text-muted-foreground tracking-widest uppercase mb-2">
+                      Total Items
+                    </p>
+                    <p className="text-4xl font-mono font-bold text-foreground">
+                      {stats?.total_items || 0}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-secondary rounded-sm flex items-center justify-center">
+                    <Package className="w-6 h-6 text-primary" strokeWidth={1.5} />
+                  </div>
                 </div>
-                <div className="w-12 h-12 bg-secondary rounded-sm flex items-center justify-center">
-                  <Package className="w-6 h-6 text-primary" strokeWidth={1.5} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
 
           {/* Low Stock */}
-          <Card 
-            className={`bg-card border-border/50 stat-card ${stats?.low_stock_count > 0 ? 'border-l-4 border-l-accent' : ''}`}
-            data-testid="stat-low-stock"
-          >
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground tracking-widest uppercase mb-2">
-                    Low Stock
-                  </p>
-                  <p className={`text-4xl font-mono font-bold ${stats?.low_stock_count > 0 ? 'text-accent' : 'text-foreground'}`}>
-                    {stats?.low_stock_count || 0}
-                  </p>
-                </div>
-                <div className={`w-12 h-12 rounded-sm flex items-center justify-center ${stats?.low_stock_count > 0 ? 'bg-accent/20' : 'bg-secondary'}`}>
+          <Link to="/inventory?low_stock=true">
+            <Card 
+              className={`bg-card border-border/50 stat-card cursor-pointer hover:border-primary/50 transition-colors ${stats?.low_stock_count > 0 ? 'border-l-4 border-l-accent' : ''}`}
+              data-testid="stat-low-stock"
+            >
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-xs text-muted-foreground tracking-widest uppercase mb-2">
+                      Low Stock
+                    </p>
+                    <p className={`text-4xl font-mono font-bold ${stats?.low_stock_count > 0 ? 'text-accent' : 'text-foreground'}`}>
+                      {stats?.low_stock_count || 0}
+                    </p>
+                  </div>
+                  <div className={`w-12 h-12 rounded-sm flex items-center justify-center ${stats?.low_stock_count > 0 ? 'bg-accent/20' : 'bg-secondary'}`}>
                   <AlertTriangle className={`w-6 h-6 ${stats?.low_stock_count > 0 ? 'text-accent' : 'text-muted-foreground'}`} strokeWidth={1.5} />
                 </div>
               </div>
