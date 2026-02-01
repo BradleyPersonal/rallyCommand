@@ -234,9 +234,11 @@ async def create_item(item: InventoryItemCreate, current_user: dict = Depends(ge
         "location": item.location,
         "part_number": item.part_number,
         "supplier": item.supplier,
+        "supplier_url": item.supplier_url,
         "price": item.price,
         "min_stock": item.min_stock,
         "notes": item.notes,
+        "photos": item.photos[:3],  # Limit to 3 photos
         "user_id": current_user["id"],
         "created_at": now,
         "updated_at": now
