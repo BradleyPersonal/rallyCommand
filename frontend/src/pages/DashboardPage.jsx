@@ -200,22 +200,27 @@ export default function DashboardPage() {
               {stats?.categories && Object.keys(stats.categories).length > 0 ? (
                 <div className="space-y-4">
                   {Object.entries(stats.categories).map(([category, count]) => (
-                    <div 
+                    <Link 
                       key={category}
-                      className="flex items-center justify-between p-4 bg-secondary/30 border border-border/50 rounded-sm"
+                      to={`/inventory?category=${category}`}
+                      data-testid={`category-link-${category}`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-sm flex items-center justify-center category-${category}`}>
-                          {getCategoryIcon(category)}
+                      <div 
+                        className="flex items-center justify-between p-4 bg-secondary/30 border border-border/50 rounded-sm cursor-pointer hover:border-primary/50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-sm flex items-center justify-center category-${category}`}>
+                            {getCategoryIcon(category)}
+                          </div>
+                          <span className="font-medium uppercase tracking-wide text-foreground">
+                            {category}
+                          </span>
                         </div>
-                        <span className="font-medium uppercase tracking-wide text-foreground">
-                          {category}
-                        </span>
+                        <Badge variant="secondary" className="font-mono text-lg px-3">
+                          {count}
+                        </Badge>
                       </div>
-                      <Badge variant="secondary" className="font-mono text-lg px-3">
-                        {count}
-                      </Badge>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               ) : (
