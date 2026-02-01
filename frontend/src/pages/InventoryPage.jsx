@@ -54,7 +54,7 @@ export default function InventoryPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState(searchParams.get('category') || '');
   const [showLowStock, setShowLowStock] = useState(searchParams.get('low_stock') === 'true');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
