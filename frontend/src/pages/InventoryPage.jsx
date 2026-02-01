@@ -290,12 +290,16 @@ export default function InventoryPage() {
                       data-testid={`inventory-row-${item.id}`}
                     >
                       <TableCell className="font-medium text-foreground">
-                        <div className="flex items-center gap-2">
+                        <Link 
+                          to={`/inventory/${item.id}`}
+                          className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
+                          data-testid={`item-name-link-${item.id}`}
+                        >
                           {isLowStock(item) && (
                             <AlertTriangle className="w-4 h-4 text-accent flex-shrink-0" />
                           )}
                           {item.name}
-                        </div>
+                        </Link>
                       </TableCell>
                       <TableCell className="font-mono text-muted-foreground">
                         {item.part_number || '-'}
