@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Save, Package } from 'lucide-react';
+import { Save, Package, Upload, X, Image } from 'lucide-react';
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
@@ -32,6 +32,7 @@ const categories = [
 export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
   const { getAuthHeader } = useAuth();
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({
     name: '',
     category: 'parts',
@@ -39,9 +40,11 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
     location: '',
     part_number: '',
     supplier: '',
+    supplier_url: '',
     price: 0,
     min_stock: 1,
-    notes: ''
+    notes: '',
+    photos: []
   });
 
   useEffect(() => {
@@ -53,9 +56,11 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
         location: item.location || '',
         part_number: item.part_number || '',
         supplier: item.supplier || '',
+        supplier_url: item.supplier_url || '',
         price: item.price || 0,
         min_stock: item.min_stock || 1,
-        notes: item.notes || ''
+        notes: item.notes || '',
+        photos: item.photos || []
       });
     } else {
       setFormData({
@@ -65,15 +70,53 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
         location: '',
         part_number: '',
         supplier: '',
+        supplier_url: '',
         price: 0,
         min_stock: 1,
-        notes: ''
+        notes: '',
+        photos: []
       });
     }
   }, [item, open]);
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePhotoUpload = (e) => {
+    const files = Array.from(e.target.files);
+    if (formData.photos.length + files.length > 3) {
+      toast.error('Maximum 3 photos allowed');
+      return;
+    }
+
+    files.forEach(file => {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`${file.name} is too large. Max 5MB per photo.`);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setFormData(prev => ({
+          ...prev,
+          photos: [...prev.photos, event.target.result].slice(0, 3)
+        }));
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const removePhoto = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      photos: prev.photos.filter((_, i) => i !== index)
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -109,7 +152,7 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] bg-card border-border" data-testid="item-form-dialog">
+      <DialogContent className="sm:max-w-[550px] bg-card border-border max-h-[90vh] overflow-y-auto" data-testid="item-form-dialog">
         <DialogHeader>
           <DialogTitle className="text-2xl tracking-tight uppercase flex items-center gap-2">
             <Package className="w-6 h-6 text-primary" />
@@ -219,8 +262,22 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
               />
             </div>
 
+            {/* Supplier URL */}
+            <div className="col-span-2 space-y-2">
+              <Label htmlFor="supplier_url" className="form-label">Supplier Website</Label>
+              <Input
+                id="supplier_url"
+                type="url"
+                value={formData.supplier_url}
+                onChange={(e) => handleChange('supplier_url', e.target.value)}
+                placeholder="e.g., https://www.supplier.com/product"
+                className="bg-secondary border-border focus:border-primary"
+                data-testid="item-supplier-url-input"
+              />
+            </div>
+
             {/* Price */}
-            <div className="space-y-2">
+            <div className="col-span-2 space-y-2">
               <Label htmlFor="price" className="form-label">Unit Price ($)</Label>
               <Input
                 id="price"
@@ -232,6 +289,64 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
                 className="bg-secondary border-border focus:border-primary font-mono"
                 data-testid="item-price-input"
               />
+            </div>
+
+            {/* Photos */}
+            <div className="col-span-2 space-y-2">
+              <Label className="form-label">Photos (Max 3)</Label>
+              <div className="space-y-3">
+                {/* Photo Preview */}
+                {formData.photos.length > 0 && (
+                  <div className="flex gap-2 flex-wrap">
+                    {formData.photos.map((photo, index) => (
+                      <div 
+                        key={index}
+                        className="relative w-20 h-20 rounded-sm overflow-hidden border border-border group"
+                      >
+                        <img 
+                          src={photo} 
+                          alt={`Photo ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removePhoto(index)}
+                          className="absolute top-1 right-1 w-5 h-5 bg-destructive rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          data-testid={`remove-photo-${index}`}
+                        >
+                          <X className="w-3 h-3 text-white" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Upload Button */}
+                {formData.photos.length < 3 && (
+                  <div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                      id="photo-upload"
+                      data-testid="photo-upload-input"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full border-dashed"
+                      data-testid="upload-photo-btn"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      Upload Photos ({formData.photos.length}/3)
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Notes */}
