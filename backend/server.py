@@ -64,9 +64,11 @@ class InventoryItemCreate(BaseModel):
     location: str = ""
     part_number: str = ""
     supplier: str = ""
+    supplier_url: str = ""
     price: float = 0.0
     min_stock: int = 1
     notes: str = ""
+    photos: List[str] = []
 
 class InventoryItemUpdate(BaseModel):
     name: Optional[str] = None
@@ -75,9 +77,11 @@ class InventoryItemUpdate(BaseModel):
     location: Optional[str] = None
     part_number: Optional[str] = None
     supplier: Optional[str] = None
+    supplier_url: Optional[str] = None
     price: Optional[float] = None
     min_stock: Optional[int] = None
     notes: Optional[str] = None
+    photos: Optional[List[str]] = None
 
 class InventoryItem(BaseModel):
     model_config = ConfigDict(extra="ignore")
