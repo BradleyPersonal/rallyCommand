@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import Layout from '@/components/Layout';
@@ -50,13 +50,15 @@ const categories = [
 
 export default function InventoryPage() {
   const { getAuthHeader } = useAuth();
+  const [searchParams] = useSearchParams();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
-  const [showLowStock, setShowLowStock] = useState(false);
+  const [showLowStock, setShowLowStock] = useState(searchParams.get('low_stock') === 'true');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+
 
   useEffect(() => {
     fetchItems();
