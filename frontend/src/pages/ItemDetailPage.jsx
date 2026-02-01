@@ -9,6 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import {
+  Dialog,
+  DialogContent,
+} from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { 
   ArrowLeft, 
@@ -22,7 +26,12 @@ import {
   DollarSign,
   AlertTriangle,
   Clock,
-  FileText
+  FileText,
+  ExternalLink,
+  Image,
+  ChevronLeft,
+  ChevronRight,
+  X
 } from 'lucide-react';
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
@@ -36,6 +45,8 @@ export default function ItemDetailPage() {
   const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [usageDialogOpen, setUsageDialogOpen] = useState(false);
+  const [photoViewerOpen, setPhotoViewerOpen] = useState(false);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
   useEffect(() => {
     fetchItem();
@@ -100,6 +111,23 @@ export default function ItemDetailPage() {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const openPhotoViewer = (index) => {
+    setCurrentPhotoIndex(index);
+    setPhotoViewerOpen(true);
+  };
+
+  const nextPhoto = () => {
+    if (item?.photos) {
+      setCurrentPhotoIndex((prev) => (prev + 1) % item.photos.length);
+    }
+  };
+
+  const prevPhoto = () => {
+    if (item?.photos) {
+      setCurrentPhotoIndex((prev) => (prev - 1 + item.photos.length) % item.photos.length);
+    }
   };
 
   const getCategoryClass = (category) => `category-${category}`;
@@ -250,6 +278,58 @@ export default function ItemDetailPage() {
                 </div>
               </div>
 
+              {/* Supplier URL */}
+              {item.supplier_url && (
+                <>
+                  <Separator className="bg-border/50" />
+                  <div className="flex items-start gap-3">
+                    <ExternalLink className="w-5 h-5 text-primary mt-0.5" />
+                    <div>
+                      <p className="text-xs text-muted-foreground tracking-widest uppercase mb-1">Supplier Website</p>
+                      <a 
+                        href={item.supplier_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline flex items-center gap-2"
+                        data-testid="supplier-url-link"
+                      >
+                        {item.supplier_url}
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Photos */}
+              {item.photos && item.photos.length > 0 && (
+                <>
+                  <Separator className="bg-border/50" />
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Image className="w-5 h-5 text-muted-foreground" />
+                      <p className="text-xs text-muted-foreground tracking-widest uppercase">Photos ({item.photos.length})</p>
+                    </div>
+                    <div className="flex gap-3 flex-wrap">
+                      {item.photos.map((photo, index) => (
+                        <button
+                          key={index}
+                          onClick={() => openPhotoViewer(index)}
+                          className="w-24 h-24 rounded-sm overflow-hidden border border-border hover:border-primary transition-colors cursor-pointer"
+                          data-testid={`photo-thumbnail-${index}`}
+                        >
+                          <img 
+                            src={photo} 
+                            alt={`${item.name} photo ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
               {item.notes && (
                 <>
                   <Separator className="bg-border/50" />
@@ -335,6 +415,68 @@ export default function ItemDetailPage() {
         onLogged={handleUsageLogged}
         item={item}
       />
+
+      {/* Photo Viewer Dialog */}
+      <Dialog open={photoViewerOpen} onOpenChange={setPhotoViewerOpen}>
+        <DialogContent className="sm:max-w-[800px] bg-black/95 border-border p-0">
+          <div className="relative">
+            {/* Close button */}
+            <button
+              onClick={() => setPhotoViewerOpen(false)}
+              className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+              data-testid="close-photo-viewer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Image */}
+            {item?.photos && item.photos.length > 0 && (
+              <div className="relative flex items-center justify-center min-h-[400px] p-8">
+                <img
+                  src={item.photos[currentPhotoIndex]}
+                  alt={`${item.name} photo ${currentPhotoIndex + 1}`}
+                  className="max-w-full max-h-[70vh] object-contain"
+                  data-testid="photo-viewer-image"
+                />
+              </div>
+            )}
+
+            {/* Navigation */}
+            {item?.photos && item.photos.length > 1 && (
+              <>
+                <button
+                  onClick={prevPhoto}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  data-testid="prev-photo-btn"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button
+                  onClick={nextPhoto}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  data-testid="next-photo-btn"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+
+                {/* Dots indicator */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                  {item.photos.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentPhotoIndex(index)}
+                      className={`w-2 h-2 rounded-full transition-colors ${
+                        index === currentPhotoIndex ? 'bg-white' : 'bg-white/40'
+                      }`}
+                      data-testid={`photo-dot-${index}`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 }
