@@ -146,6 +146,7 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
+          </Link>
 
           {/* Total Value */}
           <Card className="bg-card border-border/50 stat-card" data-testid="stat-total-value">
