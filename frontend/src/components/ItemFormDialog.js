@@ -21,7 +21,7 @@ import {
 import { toast } from 'sonner';
 import { Save, Package } from 'lucide-react';
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
 const categories = [
   { value: 'parts', label: 'Parts' },
