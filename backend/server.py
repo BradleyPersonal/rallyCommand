@@ -92,9 +92,11 @@ class InventoryItem(BaseModel):
     location: str
     part_number: str
     supplier: str
+    supplier_url: str = ""
     price: float
     min_stock: int
     notes: str
+    photos: List[str] = []
     user_id: str
     created_at: str
     updated_at: str
