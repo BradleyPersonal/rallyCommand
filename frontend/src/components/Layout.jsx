@@ -13,6 +13,7 @@ import {
   Gauge, 
   LayoutDashboard, 
   Package, 
+  Car,
   Menu,
   X,
   LogOut,
@@ -23,6 +24,7 @@ import {
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/inventory', label: 'Inventory', icon: Package },
+  { path: '/garage', label: 'Garage', icon: Car },
 ];
 
 export const Layout = ({ children }) => {
