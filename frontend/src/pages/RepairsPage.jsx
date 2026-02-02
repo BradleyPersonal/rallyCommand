@@ -75,12 +75,19 @@ export default function RepairsPage() {
       
       setVehicles(vehiclesData);
       setRepairs(repairsData);
+      
+      // If both failed, show error state
+      if (vehiclesData.length === 0 && repairsData.length === 0) {
+        // Check if it's a real empty state or an error
+        // If the user has no vehicles, that's fine - show the empty state
+      }
     } catch (error) {
       console.error('Failed to fetch data:', error);
+      setError(true);
       if (error.response?.status === 401) {
         toast.error('Session expired. Please log in again.');
       } else {
-        toast.error('Failed to fetch data');
+        toast.error('Failed to fetch data. Please try again.');
       }
     } finally {
       setLoading(false);
