@@ -62,6 +62,10 @@ Build an app that can keep track of inventory for a rally car.
 - ✅ Fixed "Item not Found" error on Dashboard Recent Activity
   - Backend now filters out usage logs for deleted items
   - Only shows activity for items that still exist
+- ✅ Fixed Setup Form to only show Rating when editing (not creating)
+  - Users can now rate setups only after they've been created and tested
+  - Improved error handling with better validation messages
+  - Added console logging for debugging setup creation issues
 
 ## Tech Stack
 - Frontend: React (Vite), TailwindCSS, Shadcn UI
