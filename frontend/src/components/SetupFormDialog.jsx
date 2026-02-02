@@ -20,6 +20,7 @@ const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
 export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId }) => {
   const { getAuthHeader } = useAuth();
   const [loading, setLoading] = useState(false);
+  const isEditing = !!setup; // Only show rating when editing an existing setup
   const [formData, setFormData] = useState({
     name: '',
     tyre_pressure_fl: 0,
@@ -124,6 +125,12 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId }) =>
       return;
     }
 
+    // Validate vehicleId for new setups
+    if (!setup && !vehicleId) {
+      toast.error('Vehicle ID is missing. Please try again.');
+      return;
+    }
+
     setLoading(true);
     try {
       if (setup) {
@@ -132,8 +139,11 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId }) =>
         });
         toast.success('Setup updated successfully');
       } else {
+        // For new setups, don't include rating (user rates after testing)
+        const { rating, ...newSetupData } = formData;
         await axios.post(`${API}/setups`, {
-          ...formData,
+          ...newSetupData,
+          rating: 0, // Always start with 0 rating for new setups
           vehicle_id: vehicleId
         }, {
           headers: getAuthHeader()
@@ -142,7 +152,9 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId }) =>
       }
       onSaved();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to save setup');
+      const errorMessage = error.response?.data?.detail || 'Failed to save setup';
+      toast.error(errorMessage);
+      console.error('Setup save error:', error.response?.data || error);
     } finally {
       setLoading(false);
     }
@@ -197,24 +209,28 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId }) =>
               />
             </div>
 
-            <div className="col-span-2 space-y-2">
-              <Label className="form-label">Rating</Label>
-              <div className="flex gap-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => handleChange('rating', formData.rating === star ? 0 : star)}
-                    className="p-1 hover:scale-110 transition-transform"
-                    data-testid={`rating-star-${star}`}
-                  >
-                    <Star
-                      className={`w-8 h-8 ${star <= formData.rating ? 'fill-accent text-accent' : 'text-muted-foreground hover:text-accent'}`}
-                    />
-                  </button>
-                ))}
+            {/* Rating - Only show when editing an existing setup */}
+            {isEditing && (
+              <div className="col-span-2 space-y-2">
+                <Label className="form-label">Rating</Label>
+                <p className="text-xs text-muted-foreground mb-2">Rate this setup after testing it on track</p>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => handleChange('rating', formData.rating === star ? 0 : star)}
+                      className="p-1 hover:scale-110 transition-transform"
+                      data-testid={`rating-star-${star}`}
+                    >
+                      <Star
+                        className={`w-8 h-8 ${star <= formData.rating ? 'fill-accent text-accent' : 'text-muted-foreground hover:text-accent'}`}
+                      />
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           <Separator className="bg-border/50" />
