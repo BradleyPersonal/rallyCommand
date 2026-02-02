@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import Layout from '@/components/Layout';
 import ItemFormDialog from '@/components/ItemFormDialog';
 import UsageLogDialog from '@/components/UsageLogDialog';
+import RestockDialog from '@/components/RestockDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +20,7 @@ import {
   Pencil, 
   Trash2, 
   Minus,
+  Plus,
   Package,
   MapPin,
   Hash,
@@ -47,6 +49,7 @@ export default function ItemDetailPage() {
   const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [usageDialogOpen, setUsageDialogOpen] = useState(false);
+  const [restockDialogOpen, setRestockDialogOpen] = useState(false);
   const [photoViewerOpen, setPhotoViewerOpen] = useState(false);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
