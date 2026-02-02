@@ -480,6 +480,9 @@ export default function VehicleDetailPage() {
                             {formatDate(repair.created_at)}
                           </span>
                         </div>
+                        {repair.affected_area && (
+                          <p className="text-xs text-primary mb-1">Area: {repair.affected_area}</p>
+                        )}
                         {repair.repair_details && (
                           <p className="text-sm text-muted-foreground mb-2">{repair.repair_details}</p>
                         )}
