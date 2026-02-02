@@ -14,6 +14,7 @@ import {
   LayoutDashboard, 
   Package, 
   Car,
+  Wrench,
   Menu,
   X,
   LogOut,
@@ -25,6 +26,7 @@ const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/inventory', label: 'Inventory', icon: Package },
   { path: '/garage', label: 'Garage', icon: Car },
+  { path: '/repairs', label: 'Repairs', icon: Wrench },
 ];
 
 export const Layout = ({ children }) => {
