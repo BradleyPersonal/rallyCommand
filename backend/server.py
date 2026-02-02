@@ -892,6 +892,8 @@ async def update_repair(
     update_data = {}
     if update.cause_of_damage is not None:
         update_data["cause_of_damage"] = update.cause_of_damage
+    if update.affected_area is not None:
+        update_data["affected_area"] = update.affected_area
     if update.parts_used is not None:
         update_data["parts_used"] = [p.model_dump() for p in update.parts_used]
     if update.total_parts_cost is not None:
