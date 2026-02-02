@@ -121,6 +121,11 @@ export default function ItemDetailPage() {
     fetchUsageLogs();
   };
 
+  const handleRestocked = () => {
+    setRestockDialogOpen(false);
+    fetchItem();
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
