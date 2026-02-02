@@ -631,6 +631,9 @@ async def delete_vehicle(vehicle_id: str, current_user: dict = Depends(get_curre
     # Delete all setups for this vehicle
     await db.setups.delete_many({"vehicle_id": vehicle_id})
     
+    # Delete all repairs for this vehicle
+    await db.repairs.delete_many({"vehicle_id": vehicle_id})
+    
     return {"message": "Vehicle deleted successfully"}
 
 # ============== SETUP ROUTES ==============
