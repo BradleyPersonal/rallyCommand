@@ -206,7 +206,16 @@ export default function ItemDetailPage() {
             </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setRestockDialogOpen(true)}
+              className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
+              data-testid="restock-btn"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Restock
+            </Button>
             <Button
               variant="outline"
               onClick={() => setUsageDialogOpen(true)}
