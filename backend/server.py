@@ -449,6 +449,91 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
         recent_activity=recent_activity
     )
 
+# ============== VEHICLE ROUTES ==============
+
+@api_router.post("/vehicles", response_model=Vehicle)
+async def create_vehicle(vehicle: VehicleCreate, current_user: dict = Depends(get_current_user)):
+    # Check if user already has 2 vehicles
+    existing_count = await db.vehicles.count_documents({"user_id": current_user["id"]})
+    if existing_count >= 2:
+        raise HTTPException(status_code=400, detail="Maximum 2 vehicles allowed")
+    
+    vehicle_id = str(uuid.uuid4())
+    now = datetime.now(timezone.utc).isoformat()
+    
+    vehicle_doc = {
+        "id": vehicle_id,
+        "make": vehicle.make,
+        "model": vehicle.model,
+        "registration": vehicle.registration,
+        "vin": vehicle.vin,
+        "photo": vehicle.photo,
+        "user_id": current_user["id"],
+        "created_at": now,
+        "updated_at": now
+    }
+    await db.vehicles.insert_one(vehicle_doc)
+    
+    return Vehicle(**vehicle_doc)
+
+@api_router.get("/vehicles", response_model=List[Vehicle])
+async def get_vehicles(current_user: dict = Depends(get_current_user)):
+    vehicles = await db.vehicles.find(
+        {"user_id": current_user["id"]},
+        {"_id": 0}
+    ).to_list(2)
+    
+    return [Vehicle(**v) for v in vehicles]
+
+@api_router.get("/vehicles/{vehicle_id}", response_model=Vehicle)
+async def get_vehicle(vehicle_id: str, current_user: dict = Depends(get_current_user)):
+    vehicle = await db.vehicles.find_one(
+        {"id": vehicle_id, "user_id": current_user["id"]},
+        {"_id": 0}
+    )
+    if not vehicle:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    return Vehicle(**vehicle)
+
+@api_router.put("/vehicles/{vehicle_id}", response_model=Vehicle)
+async def update_vehicle(
+    vehicle_id: str,
+    update: VehicleUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    vehicle = await db.vehicles.find_one(
+        {"id": vehicle_id, "user_id": current_user["id"]}
+    )
+    if not vehicle:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    
+    update_data = {k: v for k, v in update.model_dump().items() if v is not None}
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.vehicles.update_one(
+        {"id": vehicle_id},
+        {"$set": update_data}
+    )
+    
+    updated_vehicle = await db.vehicles.find_one({"id": vehicle_id}, {"_id": 0})
+    return Vehicle(**updated_vehicle)
+
+@api_router.delete("/vehicles/{vehicle_id}")
+async def delete_vehicle(vehicle_id: str, current_user: dict = Depends(get_current_user)):
+    result = await db.vehicles.delete_one(
+        {"id": vehicle_id, "user_id": current_user["id"]}
+    )
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    
+    # Remove this vehicle from all inventory items
+    await db.inventory.update_many(
+        {"user_id": current_user["id"], "vehicle_ids": vehicle_id},
+        {"$pull": {"vehicle_ids": vehicle_id}}
+    )
+    
+    return {"message": "Vehicle deleted successfully"}
+
 # ============== ROOT ROUTE ==============
 
 @api_router.get("/")
