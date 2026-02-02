@@ -34,6 +34,7 @@ export default function RepairsPage() {
   const [repairs, setRepairs] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingRepair, setEditingRepair] = useState(null);
 
@@ -42,6 +43,8 @@ export default function RepairsPage() {
   }, []);
 
   const fetchData = async () => {
+    setLoading(true);
+    setError(false);
     try {
       const headers = getAuthHeader();
       if (!headers.Authorization) {
