@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import Layout from '@/components/Layout';
 import VehicleFormDialog from '@/components/VehicleFormDialog';
 import SetupFormDialog from '@/components/SetupFormDialog';
+import RepairFormDialog from '@/components/RepairFormDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,7 +30,11 @@ import {
   MapPin,
   MoreHorizontal,
   Eye,
-  Gauge
+  Gauge,
+  Wrench,
+  AlertTriangle,
+  DollarSign,
+  Users
 } from 'lucide-react';
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
