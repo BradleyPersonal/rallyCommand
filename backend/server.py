@@ -758,6 +758,7 @@ class RepairPartUsed(BaseModel):
 class RepairLogCreate(BaseModel):
     vehicle_id: str
     cause_of_damage: str
+    affected_area: str = ""
     parts_used: List[RepairPartUsed] = []
     total_parts_cost: float = 0.0
     repair_details: str = ""
@@ -765,6 +766,7 @@ class RepairLogCreate(BaseModel):
 
 class RepairLogUpdate(BaseModel):
     cause_of_damage: Optional[str] = None
+    affected_area: Optional[str] = None
     parts_used: Optional[List[RepairPartUsed]] = None
     total_parts_cost: Optional[float] = None
     repair_details: Optional[str] = None
@@ -776,6 +778,7 @@ class RepairLog(BaseModel):
     vehicle_id: str
     user_id: str
     cause_of_damage: str
+    affected_area: str = ""
     parts_used: List[dict]
     total_parts_cost: float
     repair_details: str
