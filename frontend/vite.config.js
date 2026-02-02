@@ -11,6 +11,13 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    host: '0.0.0.0',
+    // Enable SPA fallback - redirect all routes to index.html
+    historyApiFallback: true,
+  },
+  preview: {
+    port: 3000,
+    host: '0.0.0.0',
   },
   build: {
     outDir: 'build',
