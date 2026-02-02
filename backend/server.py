@@ -120,6 +120,32 @@ class UsageLog(BaseModel):
     event_name: str
     created_at: str
 
+class VehicleCreate(BaseModel):
+    make: str
+    model: str
+    registration: str = ""
+    vin: str = ""
+    photo: str = ""
+
+class VehicleUpdate(BaseModel):
+    make: Optional[str] = None
+    model: Optional[str] = None
+    registration: Optional[str] = None
+    vin: Optional[str] = None
+    photo: Optional[str] = None
+
+class Vehicle(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    make: str
+    model: str
+    registration: str
+    vin: str
+    photo: str
+    user_id: str
+    created_at: str
+    updated_at: str
+
 class DashboardStats(BaseModel):
     total_items: int
     low_stock_count: int
