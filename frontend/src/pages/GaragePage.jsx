@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import Layout from '@/components/Layout';
@@ -137,35 +138,37 @@ export default function GaragePage() {
             {vehicles.map((vehicle, index) => (
               <Card 
                 key={vehicle.id}
-                className="bg-card border-border/50 overflow-hidden animate-fade-in"
+                className="bg-card border-border/50 overflow-hidden animate-fade-in hover:border-primary/50 transition-colors group"
                 style={{ animationDelay: `${index * 0.1}s` }}
                 data-testid={`vehicle-card-${vehicle.id}`}
               >
-                {/* Vehicle Photo */}
-                {vehicle.photo ? (
-                  <div className="h-48 bg-secondary overflow-hidden">
-                    <img 
-                      src={vehicle.photo} 
-                      alt={`${vehicle.make} ${vehicle.model}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ) : (
-                  <div className="h-48 bg-secondary/50 flex items-center justify-center">
-                    <Car className="w-16 h-16 text-muted-foreground/50" />
-                  </div>
-                )}
+                {/* Vehicle Photo - Clickable */}
+                <Link to={`/vehicle/${vehicle.id}`}>
+                  {vehicle.photo ? (
+                    <div className="h-48 bg-secondary overflow-hidden cursor-pointer">
+                      <img 
+                        src={vehicle.photo} 
+                        alt={`${vehicle.make} ${vehicle.model}`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  ) : (
+                    <div className="h-48 bg-secondary/50 flex items-center justify-center cursor-pointer group-hover:bg-secondary/70 transition-colors">
+                      <Car className="w-16 h-16 text-muted-foreground/50" />
+                    </div>
+                  )}
+                </Link>
 
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="text-2xl tracking-tight uppercase">
+                    <Link to={`/vehicle/${vehicle.id}`} className="flex-1">
+                      <CardTitle className="text-2xl tracking-tight uppercase cursor-pointer hover:text-primary transition-colors">
                         {vehicle.make}
                       </CardTitle>
                       <p className="text-lg text-primary font-medium">
                         {vehicle.model}
                       </p>
-                    </div>
+                    </Link>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="h-8 w-8 p-0" data-testid={`vehicle-menu-${vehicle.id}`}>
@@ -210,6 +213,18 @@ export default function GaragePage() {
                       </div>
                     </div>
                   )}
+
+                  {/* View Setups Link */}
+                  <Link to={`/vehicle/${vehicle.id}`}>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full mt-2"
+                      data-testid={`view-setups-${vehicle.id}`}
+                    >
+                      View Setups
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             ))}
