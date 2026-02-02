@@ -251,6 +251,11 @@ export default function RepairsPage() {
                         <AlertTriangle className="w-5 h-5 text-accent" />
                         {repair.cause_of_damage}
                       </CardTitle>
+                      {repair.affected_area && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Affected Area: {repair.affected_area}
+                        </p>
+                      )}
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
