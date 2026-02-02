@@ -31,7 +31,8 @@ import {
   Image,
   ChevronLeft,
   ChevronRight,
-  X
+  X,
+  Car
 } from 'lucide-react';
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
@@ -42,11 +43,13 @@ export default function ItemDetailPage() {
   const { getAuthHeader } = useAuth();
   const [item, setItem] = useState(null);
   const [usageLogs, setUsageLogs] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [usageDialogOpen, setUsageDialogOpen] = useState(false);
   const [photoViewerOpen, setPhotoViewerOpen] = useState(false);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+
 
   useEffect(() => {
     fetchItem();
