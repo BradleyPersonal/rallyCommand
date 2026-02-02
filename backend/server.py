@@ -69,6 +69,7 @@ class InventoryItemCreate(BaseModel):
     min_stock: int = 1
     notes: str = ""
     photos: List[str] = []
+    vehicle_ids: List[str] = []
 
 class InventoryItemUpdate(BaseModel):
     name: Optional[str] = None
@@ -82,6 +83,7 @@ class InventoryItemUpdate(BaseModel):
     min_stock: Optional[int] = None
     notes: Optional[str] = None
     photos: Optional[List[str]] = None
+    vehicle_ids: Optional[List[str]] = None
 
 class InventoryItem(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -97,6 +99,7 @@ class InventoryItem(BaseModel):
     min_stock: int
     notes: str
     photos: List[str] = []
+    vehicle_ids: List[str] = []
     user_id: str
     created_at: str
     updated_at: str
