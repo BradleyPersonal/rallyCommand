@@ -127,7 +127,8 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId }) =>
 
     // Validate vehicleId for new setups
     if (!setup && !vehicleId) {
-      toast.error('Vehicle ID is missing. Please try again.');
+      toast.error('Vehicle ID is missing. Please refresh the page and try again.');
+      console.error('Setup creation failed: vehicleId is undefined');
       return;
     }
 
@@ -141,20 +142,22 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId }) =>
       } else {
         // For new setups, don't include rating (user rates after testing)
         const { rating, ...newSetupData } = formData;
-        await axios.post(`${API}/setups`, {
+        const payload = {
           ...newSetupData,
           rating: 0, // Always start with 0 rating for new setups
           vehicle_id: vehicleId
-        }, {
+        };
+        console.log('Creating setup with payload:', payload);
+        await axios.post(`${API}/setups`, payload, {
           headers: getAuthHeader()
         });
         toast.success('Setup created successfully');
       }
       onSaved();
     } catch (error) {
+      console.error('Setup save error:', error.response?.data || error);
       const errorMessage = error.response?.data?.detail || 'Failed to save setup';
       toast.error(errorMessage);
-      console.error('Setup save error:', error.response?.data || error);
     } finally {
       setLoading(false);
     }
