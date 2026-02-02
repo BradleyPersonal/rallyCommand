@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -19,7 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Save, Package, Upload, X, Image } from 'lucide-react';
+import { Save, Package, Upload, X, Car } from 'lucide-react';
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
@@ -32,6 +33,7 @@ const categories = [
 export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
   const { getAuthHeader } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [vehicles, setVehicles] = useState([]);
   const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -44,8 +46,15 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
     price: 0,
     min_stock: 1,
     notes: '',
-    photos: []
+    photos: [],
+    vehicle_ids: []
   });
+
+  useEffect(() => {
+    if (open) {
+      fetchVehicles();
+    }
+  }, [open]);
 
   useEffect(() => {
     if (item) {
@@ -60,7 +69,8 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
         price: item.price || 0,
         min_stock: item.min_stock || 1,
         notes: item.notes || '',
-        photos: item.photos || []
+        photos: item.photos || [],
+        vehicle_ids: item.vehicle_ids || []
       });
     } else {
       setFormData({
@@ -74,13 +84,34 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
         price: 0,
         min_stock: 1,
         notes: '',
-        photos: []
+        photos: [],
+        vehicle_ids: []
       });
     }
   }, [item, open]);
 
+  const fetchVehicles = async () => {
+    try {
+      const response = await axios.get(`${API}/vehicles`, {
+        headers: getAuthHeader()
+      });
+      setVehicles(response.data);
+    } catch (error) {
+      console.error('Failed to fetch vehicles');
+    }
+  };
+
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleVehicleToggle = (vehicleId) => {
+    setFormData(prev => {
+      const newIds = prev.vehicle_ids.includes(vehicleId)
+        ? prev.vehicle_ids.filter(id => id !== vehicleId)
+        : [...prev.vehicle_ids, vehicleId];
+      return { ...prev, vehicle_ids: newIds };
+    });
   };
 
   const handlePhotoUpload = (e) => {
@@ -106,7 +137,6 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
       reader.readAsDataURL(file);
     });
 
-    // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -130,13 +160,11 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
     setLoading(true);
     try {
       if (item) {
-        // Update existing item
         await axios.put(`${API}/inventory/${item.id}`, formData, {
           headers: getAuthHeader()
         });
         toast.success('Item updated successfully');
       } else {
-        // Create new item
         await axios.post(`${API}/inventory`, formData, {
           headers: getAuthHeader()
         });
@@ -291,11 +319,46 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
               />
             </div>
 
+            {/* Applicable Vehicles */}
+            {vehicles.length > 0 && (
+              <div className="col-span-2 space-y-2">
+                <Label className="form-label flex items-center gap-2">
+                  <Car className="w-4 h-4" />
+                  Applicable Vehicles
+                </Label>
+                <div className="space-y-2 p-3 bg-secondary/30 border border-border/50 rounded-sm">
+                  {vehicles.map((vehicle) => (
+                    <div key={vehicle.id} className="flex items-center space-x-3">
+                      <Checkbox
+                        id={`vehicle-${vehicle.id}`}
+                        checked={formData.vehicle_ids.includes(vehicle.id)}
+                        onCheckedChange={() => handleVehicleToggle(vehicle.id)}
+                        data-testid={`vehicle-checkbox-${vehicle.id}`}
+                      />
+                      <label
+                        htmlFor={`vehicle-${vehicle.id}`}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        {vehicle.make} {vehicle.model}
+                        {vehicle.registration && (
+                          <span className="text-muted-foreground ml-2 font-mono text-xs">
+                            ({vehicle.registration})
+                          </span>
+                        )}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Select which vehicles this part is applicable for
+                </p>
+              </div>
+            )}
+
             {/* Photos */}
             <div className="col-span-2 space-y-2">
               <Label className="form-label">Photos (Max 3)</Label>
               <div className="space-y-3">
-                {/* Photo Preview */}
                 {formData.photos.length > 0 && (
                   <div className="flex gap-2 flex-wrap">
                     {formData.photos.map((photo, index) => (
@@ -321,7 +384,6 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
                   </div>
                 )}
                 
-                {/* Upload Button */}
                 {formData.photos.length < 3 && (
                   <div>
                     <input
