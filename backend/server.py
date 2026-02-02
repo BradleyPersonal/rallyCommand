@@ -628,7 +628,114 @@ async def delete_vehicle(vehicle_id: str, current_user: dict = Depends(get_curre
         {"$pull": {"vehicle_ids": vehicle_id}}
     )
     
+    # Delete all setups for this vehicle
+    await db.setups.delete_many({"vehicle_id": vehicle_id})
+    
     return {"message": "Vehicle deleted successfully"}
+
+# ============== SETUP ROUTES ==============
+
+@api_router.post("/setups", response_model=Setup)
+async def create_setup(setup: SetupCreate, current_user: dict = Depends(get_current_user)):
+    # Verify vehicle exists and belongs to user
+    vehicle = await db.vehicles.find_one(
+        {"id": setup.vehicle_id, "user_id": current_user["id"]}
+    )
+    if not vehicle:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    
+    setup_id = str(uuid.uuid4())
+    now = datetime.now(timezone.utc).isoformat()
+    
+    setup_doc = {
+        "id": setup_id,
+        "name": setup.name,
+        "vehicle_id": setup.vehicle_id,
+        "user_id": current_user["id"],
+        "tyre_pressure_fl": setup.tyre_pressure_fl,
+        "tyre_pressure_fr": setup.tyre_pressure_fr,
+        "tyre_pressure_rl": setup.tyre_pressure_rl,
+        "tyre_pressure_rr": setup.tyre_pressure_rr,
+        "ride_height_fl": setup.ride_height_fl,
+        "ride_height_fr": setup.ride_height_fr,
+        "ride_height_rl": setup.ride_height_rl,
+        "ride_height_rr": setup.ride_height_rr,
+        "camber_front": setup.camber_front,
+        "camber_rear": setup.camber_rear,
+        "toe_front": setup.toe_front,
+        "toe_rear": setup.toe_rear,
+        "spring_rate_front": setup.spring_rate_front,
+        "spring_rate_rear": setup.spring_rate_rear,
+        "damper_front": setup.damper_front,
+        "damper_rear": setup.damper_rear,
+        "arb_front": setup.arb_front,
+        "arb_rear": setup.arb_rear,
+        "aero_front": setup.aero_front,
+        "aero_rear": setup.aero_rear,
+        "event_name": setup.event_name,
+        "event_date": setup.event_date,
+        "rating": min(max(setup.rating, 0), 5),
+        "notes": setup.notes,
+        "created_at": now,
+        "updated_at": now
+    }
+    await db.setups.insert_one(setup_doc)
+    
+    return Setup(**setup_doc)
+
+@api_router.get("/setups/vehicle/{vehicle_id}", response_model=List[Setup])
+async def get_vehicle_setups(vehicle_id: str, current_user: dict = Depends(get_current_user)):
+    setups = await db.setups.find(
+        {"vehicle_id": vehicle_id, "user_id": current_user["id"]},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    
+    return [Setup(**s) for s in setups]
+
+@api_router.get("/setups/{setup_id}", response_model=Setup)
+async def get_setup(setup_id: str, current_user: dict = Depends(get_current_user)):
+    setup = await db.setups.find_one(
+        {"id": setup_id, "user_id": current_user["id"]},
+        {"_id": 0}
+    )
+    if not setup:
+        raise HTTPException(status_code=404, detail="Setup not found")
+    return Setup(**setup)
+
+@api_router.put("/setups/{setup_id}", response_model=Setup)
+async def update_setup(
+    setup_id: str,
+    update: SetupUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    setup = await db.setups.find_one(
+        {"id": setup_id, "user_id": current_user["id"]}
+    )
+    if not setup:
+        raise HTTPException(status_code=404, detail="Setup not found")
+    
+    update_data = {k: v for k, v in update.model_dump().items() if v is not None}
+    if "rating" in update_data:
+        update_data["rating"] = min(max(update_data["rating"], 0), 5)
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.setups.update_one(
+        {"id": setup_id},
+        {"$set": update_data}
+    )
+    
+    updated_setup = await db.setups.find_one({"id": setup_id}, {"_id": 0})
+    return Setup(**updated_setup)
+
+@api_router.delete("/setups/{setup_id}")
+async def delete_setup(setup_id: str, current_user: dict = Depends(get_current_user)):
+    result = await db.setups.delete_one(
+        {"id": setup_id, "user_id": current_user["id"]}
+    )
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Setup not found")
+    
+    return {"message": "Setup deleted successfully"}
 
 # ============== ROOT ROUTE ==============
 
