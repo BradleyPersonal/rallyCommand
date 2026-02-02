@@ -497,6 +497,14 @@ export default function ItemDetailPage() {
         item={item}
       />
 
+      {/* Restock Dialog */}
+      <RestockDialog
+        open={restockDialogOpen}
+        onClose={() => setRestockDialogOpen(false)}
+        onRestocked={handleRestocked}
+        item={item}
+      />
+
       {/* Photo Viewer Dialog */}
       <Dialog open={photoViewerOpen} onOpenChange={setPhotoViewerOpen}>
         <DialogContent className="sm:max-w-[800px] bg-black/95 border-border p-0">
