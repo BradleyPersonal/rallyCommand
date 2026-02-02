@@ -153,6 +153,20 @@ export default function RepairsPage() {
     );
   }
 
+  if (error) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center h-64 space-y-4">
+          <Wrench className="w-16 h-16 text-muted-foreground opacity-50" />
+          <p className="text-lg text-muted-foreground">Failed to load data</p>
+          <Button onClick={fetchData} className="mt-2">
+            Try Again
+          </Button>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="space-y-6" data-testid="repairs-page">
