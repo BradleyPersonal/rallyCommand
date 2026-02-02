@@ -345,6 +345,55 @@ export default function ItemDetailPage() {
                 </>
               )}
 
+              {/* Applicable Vehicles */}
+              {item.vehicle_ids && item.vehicle_ids.length > 0 && vehicles.length > 0 && (
+                <>
+                  <Separator className="bg-border/50" />
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Car className="w-5 h-5 text-muted-foreground" />
+                      <p className="text-xs text-muted-foreground tracking-widest uppercase">Applicable Vehicles</p>
+                    </div>
+                    <div className="flex gap-2 flex-wrap">
+                      {item.vehicle_ids.map((vehicleId) => {
+                        const vehicle = vehicles.find(v => v.id === vehicleId);
+                        if (!vehicle) return null;
+                        return (
+                          <Link
+                            key={vehicleId}
+                            to="/garage"
+                            className="flex items-center gap-2 px-3 py-2 bg-secondary/50 border border-border/50 rounded-sm hover:border-primary/50 transition-colors"
+                            data-testid={`vehicle-link-${vehicleId}`}
+                          >
+                            {vehicle.photo ? (
+                              <img 
+                                src={vehicle.photo} 
+                                alt={`${vehicle.make} ${vehicle.model}`}
+                                className="w-8 h-8 rounded-sm object-cover"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 bg-secondary rounded-sm flex items-center justify-center">
+                                <Car className="w-4 h-4 text-muted-foreground" />
+                              </div>
+                            )}
+                            <div>
+                              <p className="text-sm font-medium text-foreground">
+                                {vehicle.make} {vehicle.model}
+                              </p>
+                              {vehicle.registration && (
+                                <p className="text-xs font-mono text-muted-foreground">
+                                  {vehicle.registration}
+                                </p>
+                              )}
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </>
+              )}
+
               {item.notes && (
                 <>
                   <Separator className="bg-border/50" />
