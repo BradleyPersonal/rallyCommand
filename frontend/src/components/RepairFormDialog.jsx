@@ -260,6 +260,19 @@ export const RepairFormDialog = ({ open, onClose, onSaved, repair, vehicles }) =
             />
           </div>
 
+          {/* Affected Area */}
+          <div className="space-y-2">
+            <Label htmlFor="affected-area" className="form-label">Affected Area of Vehicle</Label>
+            <Input
+              id="affected-area"
+              value={formData.affected_area}
+              onChange={(e) => handleChange('affected_area', e.target.value)}
+              placeholder="e.g., Front left corner, Rear suspension, Engine bay"
+              className="bg-secondary border-border focus:border-primary"
+              data-testid="affected-area-input"
+            />
+          </div>
+
           <Separator className="bg-border/50" />
 
           {/* Parts Used */}
