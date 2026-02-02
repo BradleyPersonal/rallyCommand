@@ -32,6 +32,7 @@ export const RepairFormDialog = ({ open, onClose, onSaved, repair, vehicles }) =
   const [formData, setFormData] = useState({
     vehicle_id: '',
     cause_of_damage: '',
+    affected_area: '',
     parts_used: [],
     total_parts_cost: 0,
     repair_details: '',
@@ -57,15 +58,19 @@ export const RepairFormDialog = ({ open, onClose, onSaved, repair, vehicles }) =
       setFormData({
         vehicle_id: repair.vehicle_id || '',
         cause_of_damage: repair.cause_of_damage || '',
+        affected_area: repair.affected_area || '',
         parts_used: repair.parts_used || [],
         total_parts_cost: repair.total_parts_cost || 0,
         repair_details: repair.repair_details || '',
         technicians: repair.technicians || []
       });
     } else {
+      // For new repairs, auto-select vehicle if only one exists
+      const defaultVehicleId = vehicles && vehicles.length === 1 ? vehicles[0].id : '';
       setFormData({
-        vehicle_id: vehicles.length === 1 ? vehicles[0].id : '',
+        vehicle_id: defaultVehicleId,
         cause_of_damage: '',
+        affected_area: '',
         parts_used: [],
         total_parts_cost: 0,
         repair_details: '',
