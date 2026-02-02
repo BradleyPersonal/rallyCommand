@@ -45,15 +45,19 @@ export default function VehicleDetailPage() {
   const { getAuthHeader } = useAuth();
   const [vehicle, setVehicle] = useState(null);
   const [setups, setSetups] = useState([]);
+  const [repairs, setRepairs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [setupDialogOpen, setSetupDialogOpen] = useState(false);
+  const [repairDialogOpen, setRepairDialogOpen] = useState(false);
   const [editingSetup, setEditingSetup] = useState(null);
+  const [editingRepair, setEditingRepair] = useState(null);
   const [viewingSetup, setViewingSetup] = useState(null);
 
   useEffect(() => {
     fetchVehicle();
     fetchSetups();
+    fetchRepairs();
   }, [id]);
 
   const fetchVehicle = async () => {
