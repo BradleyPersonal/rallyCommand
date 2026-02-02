@@ -743,6 +743,177 @@ async def delete_setup(setup_id: str, current_user: dict = Depends(get_current_u
 async def root():
     return {"message": "RallyCommand API"}
 
+# ============== REPAIR LOG MODELS ==============
+
+class RepairPartUsed(BaseModel):
+    name: str
+    source: str  # 'inventory' or 'new'
+    inventory_item_id: Optional[str] = None
+    quantity: int = 1
+    cost: float = 0.0
+
+class RepairLogCreate(BaseModel):
+    vehicle_id: str
+    cause_of_damage: str
+    parts_used: List[RepairPartUsed] = []
+    total_parts_cost: float = 0.0
+    repair_details: str = ""
+    technicians: List[str] = []
+
+class RepairLogUpdate(BaseModel):
+    cause_of_damage: Optional[str] = None
+    parts_used: Optional[List[RepairPartUsed]] = None
+    total_parts_cost: Optional[float] = None
+    repair_details: Optional[str] = None
+    technicians: Optional[List[str]] = None
+
+class RepairLog(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    vehicle_id: str
+    user_id: str
+    cause_of_damage: str
+    parts_used: List[dict]
+    total_parts_cost: float
+    repair_details: str
+    technicians: List[str]
+    created_at: str
+    updated_at: str
+
+# ============== REPAIR LOG ROUTES ==============
+
+@api_router.post("/repairs", response_model=RepairLog)
+async def create_repair_log(repair: RepairLogCreate, current_user: dict = Depends(get_current_user)):
+    # Verify vehicle exists and belongs to user
+    vehicle = await db.vehicles.find_one(
+        {"id": repair.vehicle_id, "user_id": current_user["id"]}
+    )
+    if not vehicle:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    
+    # Process parts and calculate costs
+    parts_data = []
+    total_cost = 0.0
+    
+    for part in repair.parts_used:
+        part_entry = {
+            "name": part.name,
+            "source": part.source,
+            "inventory_item_id": part.inventory_item_id,
+            "quantity": part.quantity,
+            "cost": part.cost
+        }
+        
+        # If from inventory, get the price and optionally deduct quantity
+        if part.source == "inventory" and part.inventory_item_id:
+            inv_item = await db.inventory.find_one(
+                {"id": part.inventory_item_id, "user_id": current_user["id"]},
+                {"_id": 0}
+            )
+            if inv_item:
+                part_entry["cost"] = inv_item["price"] * part.quantity
+                # Optionally deduct from inventory
+                new_qty = inv_item["quantity"] - part.quantity
+                if new_qty >= 0:
+                    await db.inventory.update_one(
+                        {"id": part.inventory_item_id},
+                        {"$set": {"quantity": new_qty, "updated_at": datetime.now(timezone.utc).isoformat()}}
+                    )
+        
+        total_cost += part_entry["cost"]
+        parts_data.append(part_entry)
+    
+    repair_id = str(uuid.uuid4())
+    now = datetime.now(timezone.utc).isoformat()
+    
+    repair_doc = {
+        "id": repair_id,
+        "vehicle_id": repair.vehicle_id,
+        "user_id": current_user["id"],
+        "cause_of_damage": repair.cause_of_damage,
+        "parts_used": parts_data,
+        "total_parts_cost": total_cost if total_cost > 0 else repair.total_parts_cost,
+        "repair_details": repair.repair_details,
+        "technicians": repair.technicians,
+        "created_at": now,
+        "updated_at": now
+    }
+    await db.repairs.insert_one(repair_doc)
+    
+    return RepairLog(**repair_doc)
+
+@api_router.get("/repairs", response_model=List[RepairLog])
+async def get_all_repairs(current_user: dict = Depends(get_current_user)):
+    repairs = await db.repairs.find(
+        {"user_id": current_user["id"]},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    
+    return [RepairLog(**r) for r in repairs]
+
+@api_router.get("/repairs/vehicle/{vehicle_id}", response_model=List[RepairLog])
+async def get_vehicle_repairs(vehicle_id: str, current_user: dict = Depends(get_current_user)):
+    repairs = await db.repairs.find(
+        {"vehicle_id": vehicle_id, "user_id": current_user["id"]},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    
+    return [RepairLog(**r) for r in repairs]
+
+@api_router.get("/repairs/{repair_id}", response_model=RepairLog)
+async def get_repair(repair_id: str, current_user: dict = Depends(get_current_user)):
+    repair = await db.repairs.find_one(
+        {"id": repair_id, "user_id": current_user["id"]},
+        {"_id": 0}
+    )
+    if not repair:
+        raise HTTPException(status_code=404, detail="Repair log not found")
+    return RepairLog(**repair)
+
+@api_router.put("/repairs/{repair_id}", response_model=RepairLog)
+async def update_repair(
+    repair_id: str,
+    update: RepairLogUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    repair = await db.repairs.find_one(
+        {"id": repair_id, "user_id": current_user["id"]}
+    )
+    if not repair:
+        raise HTTPException(status_code=404, detail="Repair log not found")
+    
+    update_data = {}
+    if update.cause_of_damage is not None:
+        update_data["cause_of_damage"] = update.cause_of_damage
+    if update.parts_used is not None:
+        update_data["parts_used"] = [p.model_dump() for p in update.parts_used]
+    if update.total_parts_cost is not None:
+        update_data["total_parts_cost"] = update.total_parts_cost
+    if update.repair_details is not None:
+        update_data["repair_details"] = update.repair_details
+    if update.technicians is not None:
+        update_data["technicians"] = update.technicians
+    
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.repairs.update_one(
+        {"id": repair_id},
+        {"$set": update_data}
+    )
+    
+    updated_repair = await db.repairs.find_one({"id": repair_id}, {"_id": 0})
+    return RepairLog(**updated_repair)
+
+@api_router.delete("/repairs/{repair_id}")
+async def delete_repair(repair_id: str, current_user: dict = Depends(get_current_user)):
+    result = await db.repairs.delete_one(
+        {"id": repair_id, "user_id": current_user["id"]}
+    )
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Repair log not found")
+    
+    return {"message": "Repair log deleted successfully"}
+
 # Include the router in the main app
 app.include_router(api_router)
 
