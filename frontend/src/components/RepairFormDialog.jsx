@@ -182,20 +182,27 @@ export const RepairFormDialog = ({ open, onClose, onSaved, repair, vehicles }) =
 
     setLoading(true);
     try {
+      const headers = getAuthHeader();
+      if (!headers.Authorization) {
+        toast.error('Session expired. Please log in again.');
+        setLoading(false);
+        return;
+      }
+      
+      console.log('Submitting repair with data:', formData);
+      
       if (repair) {
-        await axios.put(`${API}/repairs/${repair.id}`, formData, {
-          headers: getAuthHeader()
-        });
+        await axios.put(`${API}/repairs/${repair.id}`, formData, { headers });
         toast.success('Repair log updated successfully');
       } else {
-        await axios.post(`${API}/repairs`, formData, {
-          headers: getAuthHeader()
-        });
+        await axios.post(`${API}/repairs`, formData, { headers });
         toast.success('Repair log created successfully');
       }
       onSaved();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to save repair log');
+      console.error('Repair save error:', error.response?.data || error);
+      const errorMessage = error.response?.data?.detail || 'Failed to save repair log';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
