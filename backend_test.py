@@ -7,7 +7,7 @@ from datetime import datetime
 import uuid
 
 class RallyCommandAPITester:
-    def __init__(self, base_url="https://rally-parts-mgmt.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://rallyinventory.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.token = None
         self.user_id = None
