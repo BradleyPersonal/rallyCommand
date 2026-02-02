@@ -58,6 +58,21 @@ Build an app that can keep track of inventory for a rally car.
 - ✅ Setup View Dialog showing all details
 - ✅ Interactive star rating component
 
+### Phase 4 - Repair Logs Feature (Feb 2, 2026)
+- ✅ Repair Logs page accessible from navbar
+- ✅ Repair Log CRUD (Create, Read, Update, Delete)
+- ✅ Repair form with fields (in order):
+  - Vehicle selection
+  - Cause of Damage
+  - Parts Used (from inventory OR new parts)
+  - Cost of Parts (automatic calculation from inventory)
+  - Repair Details
+  - Technicians (who worked on repair)
+- ✅ Automatic inventory deduction when using parts from inventory
+- ✅ Repairs visible from main Repairs page
+- ✅ Repairs visible from Vehicle Detail page (Repair History section)
+- ✅ Total parts cost calculation
+
 ### Bug Fixes (Feb 2, 2026)
 - ✅ Fixed "Item not Found" error on Dashboard Recent Activity
   - Backend now filters out usage logs for deleted items
@@ -79,6 +94,7 @@ Build an app that can keep track of inventory for a rally car.
 - **vehicles:** { id, make, model, registration, vin, photo, user_id, created_at, updated_at }
 - **setups:** { id, vehicle_id, name, rating, tyre_pressure_*, ride_height_*, camber_*, toe_*, spring_rate_*, damper_*, arb_*, aero_*, event_name, event_date, notes, user_id, ... }
 - **usage_logs:** { id, item_id, quantity_used, reason, event_name, user_id, created_at }
+- **repairs:** { id, vehicle_id, cause_of_damage, parts_used[], total_parts_cost, repair_details, technicians[], user_id, created_at, updated_at }
 
 ## API Endpoints
 - Auth: POST /api/auth/register, /api/auth/login, GET /api/auth/me
@@ -87,6 +103,7 @@ Build an app that can keep track of inventory for a rally car.
 - Dashboard: GET /api/dashboard/stats
 - Vehicles: GET/POST /api/vehicles, GET/PUT/DELETE /api/vehicles/:id
 - Setups: POST /api/setups, GET /api/setups/vehicle/:id, GET/PUT/DELETE /api/setups/:id
+- Repairs: GET/POST /api/repairs, GET /api/repairs/vehicle/:id, GET/PUT/DELETE /api/repairs/:id
 
 ## Prioritized Backlog
 
