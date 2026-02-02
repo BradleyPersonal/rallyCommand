@@ -430,6 +430,107 @@ export default function VehicleDetailPage() {
             </div>
           )}
         </div>
+
+        {/* Repairs Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl tracking-tight uppercase flex items-center gap-2">
+              <Wrench className="w-6 h-6 text-accent" />
+              Repair History
+            </h2>
+            <Button
+              onClick={() => {
+                setEditingRepair(null);
+                setRepairDialogOpen(true);
+              }}
+              className="bg-accent text-accent-foreground hover:bg-accent/90"
+              data-testid="add-repair-btn"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Log Repair
+            </Button>
+          </div>
+
+          {repairs.length === 0 ? (
+            <Card className="bg-card border-border/50">
+              <CardContent className="py-8 text-center text-muted-foreground">
+                <Wrench className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p className="text-lg">No repairs logged</p>
+                <p className="text-sm mt-1">
+                  Track repairs and maintenance for this vehicle
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {repairs.map((repair, index) => (
+                <Card 
+                  key={repair.id}
+                  className="bg-card border-border/50 hover:border-accent/50 transition-colors animate-fade-in"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                  data-testid={`repair-card-${repair.id}`}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <AlertTriangle className="w-4 h-4 text-accent" />
+                          <span className="font-medium text-foreground">{repair.cause_of_damage}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {formatDate(repair.created_at)}
+                          </span>
+                        </div>
+                        {repair.repair_details && (
+                          <p className="text-sm text-muted-foreground mb-2">{repair.repair_details}</p>
+                        )}
+                        <div className="flex flex-wrap items-center gap-3 text-sm">
+                          <span className="flex items-center gap-1 text-accent font-mono">
+                            <DollarSign className="w-3 h-3" />
+                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(repair.total_parts_cost)}
+                          </span>
+                          {repair.parts_used?.length > 0 && (
+                            <span className="text-muted-foreground">
+                              {repair.parts_used.length} part{repair.parts_used.length !== 1 ? 's' : ''} used
+                            </span>
+                          )}
+                          {repair.technicians?.length > 0 && (
+                            <span className="flex items-center gap-1 text-muted-foreground">
+                              <Users className="w-3 h-3" />
+                              {repair.technicians.join(', ')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem 
+                            onClick={() => handleEditRepair(repair)}
+                            className="cursor-pointer"
+                          >
+                            <Pencil className="w-4 h-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleDeleteRepair(repair.id)}
+                            className="cursor-pointer text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Edit Vehicle Dialog */}
@@ -450,6 +551,18 @@ export default function VehicleDetailPage() {
         onSaved={handleSetupSaved}
         setup={editingSetup}
         vehicleId={id}
+      />
+
+      {/* Repair Form Dialog */}
+      <RepairFormDialog
+        open={repairDialogOpen}
+        onClose={() => {
+          setRepairDialogOpen(false);
+          setEditingRepair(null);
+        }}
+        onSaved={handleRepairSaved}
+        repair={editingRepair}
+        vehicles={vehicle ? [vehicle] : []}
       />
 
       {/* Setup View Dialog */}
