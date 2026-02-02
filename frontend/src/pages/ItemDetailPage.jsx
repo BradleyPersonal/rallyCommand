@@ -54,6 +54,7 @@ export default function ItemDetailPage() {
   useEffect(() => {
     fetchItem();
     fetchUsageLogs();
+    fetchVehicles();
   }, [id]);
 
   const fetchItem = async () => {
@@ -67,6 +68,17 @@ export default function ItemDetailPage() {
       navigate('/inventory');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchVehicles = async () => {
+    try {
+      const response = await axios.get(`${API}/vehicles`, {
+        headers: getAuthHeader()
+      });
+      setVehicles(response.data);
+    } catch (error) {
+      console.error('Failed to fetch vehicles');
     }
   };
 
