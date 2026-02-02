@@ -428,19 +428,20 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
         {"_id": 0}
     ).sort("created_at", -1).to_list(10)
     
-    # Enrich logs with item names
+    # Enrich logs with item names - only include logs where item still exists
     recent_activity = []
     for log in recent_logs:
         item = await db.inventory.find_one({"id": log["item_id"]}, {"_id": 0, "name": 1})
-        recent_activity.append({
-            "id": log["id"],
-            "item_id": log["item_id"],
-            "item_name": item["name"] if item else "Unknown",
-            "quantity_used": log["quantity_used"],
-            "reason": log["reason"],
-            "event_name": log["event_name"],
-            "created_at": log["created_at"]
-        })
+        if item:  # Only add if item still exists
+            recent_activity.append({
+                "id": log["id"],
+                "item_id": log["item_id"],
+                "item_name": item["name"],
+                "quantity_used": log["quantity_used"],
+                "reason": log["reason"],
+                "event_name": log["event_name"],
+                "created_at": log["created_at"]
+            })
     
     return DashboardStats(
         total_items=total_items,
