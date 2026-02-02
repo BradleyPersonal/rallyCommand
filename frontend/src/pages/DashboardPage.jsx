@@ -248,14 +248,16 @@ export default function DashboardPage() {
               {stats?.recent_activity && stats.recent_activity.length > 0 ? (
                 <div className="space-y-3">
                   {stats.recent_activity.slice(0, 5).map((activity, index) => (
-                    <div 
+                    <Link 
                       key={activity.id}
-                      className={`flex items-center justify-between p-3 border-l-2 border-primary/50 bg-secondary/20 animate-fade-in stagger-${index + 1}`}
+                      to={`/inventory/${activity.item_id}`}
+                      className={`flex items-center justify-between p-3 border-l-2 border-primary/50 bg-secondary/20 animate-fade-in stagger-${index + 1} hover:bg-secondary/40 transition-colors cursor-pointer`}
+                      data-testid={`activity-link-${activity.item_id}`}
                     >
                       <div className="flex items-center gap-3">
                         <Clock className="w-4 h-4 text-muted-foreground" />
                         <div>
-                          <p className="font-medium text-foreground">
+                          <p className="font-medium text-foreground hover:text-primary transition-colors">
                             {activity.item_name}
                           </p>
                           <p className="text-sm text-muted-foreground">
@@ -271,7 +273,7 @@ export default function DashboardPage() {
                           {formatDate(activity.created_at)}
                         </p>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               ) : (
