@@ -43,14 +43,26 @@ export default function RepairsPage() {
 
   const fetchData = async () => {
     try {
+      const headers = getAuthHeader();
+      if (!headers.Authorization) {
+        toast.error('Please log in to view repairs');
+        setLoading(false);
+        return;
+      }
+      
       const [repairsRes, vehiclesRes] = await Promise.all([
-        axios.get(`${API}/repairs`, { headers: getAuthHeader() }),
-        axios.get(`${API}/vehicles`, { headers: getAuthHeader() })
+        axios.get(`${API}/repairs`, { headers }),
+        axios.get(`${API}/vehicles`, { headers })
       ]);
       setRepairs(repairsRes.data);
       setVehicles(vehiclesRes.data);
     } catch (error) {
-      toast.error('Failed to fetch data');
+      console.error('Failed to fetch data:', error);
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please log in again.');
+      } else {
+        toast.error('Failed to fetch data');
+      }
     } finally {
       setLoading(false);
     }
