@@ -434,6 +434,7 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
         item = await db.inventory.find_one({"id": log["item_id"]}, {"_id": 0, "name": 1})
         recent_activity.append({
             "id": log["id"],
+            "item_id": log["item_id"],
             "item_name": item["name"] if item else "Unknown",
             "quantity_used": log["quantity_used"],
             "reason": log["reason"],
