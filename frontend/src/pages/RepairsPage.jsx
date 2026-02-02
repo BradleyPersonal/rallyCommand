@@ -50,12 +50,28 @@ export default function RepairsPage() {
         return;
       }
       
-      const [repairsRes, vehiclesRes] = await Promise.all([
-        axios.get(`${API}/repairs`, { headers }),
-        axios.get(`${API}/vehicles`, { headers })
-      ]);
-      setRepairs(repairsRes.data);
-      setVehicles(vehiclesRes.data);
+      // Fetch vehicles and repairs separately to handle partial failures
+      let vehiclesData = [];
+      let repairsData = [];
+      
+      try {
+        const vehiclesRes = await axios.get(`${API}/vehicles`, { headers });
+        vehiclesData = vehiclesRes.data;
+      } catch (vErr) {
+        console.error('Failed to fetch vehicles:', vErr);
+        toast.error('Failed to load vehicles');
+      }
+      
+      try {
+        const repairsRes = await axios.get(`${API}/repairs`, { headers });
+        repairsData = repairsRes.data;
+      } catch (rErr) {
+        console.error('Failed to fetch repairs:', rErr);
+        toast.error('Failed to load repairs');
+      }
+      
+      setVehicles(vehiclesData);
+      setRepairs(repairsData);
     } catch (error) {
       console.error('Failed to fetch data:', error);
       if (error.response?.status === 401) {
