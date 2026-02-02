@@ -6,6 +6,7 @@ import RegisterPage from "@/pages/RegisterPage";
 import DashboardPage from "@/pages/DashboardPage";
 import InventoryPage from "@/pages/InventoryPage";
 import ItemDetailPage from "@/pages/ItemDetailPage";
+import GaragePage from "@/pages/GaragePage";
 import "@/App.css";
 
 const ProtectedRoute = ({ children }) => {
@@ -87,6 +88,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ItemDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/garage"
+            element={
+              <ProtectedRoute>
+                <GaragePage />
               </ProtectedRoute>
             }
           />
