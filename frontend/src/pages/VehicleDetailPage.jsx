@@ -85,8 +85,19 @@ export default function VehicleDetailPage() {
     }
   };
 
+  const fetchRepairs = async () => {
+    try {
+      const response = await axios.get(`${API}/repairs/vehicle/${id}`, {
+        headers: getAuthHeader()
+      });
+      setRepairs(response.data);
+    } catch (error) {
+      console.error('Failed to fetch repairs');
+    }
+  };
+
   const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this vehicle? All setups will also be deleted.')) return;
+    if (!window.confirm('Are you sure you want to delete this vehicle? All setups and repairs will also be deleted.')) return;
     
     try {
       await axios.delete(`${API}/vehicles/${id}`, {
@@ -110,6 +121,12 @@ export default function VehicleDetailPage() {
     fetchSetups();
   };
 
+  const handleRepairSaved = () => {
+    setRepairDialogOpen(false);
+    setEditingRepair(null);
+    fetchRepairs();
+  };
+
   const handleDeleteSetup = async (setupId) => {
     if (!window.confirm('Are you sure you want to delete this setup?')) return;
     
@@ -124,9 +141,28 @@ export default function VehicleDetailPage() {
     }
   };
 
+  const handleDeleteRepair = async (repairId) => {
+    if (!window.confirm('Are you sure you want to delete this repair log?')) return;
+    
+    try {
+      await axios.delete(`${API}/repairs/${repairId}`, {
+        headers: getAuthHeader()
+      });
+      toast.success('Repair deleted');
+      fetchRepairs();
+    } catch (error) {
+      toast.error('Failed to delete repair');
+    }
+  };
+
   const handleEditSetup = (setup) => {
     setEditingSetup(setup);
     setSetupDialogOpen(true);
+  };
+
+  const handleEditRepair = (repair) => {
+    setEditingRepair(repair);
+    setRepairDialogOpen(true);
   };
 
   const formatDate = (dateString) => {
