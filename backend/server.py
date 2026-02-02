@@ -837,6 +837,7 @@ async def create_repair_log(repair: RepairLogCreate, current_user: dict = Depend
         "vehicle_id": repair.vehicle_id,
         "user_id": current_user["id"],
         "cause_of_damage": repair.cause_of_damage,
+        "affected_area": repair.affected_area,
         "parts_used": parts_data,
         "total_parts_cost": total_cost if total_cost > 0 else repair.total_parts_cost,
         "repair_details": repair.repair_details,
