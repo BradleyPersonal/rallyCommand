@@ -562,12 +562,55 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
                 "created_at": log["created_at"]
             })
     
+    # Get recent setups with vehicle info
+    recent_setups_raw = await db.setups.find(
+        {"user_id": current_user["id"]},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(5)
+    
+    recent_setups = []
+    for setup in recent_setups_raw:
+        vehicle = await db.vehicles.find_one({"id": setup["vehicle_id"]}, {"_id": 0, "make": 1, "model": 1})
+        if vehicle:
+            recent_setups.append({
+                "id": setup["id"],
+                "name": setup["name"],
+                "vehicle_id": setup["vehicle_id"],
+                "vehicle_name": f"{vehicle['make']} {vehicle['model']}",
+                "event_name": setup.get("event_name", ""),
+                "conditions": setup.get("conditions", ""),
+                "rating": setup.get("rating", 0),
+                "created_at": setup["created_at"]
+            })
+    
+    # Get recent repairs with vehicle info
+    recent_repairs_raw = await db.repairs.find(
+        {"user_id": current_user["id"]},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(5)
+    
+    recent_repairs = []
+    for repair in recent_repairs_raw:
+        vehicle = await db.vehicles.find_one({"id": repair["vehicle_id"]}, {"_id": 0, "make": 1, "model": 1})
+        if vehicle:
+            recent_repairs.append({
+                "id": repair["id"],
+                "vehicle_id": repair["vehicle_id"],
+                "vehicle_name": f"{vehicle['make']} {vehicle['model']}",
+                "cause_of_damage": repair["cause_of_damage"],
+                "affected_area": repair.get("affected_area", ""),
+                "total_parts_cost": repair["total_parts_cost"],
+                "created_at": repair["created_at"]
+            })
+    
     return DashboardStats(
         total_items=total_items,
         low_stock_count=low_stock_count,
         total_value=total_value,
         categories=categories,
-        recent_activity=recent_activity
+        recent_activity=recent_activity,
+        recent_setups=recent_setups,
+        recent_repairs=recent_repairs
     )
 
 # ============== VEHICLE ROUTES ==============
@@ -680,6 +723,7 @@ async def create_setup(setup: SetupCreate, current_user: dict = Depends(get_curr
         "name": setup.name,
         "vehicle_id": setup.vehicle_id,
         "user_id": current_user["id"],
+        "conditions": setup.conditions,
         "tyre_pressure_fl": setup.tyre_pressure_fl,
         "tyre_pressure_fr": setup.tyre_pressure_fr,
         "tyre_pressure_rl": setup.tyre_pressure_rl,
@@ -712,11 +756,22 @@ async def create_setup(setup: SetupCreate, current_user: dict = Depends(get_curr
     return Setup(**setup_doc)
 
 @api_router.get("/setups/vehicle/{vehicle_id}", response_model=List[Setup])
-async def get_vehicle_setups(vehicle_id: str, current_user: dict = Depends(get_current_user)):
-    setups = await db.setups.find(
-        {"vehicle_id": vehicle_id, "user_id": current_user["id"]},
-        {"_id": 0}
-    ).sort("created_at", -1).to_list(100)
+async def get_vehicle_setups(
+    vehicle_id: str, 
+    search: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    query = {"vehicle_id": vehicle_id, "user_id": current_user["id"]}
+    
+    # If search parameter is provided, search in name, event_name, and conditions
+    if search:
+        query["$or"] = [
+            {"name": {"$regex": search, "$options": "i"}},
+            {"event_name": {"$regex": search, "$options": "i"}},
+            {"conditions": {"$regex": search, "$options": "i"}}
+        ]
+    
+    setups = await db.setups.find(query, {"_id": 0}).sort("created_at", -1).to_list(100)
     
     return [Setup(**s) for s in setups]
 
