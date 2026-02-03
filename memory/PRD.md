@@ -46,6 +46,7 @@ Build an app that can keep track of inventory for a rally car.
 - ✅ Setup form with comprehensive fields:
   - Setup name and rating (1-5 stars)
   - Event name and date
+  - **Conditions field** (sunny, dry, raining, wet, mixed, dusty, muddy, snow/ice)
   - Tyre pressures (all 4 corners)
   - Ride height (all 4 corners)
   - Camber (front/rear)
@@ -57,6 +58,7 @@ Build an app that can keep track of inventory for a rally car.
   - Notes
 - ✅ Setup View Dialog showing all details
 - ✅ Interactive star rating component
+- ✅ **Search setups by keyword** (searches title, event, conditions)
 
 ### Phase 4 - Repair Logs Feature (Feb 2, 2026)
 - ✅ Repair Logs page accessible from navbar
@@ -64,6 +66,7 @@ Build an app that can keep track of inventory for a rally car.
 - ✅ Repair form with fields (in order):
   - Vehicle selection
   - Cause of Damage
+  - Affected Area
   - Parts Used (from inventory OR new parts)
   - Cost of Parts (automatic calculation from inventory)
   - Repair Details
@@ -72,6 +75,7 @@ Build an app that can keep track of inventory for a rally car.
 - ✅ Repairs visible from main Repairs page
 - ✅ Repairs visible from Vehicle Detail page (Repair History section)
 - ✅ Total parts cost calculation
+- ✅ **Vehicle filter on Repairs page** (filter repairs by vehicle)
 
 ### Phase 5 - Inventory Subcategories & Filters (Feb 3, 2026)
 - ✅ Part Type subcategory for Parts category:
@@ -83,6 +87,17 @@ Build an app that can keep track of inventory for a rally car.
 - ✅ Vehicle filter on Inventory page:
   - Filter inventory by applicable vehicle
   - Shows all vehicles from garage
+
+### Phase 6 - Dashboard & UI Enhancements (Feb 3, 2026)
+- ✅ **Dashboard Recent Activity shows all types** (usage logs, setups, repairs)
+  - Color-coded: Red/primary for usage, Blue for setups, Orange for repairs
+  - Includes icons to distinguish activity types
+  - Links to respective detail pages
+- ✅ **Limited to 5 most recent items** (sorted by date across all types)
+- ✅ Vehicle Detail page shows limited items:
+  - 4 most recent setups in 2x2 grid
+  - 2 most recent repairs
+  - "View All" buttons link to full list pages
 
 ### Bug Fixes (Feb 2, 2026)
 - ✅ Fixed "Item not Found" error on Dashboard Recent Activity
@@ -101,38 +116,37 @@ Build an app that can keep track of inventory for a rally car.
 
 ## Database Schema
 - **users:** { id, name, email, password_hash, created_at }
-- **inventory:** { id, name, category, quantity, price, supplier_url, photos[], vehicle_ids[], user_id, ... }
+- **inventory:** { id, name, category, subcategory, quantity, price, supplier_url, photos[], vehicle_ids[], user_id, ... }
 - **vehicles:** { id, make, model, registration, vin, photo, user_id, created_at, updated_at }
-- **setups:** { id, vehicle_id, name, rating, tyre_pressure_*, ride_height_*, camber_*, toe_*, spring_rate_*, damper_*, arb_*, aero_*, event_name, event_date, notes, user_id, ... }
+- **setups:** { id, vehicle_id, name, conditions, rating, tyre_pressure_*, ride_height_*, camber_*, toe_*, spring_rate_*, damper_*, arb_*, aero_*, event_name, event_date, notes, user_id, ... }
 - **usage_logs:** { id, item_id, quantity_used, reason, event_name, user_id, created_at }
-- **repairs:** { id, vehicle_id, cause_of_damage, parts_used[], total_parts_cost, repair_details, technicians[], user_id, created_at, updated_at }
+- **repairs:** { id, vehicle_id, cause_of_damage, affected_area, parts_used[], total_parts_cost, repair_details, technicians[], user_id, created_at, updated_at }
 
 ## API Endpoints
 - Auth: POST /api/auth/register, /api/auth/login, GET /api/auth/me
 - Inventory: GET/POST /api/inventory, GET/PUT/DELETE /api/inventory/:id
 - Usage: POST /api/usage, GET /api/usage/:item_id
-- Dashboard: GET /api/dashboard/stats
+- Dashboard: GET /api/dashboard/stats (returns recent_activity, recent_setups, recent_repairs)
 - Vehicles: GET/POST /api/vehicles, GET/PUT/DELETE /api/vehicles/:id
-- Setups: POST /api/setups, GET /api/setups/vehicle/:id, GET/PUT/DELETE /api/setups/:id
+- Setups: POST /api/setups, GET /api/setups/vehicle/:id?search=, GET/PUT/DELETE /api/setups/:id
 - Repairs: GET/POST /api/repairs, GET /api/repairs/vehicle/:id, GET/PUT/DELETE /api/repairs/:id
 
 ## Prioritized Backlog
 
 ### P1 (High Priority)
+- Analytics dashboard with charts (inventory usage trends, repair costs)
 - Export inventory to CSV/PDF
-- Barcode/QR code scanning
-- Multi-car/event support (partially done with garage feature)
 
 ### P2 (Medium Priority)
-- Supplier contact integration
-- Restock reminders via email
-- Setup comparison feature
+- Maintenance scheduling reminders
+- Team roles/permissions
+- Setup templates/presets
+- Barcode/QR code scanning
 
 ### P3 (Low Priority)
-- Analytics dashboard with charts
+- Supplier contact integration
+- Restock reminders via email
 - Mobile app version
-- Team member roles/permissions
-- Setup templates/presets
 
 ## Test Credentials
 - Email: demo@rallyteam.com
