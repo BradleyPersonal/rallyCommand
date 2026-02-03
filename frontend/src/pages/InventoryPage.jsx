@@ -290,15 +290,16 @@ export default function InventoryPage() {
               {/* Subcategory Filter - Only shown when Parts category is selected */}
               {categoryFilter === 'parts' && (
                 <Select
-                  value={subcategoryFilter}
-                  onValueChange={setSubcategoryFilter}
+                  value={subcategoryFilter || 'all'}
+                  onValueChange={(value) => setSubcategoryFilter(value === 'all' ? '' : value)}
                 >
                   <SelectTrigger className="w-full md:w-[180px] bg-secondary border-border" data-testid="subcategory-filter">
                     <SelectValue placeholder="All Part Types" />
                   </SelectTrigger>
                   <SelectContent>
-                    {partSubcategories.map((sub) => (
-                      <SelectItem key={sub.value} value={sub.value || 'all'}>
+                    <SelectItem value="all">All Part Types</SelectItem>
+                    {partSubcategories.filter(s => s.value !== '').map((sub) => (
+                      <SelectItem key={sub.value} value={sub.value}>
                         {sub.label}
                       </SelectItem>
                     ))}
