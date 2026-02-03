@@ -248,43 +248,158 @@ export default function DashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {stats?.recent_activity && stats.recent_activity.length > 0 ? (
-                <div className="space-y-3">
-                  {stats.recent_activity.slice(0, 5).map((activity, index) => (
-                    <Link 
-                      key={activity.id}
-                      to={`/inventory/${activity.item_id}`}
-                      className={`flex items-center justify-between p-3 border-l-2 border-primary/50 bg-secondary/20 animate-fade-in stagger-${index + 1} hover:bg-secondary/40 transition-colors cursor-pointer`}
-                      data-testid={`activity-link-${activity.item_id}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Clock className="w-4 h-4 text-muted-foreground" />
-                        <div>
-                          <p className="font-medium text-foreground hover:text-primary transition-colors">
-                            {activity.item_name}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {activity.reason || activity.event_name || 'Used'}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <Badge variant="destructive" className="font-mono">
-                          -{activity.quantity_used}
-                        </Badge>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {formatDate(activity.created_at)}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>No recent activity</p>
-                </div>
-              )}
+              {/* Combine and sort all activity types */}
+              {(() => {
+                const allActivity = [];
+                
+                // Add usage logs (inventory usage)
+                if (stats?.recent_activity) {
+                  stats.recent_activity.slice(0, 3).forEach((activity) => {
+                    allActivity.push({
+                      type: 'usage',
+                      id: activity.id,
+                      link: `/inventory/${activity.item_id}`,
+                      title: activity.item_name,
+                      subtitle: activity.reason || activity.event_name || 'Used',
+                      badge: `-${activity.quantity_used}`,
+                      created_at: activity.created_at
+                    });
+                  });
+                }
+                
+                // Add recent setups
+                if (stats?.recent_setups) {
+                  stats.recent_setups.slice(0, 3).forEach((setup) => {
+                    allActivity.push({
+                      type: 'setup',
+                      id: setup.id,
+                      link: `/vehicle/${setup.vehicle_id}/setups`,
+                      title: setup.name,
+                      subtitle: setup.vehicle_name,
+                      badge: setup.conditions || setup.event_name || 'Setup',
+                      rating: setup.rating,
+                      created_at: setup.created_at
+                    });
+                  });
+                }
+                
+                // Add recent repairs
+                if (stats?.recent_repairs) {
+                  stats.recent_repairs.slice(0, 3).forEach((repair) => {
+                    allActivity.push({
+                      type: 'repair',
+                      id: repair.id,
+                      link: `/vehicle/${repair.vehicle_id}/repairs`,
+                      title: repair.cause_of_damage,
+                      subtitle: repair.vehicle_name,
+                      badge: repair.affected_area || 'Repair',
+                      cost: repair.total_parts_cost,
+                      created_at: repair.created_at
+                    });
+                  });
+                }
+                
+                // Sort by created_at descending
+                allActivity.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                
+                if (allActivity.length === 0) {
+                  return (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p>No recent activity</p>
+                    </div>
+                  );
+                }
+                
+                return (
+                  <div className="space-y-3">
+                    {allActivity.slice(0, 8).map((activity, index) => {
+                      // Color and icon based on type
+                      const config = {
+                        usage: {
+                          borderColor: 'border-primary/50',
+                          bgColor: 'bg-primary/10',
+                          icon: <Package className="w-4 h-4 text-primary" />,
+                          badgeVariant: 'destructive'
+                        },
+                        setup: {
+                          borderColor: 'border-blue-500/50',
+                          bgColor: 'bg-blue-500/10',
+                          icon: <Settings className="w-4 h-4 text-blue-500" />,
+                          badgeVariant: 'secondary'
+                        },
+                        repair: {
+                          borderColor: 'border-orange-500/50',
+                          bgColor: 'bg-orange-500/10',
+                          icon: <Wrench className="w-4 h-4 text-orange-500" />,
+                          badgeVariant: 'outline'
+                        }
+                      };
+                      
+                      const c = config[activity.type];
+                      
+                      return (
+                        <Link 
+                          key={`${activity.type}-${activity.id}`}
+                          to={activity.link}
+                          className={`flex items-center justify-between p-3 border-l-2 ${c.borderColor} ${c.bgColor} animate-fade-in stagger-${index + 1} hover:opacity-80 transition-opacity cursor-pointer`}
+                          data-testid={`activity-${activity.type}-${activity.id}`}
+                        >
+                          <div className="flex items-center gap-3">
+                            {c.icon}
+                            <div>
+                              <p className="font-medium text-foreground">
+                                {activity.title}
+                              </p>
+                              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                {activity.type !== 'usage' && <Car className="w-3 h-3" />}
+                                {activity.subtitle}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            {activity.type === 'usage' ? (
+                              <Badge variant={c.badgeVariant} className="font-mono">
+                                {activity.badge}
+                              </Badge>
+                            ) : activity.type === 'setup' ? (
+                              <div className="flex flex-col items-end gap-1">
+                                {activity.rating > 0 && (
+                                  <div className="flex gap-0.5">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                      <Star
+                                        key={star}
+                                        className={`w-3 h-3 ${star <= activity.rating ? 'fill-accent text-accent' : 'text-muted-foreground/30'}`}
+                                      />
+                                    ))}
+                                  </div>
+                                )}
+                                <Badge variant={c.badgeVariant} className="text-xs capitalize">
+                                  {activity.badge}
+                                </Badge>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-end gap-1">
+                                {activity.cost > 0 && (
+                                  <span className="text-sm font-mono text-orange-500">
+                                    {formatCurrency(activity.cost)}
+                                  </span>
+                                )}
+                                <Badge variant={c.badgeVariant} className="text-xs capitalize border-orange-500/50 text-orange-500">
+                                  {activity.badge}
+                                </Badge>
+                              </div>
+                            )}
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {formatDate(activity.created_at)}
+                            </p>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </CardContent>
           </Card>
         </div>
