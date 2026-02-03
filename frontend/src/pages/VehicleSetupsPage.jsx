@@ -53,13 +53,18 @@ export default function VehicleSetupsPage() {
   const [setupDialogOpen, setSetupDialogOpen] = useState(false);
   const [editingSetup, setEditingSetup] = useState(null);
   const [viewingSetup, setViewingSetup] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
+  // Debounce search input
   useEffect(() => {
-    fetchVehicle();
-    fetchSetups();
-  }, [id]);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
-  const fetchVehicle = async () => {
+  const fetchVehicle = useCallback(async () => {
     try {
       const response = await axios.get(`${API}/vehicles/${id}`, {
         headers: getAuthHeader()
@@ -71,18 +76,30 @@ export default function VehicleSetupsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, getAuthHeader, navigate]);
 
-  const fetchSetups = async () => {
+  const fetchSetups = useCallback(async () => {
     try {
+      const params = debouncedSearch ? { search: debouncedSearch } : {};
       const response = await axios.get(`${API}/setups/vehicle/${id}`, {
-        headers: getAuthHeader()
+        headers: getAuthHeader(),
+        params
       });
       setSetups(response.data);
     } catch (error) {
       console.error('Failed to fetch setups');
     }
-  };
+  }, [id, debouncedSearch, getAuthHeader]);
+
+  useEffect(() => {
+    fetchVehicle();
+  }, [fetchVehicle]);
+
+  useEffect(() => {
+    if (id) {
+      fetchSetups();
+    }
+  }, [id, debouncedSearch, fetchSetups]);
 
   const handleSetupSaved = () => {
     setSetupDialogOpen(false);
