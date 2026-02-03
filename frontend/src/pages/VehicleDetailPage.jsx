@@ -318,121 +318,149 @@ export default function VehicleDetailPage() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {setups.map((setup, index) => (
-                <Card 
-                  key={setup.id}
-                  className="bg-card border-border/50 hover:border-primary/50 transition-colors animate-fade-in"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                  data-testid={`setup-card-${setup.id}`}
-                >
-                  <CardHeader className="pb-2">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-xl tracking-tight uppercase">
-                          {setup.name}
-                        </CardTitle>
-                        {setup.rating > 0 && (
-                          <div className="mt-1">
-                            {renderStars(setup.rating)}
-                          </div>
-                        )}
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {setups.slice(0, MAX_SETUPS_DISPLAY).map((setup, index) => (
+                  <Card 
+                    key={setup.id}
+                    className="bg-card border-border/50 hover:border-primary/50 transition-colors animate-fade-in"
+                    style={{ animationDelay: `${index * 0.05}s` }}
+                    data-testid={`setup-card-${setup.id}`}
+                  >
+                    <CardHeader className="pb-2">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <CardTitle className="text-xl tracking-tight uppercase">
+                            {setup.name}
+                          </CardTitle>
+                          {setup.rating > 0 && (
+                            <div className="mt-1">
+                              {renderStars(setup.rating)}
+                            </div>
+                          )}
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem 
+                              onClick={() => setViewingSetup(setup)}
+                              className="cursor-pointer"
+                            >
+                              <Eye className="w-4 h-4 mr-2" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleEditSetup(setup)}
+                              className="cursor-pointer"
+                            >
+                              <Pencil className="w-4 h-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleDeleteSetup(setup.id)}
+                              className="cursor-pointer text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem 
-                            onClick={() => setViewingSetup(setup)}
-                            className="cursor-pointer"
-                          >
-                            <Eye className="w-4 h-4 mr-2" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => handleEditSetup(setup)}
-                            className="cursor-pointer"
-                          >
-                            <Pencil className="w-4 h-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => handleDeleteSetup(setup.id)}
-                            className="cursor-pointer text-destructive focus:text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {/* Event Info */}
-                    {(setup.event_name || setup.event_date) && (
-                      <div className="flex flex-wrap gap-3 text-sm">
-                        {setup.event_name && (
-                          <div className="flex items-center gap-1 text-muted-foreground">
-                            <MapPin className="w-3 h-3" />
-                            <span>{setup.event_name}</span>
-                          </div>
-                        )}
-                        {setup.event_date && (
-                          <div className="flex items-center gap-1 text-muted-foreground">
-                            <Calendar className="w-3 h-3" />
-                            <span>{formatDate(setup.event_date)}</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {/* Event Info */}
+                      {(setup.event_name || setup.event_date) && (
+                        <div className="flex flex-wrap gap-3 text-sm">
+                          {setup.event_name && (
+                            <div className="flex items-center gap-1 text-muted-foreground">
+                              <MapPin className="w-3 h-3" />
+                              <span>{setup.event_name}</span>
+                            </div>
+                          )}
+                          {setup.event_date && (
+                            <div className="flex items-center gap-1 text-muted-foreground">
+                              <Calendar className="w-3 h-3" />
+                              <span>{formatDate(setup.event_date)}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
 
-                    <Separator className="bg-border/50" />
+                      <Separator className="bg-border/50" />
 
-                    {/* Quick Stats */}
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="p-2 bg-secondary/30 rounded-sm">
-                        <p className="text-muted-foreground">Tyre Pressure (F)</p>
-                        <p className="font-mono text-foreground">
-                          {setup.tyre_pressure_fl}/{setup.tyre_pressure_fr} psi
-                        </p>
+                      {/* Quick Stats */}
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="p-2 bg-secondary/30 rounded-sm">
+                          <p className="text-muted-foreground">Tyre Pressure (F)</p>
+                          <p className="font-mono text-foreground">
+                            {setup.tyre_pressure_fl}/{setup.tyre_pressure_fr} psi
+                          </p>
+                        </div>
+                        <div className="p-2 bg-secondary/30 rounded-sm">
+                          <p className="text-muted-foreground">Tyre Pressure (R)</p>
+                          <p className="font-mono text-foreground">
+                            {setup.tyre_pressure_rl}/{setup.tyre_pressure_rr} psi
+                          </p>
+                        </div>
+                        <div className="p-2 bg-secondary/30 rounded-sm">
+                          <p className="text-muted-foreground">Camber</p>
+                          <p className="font-mono text-foreground">
+                            F: {setup.camber_front}° / R: {setup.camber_rear}°
+                          </p>
+                        </div>
+                        <div className="p-2 bg-secondary/30 rounded-sm">
+                          <p className="text-muted-foreground">Ride Height</p>
+                          <p className="font-mono text-foreground">
+                            F: {setup.ride_height_fl}mm / R: {setup.ride_height_rl}mm
+                          </p>
+                        </div>
                       </div>
-                      <div className="p-2 bg-secondary/30 rounded-sm">
-                        <p className="text-muted-foreground">Tyre Pressure (R)</p>
-                        <p className="font-mono text-foreground">
-                          {setup.tyre_pressure_rl}/{setup.tyre_pressure_rr} psi
-                        </p>
-                      </div>
-                      <div className="p-2 bg-secondary/30 rounded-sm">
-                        <p className="text-muted-foreground">Camber</p>
-                        <p className="font-mono text-foreground">
-                          F: {setup.camber_front}° / R: {setup.camber_rear}°
-                        </p>
-                      </div>
-                      <div className="p-2 bg-secondary/30 rounded-sm">
-                        <p className="text-muted-foreground">Ride Height</p>
-                        <p className="font-mono text-foreground">
-                          F: {setup.ride_height_fl}mm / R: {setup.ride_height_rl}mm
-                        </p>
-                      </div>
-                    </div>
 
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => setViewingSetup(setup)}
-                      data-testid={`view-setup-${setup.id}`}
-                    >
-                      <Eye className="w-4 h-4 mr-2" />
-                      View Full Setup
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => setViewingSetup(setup)}
+                        data-testid={`view-setup-${setup.id}`}
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        View Full Setup
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              
+              {/* View All Setups Button */}
+              {setups.length > MAX_SETUPS_DISPLAY && (
+                <Link to={`/vehicle/${id}/setups`}>
+                  <Button 
+                    variant="outline" 
+                    className="w-full mt-4"
+                    data-testid="view-all-setups-btn"
+                  >
+                    View All {setups.length} Setups
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              )}
+              {setups.length > 0 && setups.length <= MAX_SETUPS_DISPLAY && (
+                <Link to={`/vehicle/${id}/setups`}>
+                  <Button 
+                    variant="ghost" 
+                    className="w-full mt-4 text-muted-foreground hover:text-foreground"
+                    data-testid="view-all-setups-btn"
+                  >
+                    View All Setups
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              )}
+            </>
           )}
         </div>
 
