@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
@@ -7,6 +7,13 @@ import RepairFormDialog from '@/components/RepairFormDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +31,8 @@ import {
   Calendar,
   DollarSign,
   Users,
-  AlertTriangle
+  AlertTriangle,
+  Filter
 } from 'lucide-react';
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
@@ -32,17 +40,15 @@ const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
 export default function RepairsPage() {
   const { getAuthHeader } = useAuth();
   const [repairs, setRepairs] = useState([]);
+  const [filteredRepairs, setFilteredRepairs] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingRepair, setEditingRepair] = useState(null);
+  const [selectedVehicle, setSelectedVehicle] = useState('all');
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError(false);
     try {
@@ -92,7 +98,20 @@ export default function RepairsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [getAuthHeader]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Filter repairs when selectedVehicle or repairs change
+  useEffect(() => {
+    if (selectedVehicle === 'all') {
+      setFilteredRepairs(repairs);
+    } else {
+      setFilteredRepairs(repairs.filter(r => r.vehicle_id === selectedVehicle));
+    }
+  }, [selectedVehicle, repairs]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this repair log?')) return;
