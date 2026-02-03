@@ -381,6 +381,8 @@ async def create_item(item: InventoryItemCreate, current_user: dict = Depends(ge
 @api_router.get("/inventory", response_model=List[InventoryItem])
 async def get_items(
     category: Optional[str] = None,
+    subcategory: Optional[str] = None,
+    vehicle_id: Optional[str] = None,
     search: Optional[str] = None,
     low_stock: Optional[bool] = None,
     current_user: dict = Depends(get_current_user)
@@ -389,6 +391,12 @@ async def get_items(
     
     if category:
         query["category"] = category
+    
+    if subcategory:
+        query["subcategory"] = subcategory
+    
+    if vehicle_id:
+        query["vehicle_ids"] = vehicle_id
     
     if search:
         query["$or"] = [
