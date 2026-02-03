@@ -8,6 +8,8 @@ import InventoryPage from "@/pages/InventoryPage";
 import ItemDetailPage from "@/pages/ItemDetailPage";
 import GaragePage from "@/pages/GaragePage";
 import VehicleDetailPage from "@/pages/VehicleDetailPage";
+import VehicleSetupsPage from "@/pages/VehicleSetupsPage";
+import VehicleRepairsPage from "@/pages/VehicleRepairsPage";
 import RepairsPage from "@/pages/RepairsPage";
 import "@/App.css";
 
@@ -106,6 +108,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <VehicleDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/vehicle/:id/setups"
+            element={
+              <ProtectedRoute>
+                <VehicleSetupsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/vehicle/:id/repairs"
+            element={
+              <ProtectedRoute>
+                <VehicleRepairsPage />
               </ProtectedRoute>
             }
           />
