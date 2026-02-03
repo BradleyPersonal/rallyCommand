@@ -254,7 +254,7 @@ export default function DashboardPage() {
                 
                 // Add usage logs (inventory usage)
                 if (stats?.recent_activity) {
-                  stats.recent_activity.slice(0, 3).forEach((activity) => {
+                  stats.recent_activity.forEach((activity) => {
                     allActivity.push({
                       type: 'usage',
                       id: activity.id,
@@ -269,7 +269,7 @@ export default function DashboardPage() {
                 
                 // Add recent setups
                 if (stats?.recent_setups) {
-                  stats.recent_setups.slice(0, 3).forEach((setup) => {
+                  stats.recent_setups.forEach((setup) => {
                     allActivity.push({
                       type: 'setup',
                       id: setup.id,
@@ -285,7 +285,7 @@ export default function DashboardPage() {
                 
                 // Add recent repairs
                 if (stats?.recent_repairs) {
-                  stats.recent_repairs.slice(0, 3).forEach((repair) => {
+                  stats.recent_repairs.forEach((repair) => {
                     allActivity.push({
                       type: 'repair',
                       id: repair.id,
@@ -299,10 +299,11 @@ export default function DashboardPage() {
                   });
                 }
                 
-                // Sort by created_at descending
+                // Sort by created_at descending and take only top 5
                 allActivity.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                const top5Activity = allActivity.slice(0, 5);
                 
-                if (allActivity.length === 0) {
+                if (top5Activity.length === 0) {
                   return (
                     <div className="text-center py-8 text-muted-foreground">
                       <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
@@ -313,7 +314,7 @@ export default function DashboardPage() {
                 
                 return (
                   <div className="space-y-3">
-                    {allActivity.slice(0, 8).map((activity, index) => {
+                    {top5Activity.map((activity, index) => {
                       // Color and icon based on type
                       const config = {
                         usage: {
