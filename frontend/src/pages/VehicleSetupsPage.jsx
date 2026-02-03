@@ -331,8 +331,14 @@ export default function VehicleSetupsPage() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {/* Event Info */}
-                  {(setup.event_name || setup.event_date) && (
+                  {(setup.event_name || setup.event_date || setup.conditions) && (
                     <div className="flex flex-wrap gap-3 text-sm">
+                      {setup.conditions && (
+                        <Badge variant="outline" className="flex items-center gap-1 capitalize">
+                          <Cloud className="w-3 h-3" />
+                          {setup.conditions}
+                        </Badge>
+                      )}
                       {setup.event_name && (
                         <div className="flex items-center gap-1 text-muted-foreground">
                           <MapPin className="w-3 h-3" />
