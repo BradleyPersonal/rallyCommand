@@ -158,6 +158,7 @@ class CornerValues(BaseModel):
 class SetupCreate(BaseModel):
     name: str
     vehicle_id: str
+    conditions: str = ""  # e.g., raining, sunny, dry, wet, mixed
     tyre_pressure_fl: float = 0
     tyre_pressure_fr: float = 0
     tyre_pressure_rl: float = 0
@@ -185,6 +186,7 @@ class SetupCreate(BaseModel):
 
 class SetupUpdate(BaseModel):
     name: Optional[str] = None
+    conditions: Optional[str] = None
     tyre_pressure_fl: Optional[float] = None
     tyre_pressure_fr: Optional[float] = None
     tyre_pressure_rl: Optional[float] = None
@@ -216,6 +218,7 @@ class Setup(BaseModel):
     name: str
     vehicle_id: str
     user_id: str
+    conditions: str = ""
     tyre_pressure_fl: float
     tyre_pressure_fr: float
     tyre_pressure_rl: float
@@ -249,6 +252,8 @@ class DashboardStats(BaseModel):
     total_value: float
     categories: dict
     recent_activity: List[dict]
+    recent_setups: List[dict] = []
+    recent_repairs: List[dict] = []
 
 # ============== HELPER FUNCTIONS ==============
 
