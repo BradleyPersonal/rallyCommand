@@ -435,6 +435,11 @@ async def update_item(
         raise HTTPException(status_code=404, detail="Item not found")
     
     update_data = {k: v for k, v in update.model_dump().items() if v is not None}
+    
+    # Clear subcategory if category is changed to non-parts
+    if update.category and update.category != 'parts':
+        update_data["subcategory"] = ""
+    
     update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
     
     await db.inventory.update_one(
