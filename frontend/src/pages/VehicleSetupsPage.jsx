@@ -467,6 +467,12 @@ function SetupViewDialog({ setup, onClose, onEdit }) {
           {setup.rating > 0 && (
             <div className="mt-2">{renderStars(setup.rating)}</div>
           )}
+          {setup.conditions && (
+            <Badge variant="outline" className="mt-2 capitalize flex items-center gap-1 w-fit">
+              <Cloud className="w-3 h-3" />
+              {setup.conditions}
+            </Badge>
+          )}
           {setup.event_name && (
             <p className="text-muted-foreground mt-1">{setup.event_name}</p>
           )}
