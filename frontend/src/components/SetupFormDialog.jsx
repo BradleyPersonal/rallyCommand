@@ -12,10 +12,28 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Save, Settings, Star } from 'lucide-react';
+import { Save, Settings, Star, Cloud } from 'lucide-react';
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
+
+const CONDITION_OPTIONS = [
+  { value: 'sunny', label: 'Sunny' },
+  { value: 'dry', label: 'Dry' },
+  { value: 'raining', label: 'Raining' },
+  { value: 'wet', label: 'Wet' },
+  { value: 'mixed', label: 'Mixed' },
+  { value: 'dusty', label: 'Dusty' },
+  { value: 'muddy', label: 'Muddy' },
+  { value: 'snow', label: 'Snow/Ice' },
+];
 
 export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId }) => {
   const { getAuthHeader } = useAuth();
@@ -23,6 +41,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId }) =>
   const isEditing = !!setup; // Only show rating when editing an existing setup
   const [formData, setFormData] = useState({
     name: '',
+    conditions: '',
     tyre_pressure_fl: 0,
     tyre_pressure_fr: 0,
     tyre_pressure_rl: 0,
@@ -53,6 +72,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId }) =>
     if (setup) {
       setFormData({
         name: setup.name || '',
+        conditions: setup.conditions || '',
         tyre_pressure_fl: setup.tyre_pressure_fl || 0,
         tyre_pressure_fr: setup.tyre_pressure_fr || 0,
         tyre_pressure_rl: setup.tyre_pressure_rl || 0,
@@ -81,6 +101,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId }) =>
     } else {
       setFormData({
         name: '',
+        conditions: '',
         tyre_pressure_fl: 0,
         tyre_pressure_fr: 0,
         tyre_pressure_rl: 0,
