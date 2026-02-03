@@ -233,6 +233,29 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId }) =>
               />
             </div>
 
+            {/* Conditions */}
+            <div className="space-y-2">
+              <Label htmlFor="conditions" className="form-label flex items-center gap-2">
+                <Cloud className="w-4 h-4 text-primary" />
+                Conditions
+              </Label>
+              <Select
+                value={formData.conditions}
+                onValueChange={(value) => handleChange('conditions', value)}
+              >
+                <SelectTrigger className="bg-secondary border-border focus:border-primary" data-testid="setup-conditions-select">
+                  <SelectValue placeholder="Select weather/track conditions" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CONDITION_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Rating - Only show when editing an existing setup */}
             {isEditing && (
               <div className="col-span-2 space-y-2">
