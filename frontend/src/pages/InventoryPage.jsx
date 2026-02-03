@@ -284,6 +284,51 @@ export default function InventoryPage() {
                 Low Stock
               </Button>
             </div>
+
+            {/* Additional Filters Row */}
+            <div className="flex flex-col md:flex-row gap-4 mt-4">
+              {/* Subcategory Filter - Only shown when Parts category is selected */}
+              {categoryFilter === 'parts' && (
+                <Select
+                  value={subcategoryFilter}
+                  onValueChange={setSubcategoryFilter}
+                >
+                  <SelectTrigger className="w-full md:w-[180px] bg-secondary border-border" data-testid="subcategory-filter">
+                    <SelectValue placeholder="All Part Types" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {partSubcategories.map((sub) => (
+                      <SelectItem key={sub.value} value={sub.value || 'all'}>
+                        {sub.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+
+              {/* Vehicle Filter */}
+              {vehicles.length > 0 && (
+                <Select
+                  value={vehicleFilter}
+                  onValueChange={(value) => setVehicleFilter(value === 'all' ? '' : value)}
+                >
+                  <SelectTrigger className="w-full md:w-[220px] bg-secondary border-border" data-testid="vehicle-filter">
+                    <span className="flex items-center gap-2">
+                      <Car className="w-4 h-4" />
+                      <SelectValue placeholder="All Vehicles" />
+                    </span>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Vehicles</SelectItem>
+                    {vehicles.map((vehicle) => (
+                      <SelectItem key={vehicle.id} value={vehicle.id}>
+                        {vehicle.make} {vehicle.model}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
           </CardContent>
         </Card>
 
