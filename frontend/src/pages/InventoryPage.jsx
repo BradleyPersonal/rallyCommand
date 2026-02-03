@@ -48,26 +48,62 @@ const categories = [
   { value: 'fluids', label: 'Fluids', icon: Droplets },
 ];
 
+const partSubcategories = [
+  { value: '', label: 'All Part Types' },
+  { value: 'panel', label: 'Panel' },
+  { value: 'suspension', label: 'Suspension' },
+  { value: 'driveline', label: 'Driveline' },
+  { value: 'powertrain', label: 'Powertrain' },
+  { value: 'other', label: 'Other' },
+];
+
 export default function InventoryPage() {
   const { getAuthHeader } = useAuth();
   const [searchParams] = useSearchParams();
   const [items, setItems] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState(searchParams.get('category') || '');
+  const [subcategoryFilter, setSubcategoryFilter] = useState('');
+  const [vehicleFilter, setVehicleFilter] = useState('');
   const [showLowStock, setShowLowStock] = useState(searchParams.get('low_stock') === 'true');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
 
 
   useEffect(() => {
+    fetchVehicles();
+  }, []);
+
+  useEffect(() => {
     fetchItems();
-  }, [categoryFilter, showLowStock]);
+  }, [categoryFilter, subcategoryFilter, vehicleFilter, showLowStock]);
+
+  // Clear subcategory filter when category changes away from parts
+  useEffect(() => {
+    if (categoryFilter !== 'parts') {
+      setSubcategoryFilter('');
+    }
+  }, [categoryFilter]);
+
+  const fetchVehicles = async () => {
+    try {
+      const response = await axios.get(`${API}/vehicles`, {
+        headers: getAuthHeader()
+      });
+      setVehicles(response.data);
+    } catch (error) {
+      console.error('Failed to fetch vehicles');
+    }
+  };
 
   const fetchItems = async () => {
     try {
       const params = new URLSearchParams();
       if (categoryFilter) params.append('category', categoryFilter);
+      if (subcategoryFilter && categoryFilter === 'parts') params.append('subcategory', subcategoryFilter);
+      if (vehicleFilter) params.append('vehicle_id', vehicleFilter);
       if (showLowStock) params.append('low_stock', 'true');
       
       const response = await axios.get(`${API}/inventory?${params}`, {
@@ -91,6 +127,8 @@ export default function InventoryPage() {
       const params = new URLSearchParams();
       params.append('search', search);
       if (categoryFilter) params.append('category', categoryFilter);
+      if (subcategoryFilter && categoryFilter === 'parts') params.append('subcategory', subcategoryFilter);
+      if (vehicleFilter) params.append('vehicle_id', vehicleFilter);
       
       const response = await axios.get(`${API}/inventory?${params}`, {
         headers: getAuthHeader()
