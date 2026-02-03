@@ -30,6 +30,15 @@ const categories = [
   { value: 'fluids', label: 'Fluids' },
 ];
 
+const partSubcategories = [
+  { value: '', label: 'Select Subcategory' },
+  { value: 'panel', label: 'Panel' },
+  { value: 'suspension', label: 'Suspension' },
+  { value: 'driveline', label: 'Driveline' },
+  { value: 'powertrain', label: 'Powertrain' },
+  { value: 'other', label: 'Other' },
+];
+
 export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
   const { getAuthHeader } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -38,6 +47,7 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
   const [formData, setFormData] = useState({
     name: '',
     category: 'parts',
+    subcategory: '',
     quantity: 0,
     location: '',
     part_number: '',
@@ -61,6 +71,7 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
       setFormData({
         name: item.name || '',
         category: item.category || 'parts',
+        subcategory: item.subcategory || '',
         quantity: item.quantity || 0,
         location: item.location || '',
         part_number: item.part_number || '',
@@ -76,6 +87,7 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
       setFormData({
         name: '',
         category: 'parts',
+        subcategory: '',
         quantity: 0,
         location: '',
         part_number: '',
