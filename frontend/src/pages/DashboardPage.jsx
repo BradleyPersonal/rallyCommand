@@ -15,7 +15,10 @@ import {
   Wrench,
   Droplets,
   Cog,
-  Clock
+  Clock,
+  Settings,
+  Star,
+  Car
 } from 'lucide-react';
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
