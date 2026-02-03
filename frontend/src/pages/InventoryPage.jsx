@@ -310,7 +310,7 @@ export default function InventoryPage() {
               {/* Vehicle Filter */}
               {vehicles.length > 0 && (
                 <Select
-                  value={vehicleFilter}
+                  value={vehicleFilter || 'all'}
                   onValueChange={(value) => setVehicleFilter(value === 'all' ? '' : value)}
                 >
                   <SelectTrigger className="w-full md:w-[220px] bg-secondary border-border" data-testid="vehicle-filter">
