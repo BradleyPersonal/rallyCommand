@@ -264,9 +264,26 @@ export default function RepairsPage() {
               </Button>
             </CardContent>
           </Card>
+        ) : filteredRepairs.length === 0 ? (
+          <Card className="bg-card border-border/50">
+            <CardContent className="py-16 text-center text-muted-foreground">
+              <Car className="w-16 h-16 mx-auto mb-4 opacity-50" />
+              <p className="text-lg">No repairs for this vehicle</p>
+              <p className="text-sm mt-1">
+                Select a different vehicle or log a new repair
+              </p>
+              <Button 
+                onClick={() => setSelectedVehicle('all')}
+                variant="outline"
+                className="mt-4"
+              >
+                Show All Repairs
+              </Button>
+            </CardContent>
+          </Card>
         ) : (
           <div className="grid grid-cols-1 gap-4">
-            {repairs.map((repair, index) => (
+            {filteredRepairs.map((repair, index) => (
               <Card 
                 key={repair.id}
                 className="bg-card border-border/50 hover:border-primary/50 transition-colors animate-fade-in"
