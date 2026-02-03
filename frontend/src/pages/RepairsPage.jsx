@@ -196,7 +196,7 @@ export default function RepairsPage() {
               Repair Logs
             </h1>
             <p className="text-muted-foreground mt-1">
-              {repairs.length} repair{repairs.length !== 1 ? 's' : ''} logged
+              {filteredRepairs.length} repair{filteredRepairs.length !== 1 ? 's' : ''} {selectedVehicle !== 'all' ? 'found' : 'logged'}
             </p>
           </div>
           <Button 
@@ -209,6 +209,26 @@ export default function RepairsPage() {
             Log Repair
           </Button>
         </div>
+
+        {/* Vehicle Filter */}
+        {vehicles.length > 0 && repairs.length > 0 && (
+          <div className="flex items-center gap-3">
+            <Filter className="w-4 h-4 text-muted-foreground" />
+            <Select value={selectedVehicle} onValueChange={setSelectedVehicle}>
+              <SelectTrigger className="w-[250px] bg-secondary border-border" data-testid="vehicle-filter-select">
+                <SelectValue placeholder="Filter by vehicle" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Vehicles</SelectItem>
+                {vehicles.map((vehicle) => (
+                  <SelectItem key={vehicle.id} value={vehicle.id}>
+                    {vehicle.make} {vehicle.model}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         {vehicles.length === 0 ? (
           <Card className="bg-card border-border/50">
