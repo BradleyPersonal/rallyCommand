@@ -495,76 +495,98 @@ export default function VehicleDetailPage() {
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-3">
-              {repairs.map((repair, index) => (
-                <Card 
-                  key={repair.id}
-                  className="bg-card border-border/50 hover:border-accent/50 transition-colors animate-fade-in"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                  data-testid={`repair-card-${repair.id}`}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <AlertTriangle className="w-4 h-4 text-accent" />
-                          <span className="font-medium text-foreground">{repair.cause_of_damage}</span>
-                          <span className="text-xs text-muted-foreground">
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {repairs.slice(0, MAX_REPAIRS_DISPLAY).map((repair, index) => (
+                  <Card 
+                    key={repair.id}
+                    className="bg-card border-border/50 hover:border-accent/50 transition-colors animate-fade-in"
+                    style={{ animationDelay: `${index * 0.05}s` }}
+                    data-testid={`repair-card-${repair.id}`}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <AlertTriangle className="w-4 h-4 text-accent" />
+                            <span className="font-medium text-foreground">{repair.cause_of_damage}</span>
+                          </div>
+                          <span className="text-xs text-muted-foreground block mb-2">
                             {formatDate(repair.created_at)}
                           </span>
-                        </div>
-                        {repair.affected_area && (
-                          <p className="text-xs text-primary mb-1">Area: {repair.affected_area}</p>
-                        )}
-                        {repair.repair_details && (
-                          <p className="text-sm text-muted-foreground mb-2">{repair.repair_details}</p>
-                        )}
-                        <div className="flex flex-wrap items-center gap-3 text-sm">
-                          <span className="flex items-center gap-1 text-accent font-mono">
-                            <DollarSign className="w-3 h-3" />
-                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(repair.total_parts_cost)}
-                          </span>
-                          {repair.parts_used?.length > 0 && (
-                            <span className="text-muted-foreground">
-                              {repair.parts_used.length} part{repair.parts_used.length !== 1 ? 's' : ''} used
-                            </span>
+                          {repair.affected_area && (
+                            <p className="text-xs text-primary mb-1">Area: {repair.affected_area}</p>
                           )}
-                          {repair.technicians?.length > 0 && (
-                            <span className="flex items-center gap-1 text-muted-foreground">
-                              <Users className="w-3 h-3" />
-                              {repair.technicians.join(', ')}
-                            </span>
+                          {repair.repair_details && (
+                            <p className="text-sm text-muted-foreground mb-2 line-clamp-2">{repair.repair_details}</p>
                           )}
+                          <div className="flex flex-wrap items-center gap-3 text-sm">
+                            <span className="flex items-center gap-1 text-accent font-mono">
+                              <DollarSign className="w-3 h-3" />
+                              {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(repair.total_parts_cost)}
+                            </span>
+                            {repair.parts_used?.length > 0 && (
+                              <span className="text-muted-foreground">
+                                {repair.parts_used.length} part{repair.parts_used.length !== 1 ? 's' : ''} used
+                              </span>
+                            )}
+                          </div>
                         </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem 
+                              onClick={() => handleEditRepair(repair)}
+                              className="cursor-pointer"
+                            >
+                              <Pencil className="w-4 h-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleDeleteRepair(repair.id)}
+                              className="cursor-pointer text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem 
-                            onClick={() => handleEditRepair(repair)}
-                            className="cursor-pointer"
-                          >
-                            <Pencil className="w-4 h-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => handleDeleteRepair(repair.id)}
-                            className="cursor-pointer text-destructive focus:text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              
+              {/* View All Repairs Button */}
+              {repairs.length > MAX_REPAIRS_DISPLAY && (
+                <Link to={`/vehicle/${id}/repairs`}>
+                  <Button 
+                    variant="outline" 
+                    className="w-full mt-4"
+                    data-testid="view-all-repairs-btn"
+                  >
+                    View All {repairs.length} Repairs
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              )}
+              {repairs.length > 0 && repairs.length <= MAX_REPAIRS_DISPLAY && (
+                <Link to={`/vehicle/${id}/repairs`}>
+                  <Button 
+                    variant="ghost" 
+                    className="w-full mt-4 text-muted-foreground hover:text-foreground"
+                    data-testid="view-all-repairs-btn"
+                  >
+                    View All Repairs
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              )}
+            </>
           )}
         </div>
       </div>
