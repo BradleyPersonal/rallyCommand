@@ -220,7 +220,13 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
               <Label htmlFor="category" className="form-label">Category</Label>
               <Select
                 value={formData.category}
-                onValueChange={(value) => handleChange('category', value)}
+                onValueChange={(value) => {
+                  handleChange('category', value);
+                  // Clear subcategory when changing away from parts
+                  if (value !== 'parts') {
+                    handleChange('subcategory', '');
+                  }
+                }}
               >
                 <SelectTrigger className="bg-secondary border-border" data-testid="item-category-select">
                   <SelectValue placeholder="Select category" />
@@ -234,6 +240,28 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Subcategory - Only shown for parts */}
+            {formData.category === 'parts' && (
+              <div className="space-y-2">
+                <Label htmlFor="subcategory" className="form-label">Part Type</Label>
+                <Select
+                  value={formData.subcategory}
+                  onValueChange={(value) => handleChange('subcategory', value)}
+                >
+                  <SelectTrigger className="bg-secondary border-border" data-testid="item-subcategory-select">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {partSubcategories.filter(s => s.value !== '').map((sub) => (
+                      <SelectItem key={sub.value} value={sub.value}>
+                        {sub.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Part Number */}
             <div className="space-y-2">
