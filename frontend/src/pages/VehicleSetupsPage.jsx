@@ -214,14 +214,14 @@ export default function VehicleSetupsPage() {
         <Separator className="bg-border/50" />
 
         {/* Setups Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl tracking-tight uppercase flex items-center gap-2">
               <Settings className="w-6 h-6 text-primary" />
               All Setups
             </h2>
             <p className="text-muted-foreground mt-1">
-              {setups.length} setup{setups.length !== 1 ? 's' : ''} saved
+              {setups.length} setup{setups.length !== 1 ? 's' : ''} {debouncedSearch ? 'found' : 'saved'}
             </p>
           </div>
           <Button
@@ -235,6 +235,27 @@ export default function VehicleSetupsPage() {
             <Plus className="w-4 h-4 mr-2" />
             Add Setup
           </Button>
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search by title, event, or conditions..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 pr-10 bg-secondary border-border focus:border-primary"
+            data-testid="setup-search-input"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
         {/* Setups Grid */}
