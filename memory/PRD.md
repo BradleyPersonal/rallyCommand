@@ -73,6 +73,17 @@ Build an app that can keep track of inventory for a rally car.
 - ✅ Repairs visible from Vehicle Detail page (Repair History section)
 - ✅ Total parts cost calculation
 
+### Phase 5 - Inventory Subcategories & Filters (Feb 3, 2026)
+- ✅ Part Type subcategory for Parts category:
+  - Options: Panel, Suspension, Driveline, Powertrain, Other
+  - Subcategory dropdown appears in item form only when "Parts" category is selected
+- ✅ Subcategory filter on Inventory page:
+  - Only appears when Parts category filter is applied
+  - Allows filtering by specific part types
+- ✅ Vehicle filter on Inventory page:
+  - Filter inventory by applicable vehicle
+  - Shows all vehicles from garage
+
 ### Bug Fixes (Feb 2, 2026)
 - ✅ Fixed "Item not Found" error on Dashboard Recent Activity
   - Backend now filters out usage logs for deleted items
