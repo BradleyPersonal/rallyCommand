@@ -34,10 +34,15 @@ import {
   Wrench,
   AlertTriangle,
   DollarSign,
-  Users
+  Users,
+  ChevronRight
 } from 'lucide-react';
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
+
+// Constants for display limits
+const MAX_SETUPS_DISPLAY = 4;
+const MAX_REPAIRS_DISPLAY = 2;
 
 export default function VehicleDetailPage() {
   const { id } = useParams();
