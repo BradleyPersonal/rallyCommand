@@ -39,6 +39,13 @@ const partSubcategories = [
   { value: 'other', label: 'Other' },
 ];
 
+const partConditions = [
+  { value: 'new', label: 'New' },
+  { value: 'used-good', label: 'Used - Good' },
+  { value: 'used-fair', label: 'Used - Fair' },
+  { value: 'poor-damaged', label: 'Poor/Damaged' },
+];
+
 export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
   const { getAuthHeader } = useAuth();
   const [loading, setLoading] = useState(false);
