@@ -178,6 +178,12 @@ export const Layout = ({ children }) => {
       <main className="container mx-auto px-4 md:px-8 py-8">
         {children}
       </main>
+
+      {/* Feedback Dialog */}
+      <FeedbackDialog 
+        open={feedbackDialogOpen} 
+        onClose={() => setFeedbackDialogOpen(false)} 
+      />
     </div>
   );
 };
