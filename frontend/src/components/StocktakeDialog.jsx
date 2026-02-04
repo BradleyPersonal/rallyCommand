@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { 
   ClipboardList, 
@@ -26,13 +27,13 @@ import {
   X,
   TrendingUp,
   TrendingDown,
-  Minus,
   Save,
   Download,
   Package,
   MapPin,
   DollarSign,
-  AlertTriangle
+  AlertTriangle,
+  ArrowLeft
 } from 'lucide-react';
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
@@ -40,8 +41,9 @@ const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
 export default function StocktakeDialog({ open, onClose, items, onStocktakeComplete }) {
   const { getAuthHeader } = useAuth();
   const [mode, setMode] = useState(null); // null, 'device', 'pdf'
-  const [currentStep, setCurrentStep] = useState(0);
+  const [selectedItemIndex, setSelectedItemIndex] = useState(null);
   const [stocktakeData, setStocktakeData] = useState([]);
+  const [tempCount, setTempCount] = useState(0);
   const [notes, setNotes] = useState('');
   const [showSummary, setShowSummary] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -55,7 +57,8 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
         item_name: item.name,
         location: item.location || 'Not specified',
         expected_quantity: item.quantity,
-        actual_quantity: item.quantity, // Default to expected
+        actual_quantity: null, // null means not yet counted
+        counted: false,
         difference: 0,
         price: item.price,
         value_difference: 0
@@ -67,46 +70,89 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
   useEffect(() => {
     if (!open) {
       setMode(null);
-      setCurrentStep(0);
+      setSelectedItemIndex(null);
       setShowSummary(false);
       setNotes('');
       setSavedStocktake(null);
+      setTempCount(0);
     }
   }, [open]);
 
-  const handleQuantityChange = (index, value) => {
+  // Set temp count when selecting an item
+  useEffect(() => {
+    if (selectedItemIndex !== null && stocktakeData[selectedItemIndex]) {
+      const item = stocktakeData[selectedItemIndex];
+      setTempCount(item.counted ? item.actual_quantity : item.expected_quantity);
+    }
+  }, [selectedItemIndex, stocktakeData]);
+
+  const handleSaveCount = () => {
+    if (selectedItemIndex === null) return;
+    
     const newData = [...stocktakeData];
-    const actualQty = parseInt(value) || 0;
-    const diff = actualQty - newData[index].expected_quantity;
-    newData[index].actual_quantity = actualQty;
-    newData[index].difference = diff;
-    newData[index].value_difference = diff * newData[index].price;
+    const actualQty = parseInt(tempCount) || 0;
+    const diff = actualQty - newData[selectedItemIndex].expected_quantity;
+    newData[selectedItemIndex].actual_quantity = actualQty;
+    newData[selectedItemIndex].counted = true;
+    newData[selectedItemIndex].difference = diff;
+    newData[selectedItemIndex].value_difference = diff * newData[selectedItemIndex].price;
     setStocktakeData(newData);
+    setSelectedItemIndex(null);
+  };
+
+  const handleBackToList = () => {
+    setSelectedItemIndex(null);
+  };
+
+  const getCountedStats = () => {
+    const counted = stocktakeData.filter(item => item.counted).length;
+    const total = stocktakeData.length;
+    return { counted, total, remaining: total - counted };
   };
 
   const getSummaryStats = () => {
-    const matched = stocktakeData.filter(item => item.difference === 0).length;
-    const over = stocktakeData.filter(item => item.difference > 0);
-    const under = stocktakeData.filter(item => item.difference < 0);
-    const totalValueDiff = stocktakeData.reduce((sum, item) => sum + item.value_difference, 0);
+    const countedItems = stocktakeData.filter(item => item.counted);
+    const matched = countedItems.filter(item => item.difference === 0).length;
+    const over = countedItems.filter(item => item.difference > 0);
+    const under = countedItems.filter(item => item.difference < 0);
+    const totalValueDiff = countedItems.reduce((sum, item) => sum + item.value_difference, 0);
     
-    return { matched, over, under, totalValueDiff };
+    return { matched, over, under, totalValueDiff, countedItems };
   };
 
   const handleSaveStocktake = async () => {
+    const countedItems = stocktakeData.filter(item => item.counted);
+    
+    if (countedItems.length === 0) {
+      toast.error('Please count at least one item before saving');
+      return;
+    }
+
     setSaving(true);
     try {
-      const response = await axios.post(`${API}/stocktakes`, {
-        items: stocktakeData,
+      const headers = getAuthHeader();
+      const payload = {
+        items: countedItems.map(item => ({
+          item_id: item.item_id,
+          item_name: item.item_name,
+          location: item.location,
+          expected_quantity: item.expected_quantity,
+          actual_quantity: item.actual_quantity,
+          difference: item.difference,
+          price: item.price,
+          value_difference: item.value_difference
+        })),
         notes
-      }, {
-        headers: getAuthHeader()
-      });
+      };
+      
+      console.log('Saving stocktake with payload:', payload);
+      
+      const response = await axios.post(`${API}/stocktakes`, payload, { headers });
       setSavedStocktake(response.data);
       toast.success('Stocktake saved successfully');
     } catch (error) {
-      toast.error('Failed to save stocktake');
-      console.error(error);
+      console.error('Failed to save stocktake:', error.response?.data || error.message);
+      toast.error(`Failed to save stocktake: ${error.response?.data?.detail || error.message}`);
     } finally {
       setSaving(false);
     }
@@ -132,7 +178,6 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
   };
 
   const generatePDF = () => {
-    // Create printable HTML content
     const printContent = `
       <!DOCTYPE html>
       <html>
@@ -151,22 +196,15 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
           .location { color: #666; }
           .total-row { background-color: #f9f9f9; font-weight: bold; }
           .counted-col { width: 100px; }
-          @media print {
-            body { padding: 0; }
-          }
+          @media print { body { padding: 0; } }
         </style>
       </head>
       <body>
         <h1>RALLYCOMMAND STOCKTAKE REPORT</h1>
         <p class="date">Generated: ${new Date().toLocaleDateString('en-US', { 
-          weekday: 'long', 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
+          weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+          hour: '2-digit', minute: '2-digit'
         })}</p>
-        
         <table>
           <thead>
             <tr>
@@ -198,7 +236,6 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
             </tr>
           </tbody>
         </table>
-        
         <div style="margin-top: 40px;">
           <p><strong>Counted By:</strong> _________________________</p>
           <p><strong>Date:</strong> _________________________</p>
@@ -215,8 +252,9 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
     printWindow.print();
   };
 
-  const currentItem = stocktakeData[currentStep];
+  const currentItem = selectedItemIndex !== null ? stocktakeData[selectedItemIndex] : null;
   const stats = getSummaryStats();
+  const countedStats = getCountedStats();
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-US', {
@@ -254,7 +292,7 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
                 <div className="flex-1">
                   <h3 className="font-semibold text-foreground text-lg">Complete on Device</h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Count items one by one on your device. Get a summary of discrepancies and option to correct stock levels.
+                    Count items from a list. Get a summary of discrepancies and option to correct stock levels.
                   </p>
                 </div>
                 <ChevronRight className="w-5 h-5 text-muted-foreground" />
@@ -309,7 +347,7 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <Card className="bg-secondary/30 border-border">
                 <CardContent className="p-4 text-center">
-                  <p className="text-3xl font-bold text-foreground">{stocktakeData.length}</p>
+                  <p className="text-3xl font-bold text-foreground">{stats.countedItems.length}</p>
                   <p className="text-xs text-muted-foreground uppercase tracking-wider">Items Counted</p>
                 </CardContent>
               </Card>
@@ -452,14 +490,11 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
               <div className="flex gap-2">
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    setShowSummary(false);
-                    setCurrentStep(0);
-                  }}
+                  onClick={() => setShowSummary(false)}
                   className="flex-1"
                 >
                   <ChevronLeft className="w-4 h-4 mr-2" />
-                  Edit Counts
+                  Back to List
                 </Button>
                 <Button
                   variant="outline"
@@ -476,29 +511,21 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
     );
   }
 
-  // On-Device Counting Screen
-  return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] bg-card border-border">
-        <DialogHeader>
-          <DialogTitle className="text-xl tracking-tight uppercase flex items-center gap-2">
-            <ClipboardList className="w-5 h-5 text-primary" />
-            Stocktake
-          </DialogTitle>
-          <DialogDescription>
-            Item {currentStep + 1} of {stocktakeData.length}
-          </DialogDescription>
-        </DialogHeader>
+  // Item Counting Screen (when an item is selected)
+  if (selectedItemIndex !== null && currentItem) {
+    const diff = (parseInt(tempCount) || 0) - currentItem.expected_quantity;
+    const valueDiff = diff * currentItem.price;
 
-        {/* Progress Bar */}
-        <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
-          <div 
-            className="h-full bg-primary transition-all duration-300"
-            style={{ width: `${((currentStep + 1) / stocktakeData.length) * 100}%` }}
-          />
-        </div>
+    return (
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-[500px] bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="text-xl tracking-tight uppercase flex items-center gap-2">
+              <ClipboardList className="w-5 h-5 text-primary" />
+              Count Item
+            </DialogTitle>
+          </DialogHeader>
 
-        {currentItem && (
           <div className="space-y-6 mt-4">
             {/* Item Info Card */}
             <Card className="bg-secondary/30 border-border">
@@ -537,31 +564,31 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
               <Input
                 type="number"
                 min="0"
-                value={currentItem.actual_quantity}
-                onChange={(e) => handleQuantityChange(currentStep, e.target.value)}
+                value={tempCount}
+                onChange={(e) => setTempCount(e.target.value)}
                 className="bg-secondary border-border text-3xl font-mono font-bold h-16 text-center"
                 data-testid="stocktake-count-input"
               />
               
               {/* Difference indicator */}
-              {currentItem.difference !== 0 && (
+              {diff !== 0 && (
                 <div className={`flex items-center justify-center gap-2 p-2 rounded-lg ${
-                  currentItem.difference > 0 
+                  diff > 0 
                     ? 'bg-blue-500/20 text-blue-500' 
                     : 'bg-orange-500/20 text-orange-500'
                 }`}>
-                  {currentItem.difference > 0 ? (
+                  {diff > 0 ? (
                     <TrendingUp className="w-4 h-4" />
                   ) : (
                     <TrendingDown className="w-4 h-4" />
                   )}
                   <span className="font-mono font-bold">
-                    {currentItem.difference > 0 ? '+' : ''}{currentItem.difference} 
-                    ({formatCurrency(currentItem.value_difference)})
+                    {diff > 0 ? '+' : ''}{diff} 
+                    ({formatCurrency(valueDiff)})
                   </span>
                 </div>
               )}
-              {currentItem.difference === 0 && (
+              {diff === 0 && (
                 <div className="flex items-center justify-center gap-2 p-2 rounded-lg bg-green-500/20 text-green-500">
                   <Check className="w-4 h-4" />
                   <span>Matches expected quantity</span>
@@ -573,36 +600,142 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
             <div className="flex gap-3">
               <Button
                 variant="outline"
-                onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
-                disabled={currentStep === 0}
+                onClick={handleBackToList}
                 className="flex-1"
               >
-                <ChevronLeft className="w-4 h-4 mr-2" />
-                Previous
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back
               </Button>
               
-              {currentStep < stocktakeData.length - 1 ? (
-                <Button
-                  onClick={() => setCurrentStep(currentStep + 1)}
-                  className="flex-1 bg-primary text-primary-foreground"
-                  data-testid="stocktake-next-btn"
-                >
-                  Next
-                  <ChevronRight className="w-4 h-4 ml-2" />
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => setShowSummary(true)}
-                  className="flex-1 bg-accent text-accent-foreground"
-                  data-testid="stocktake-finish-btn"
-                >
-                  View Summary
-                  <Check className="w-4 h-4 ml-2" />
-                </Button>
-              )}
+              <Button
+                onClick={handleSaveCount}
+                className="flex-1 bg-primary text-primary-foreground"
+                data-testid="stocktake-save-count-btn"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                Save Count
+              </Button>
             </div>
           </div>
-        )}
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // Items List Screen (main on-device view)
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[600px] bg-card border-border max-h-[90vh]">
+        <DialogHeader>
+          <DialogTitle className="text-xl tracking-tight uppercase flex items-center gap-2">
+            <ClipboardList className="w-5 h-5 text-primary" />
+            Stocktake
+          </DialogTitle>
+          <DialogDescription>
+            {countedStats.counted} of {countedStats.total} items counted
+          </DialogDescription>
+        </DialogHeader>
+
+        {/* Progress Bar */}
+        <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
+          <div 
+            className="h-full bg-primary transition-all duration-300"
+            style={{ width: `${(countedStats.counted / countedStats.total) * 100}%` }}
+          />
+        </div>
+
+        {/* Items List */}
+        <ScrollArea className="h-[400px] pr-4">
+          <div className="space-y-2">
+            {stocktakeData.map((item, index) => (
+              <Card 
+                key={item.item_id}
+                className={`border cursor-pointer transition-colors hover:border-primary/50 ${
+                  item.counted 
+                    ? 'bg-green-500/10 border-green-500/30' 
+                    : 'bg-secondary/30 border-border'
+                }`}
+                onClick={() => setSelectedItemIndex(index)}
+                data-testid={`stocktake-item-${index}`}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                        item.counted ? 'bg-green-500/20' : 'bg-secondary'
+                      }`}>
+                        {item.counted ? (
+                          <Check className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <Package className="w-4 h-4 text-muted-foreground" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-foreground truncate">{item.item_name}</h4>
+                        <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
+                          <span className="flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            {item.location}
+                          </span>
+                          <span className="font-mono">Qty: {item.expected_quantity}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      {item.counted && (
+                        <div className="text-right">
+                          {item.difference !== 0 ? (
+                            <Badge 
+                              variant="outline" 
+                              className={`font-mono ${
+                                item.difference > 0 
+                                  ? 'border-blue-500 text-blue-500' 
+                                  : 'border-orange-500 text-orange-500'
+                              }`}
+                            >
+                              {item.difference > 0 ? '+' : ''}{item.difference}
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="border-green-500 text-green-500">
+                              <Check className="w-3 h-3" />
+                            </Badge>
+                          )}
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Counted: {item.actual_quantity}
+                          </p>
+                        </div>
+                      )}
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </ScrollArea>
+
+        {/* Footer Actions */}
+        <div className="flex gap-3 pt-4 border-t border-border">
+          <Button
+            variant="outline"
+            onClick={() => setMode(null)}
+            className="flex-1"
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+          
+          <Button
+            onClick={() => setShowSummary(true)}
+            disabled={countedStats.counted === 0}
+            className="flex-1 bg-primary text-primary-foreground"
+            data-testid="stocktake-view-summary-btn"
+          >
+            View Summary
+            <ChevronRight className="w-4 h-4 ml-2" />
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
