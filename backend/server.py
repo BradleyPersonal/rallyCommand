@@ -446,9 +446,10 @@ async def update_item(
     
     update_data = {k: v for k, v in update.model_dump().items() if v is not None}
     
-    # Clear subcategory if category is changed to non-parts
+    # Clear subcategory and condition if category is changed to non-parts
     if update.category and update.category != 'parts':
         update_data["subcategory"] = ""
+        update_data["condition"] = ""
     
     update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
     
