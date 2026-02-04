@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
+import FeedbackDialog from '@/components/FeedbackDialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +20,10 @@ import {
   X,
   LogOut,
   User,
-  ChevronDown
+  ChevronDown,
+  MessageSquarePlus,
+  Bug,
+  Lightbulb
 } from 'lucide-react';
 
 const navItems = [
@@ -33,6 +37,7 @@ export const Layout = ({ children }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
 
   const isActive = (path) => location.pathname === path;
 
