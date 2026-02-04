@@ -99,6 +99,27 @@ Build an app that can keep track of inventory for a rally car.
   - 2 most recent repairs
   - "View All" buttons link to full list pages
 
+### Phase 7 - Stocktake Feature (Feb 4, 2026)
+- ✅ **Stocktake Report** accessible from Inventory page
+  - Two options: Complete on Device OR Generate PDF Printout
+- ✅ **On-Device Stocktake:**
+  - Step-by-step item counting with progress bar
+  - Shows expected quantity, actual count input, unit value
+  - Real-time discrepancy indicators (over/under stock with value)
+  - Summary screen with stats: items counted, matched, over, under
+  - Total value difference calculation
+  - Option to save stocktake record
+  - Option to apply corrections to inventory (updates stock levels)
+- ✅ **PDF Printout:**
+  - Generates printable stocktake sheet
+  - Includes: item name, location, stock quantity, empty count column, unit price, total value
+  - Print-friendly formatting with signature/date fields
+- ✅ **Stocktake History:**
+  - View all past stocktakes from Inventory page
+  - Shows date, items counted, discrepancies, value difference, status
+  - Click to view detailed breakdown of each stocktake
+  - Delete old stocktake records
+
 ### Bug Fixes (Feb 2, 2026)
 - ✅ Fixed "Item not Found" error on Dashboard Recent Activity
   - Backend now filters out usage logs for deleted items
