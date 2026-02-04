@@ -82,6 +82,8 @@ export default function InventoryPage() {
   const [showLowStock, setShowLowStock] = useState(searchParams.get('low_stock') === 'true');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+  const [stocktakeDialogOpen, setStocktakeDialogOpen] = useState(false);
+  const [stocktakeHistoryOpen, setStocktakeHistoryOpen] = useState(false);
 
 
   useEffect(() => {
