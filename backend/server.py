@@ -1155,77 +1155,81 @@ async def send_feedback(feedback: FeedbackRequest):
     if not re.match(email_regex, feedback.email):
         raise HTTPException(status_code=400, detail="Invalid email address format")
     
-    if not resend.api_key:
-        logging.error("Resend API key not configured")
-        raise HTTPException(status_code=500, detail="Email service not configured")
-    
     feedback_type_label = "Bug Report" if feedback.feedback_type == "bug" else "Feature Request"
     
-    html_content = f"""
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #dc2626; margin-bottom: 20px;">RallyCommand {feedback_type_label}</h2>
-        
-        <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; color: #6b7280; width: 120px;">Type:</td>
-                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; font-weight: bold;">{feedback_type_label}</td>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Name:</td>
-                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">{feedback.name}</td>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Email:</td>
-                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">
-                    <a href="mailto:{feedback.email}" style="color: #dc2626;">{feedback.email}</a>
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; color: #6b7280; vertical-align: top;">Message:</td>
-                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; white-space: pre-wrap;">{feedback.message}</td>
-            </tr>
-        </table>
-        
-        <p style="margin-top: 20px; color: #9ca3af; font-size: 12px;">
-            Sent from RallyCommand App on {datetime.now(timezone.utc).strftime('%B %d, %Y at %H:%M UTC')}
-        </p>
-    </div>
-    """
-    
-    params = {
-        "from": "onboarding@resend.dev",
-        "to": [FEEDBACK_RECIPIENT],
-        "subject": f"[RallyCommand] {feedback_type_label}: {feedback.name}",
-        "html": html_content,
-        "reply_to": feedback.email
+    # Store in database first (always)
+    feedback_doc = {
+        "id": str(uuid.uuid4()),
+        "name": feedback.name,
+        "email": feedback.email,
+        "feedback_type": feedback.feedback_type,
+        "message": feedback.message,
+        "email_sent": False,
+        "email_id": None,
+        "created_at": datetime.now(timezone.utc).isoformat()
     }
     
-    logging.info(f"Sending feedback email from {feedback.email} to {FEEDBACK_RECIPIENT}")
+    # Try to send email if API key is configured
+    if resend.api_key:
+        html_content = f"""
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #dc2626; margin-bottom: 20px;">RallyCommand {feedback_type_label}</h2>
+            
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; color: #6b7280; width: 120px;">Type:</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; font-weight: bold;">{feedback_type_label}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Name:</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">{feedback.name}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Email:</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">
+                        <a href="mailto:{feedback.email}" style="color: #dc2626;">{feedback.email}</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; color: #6b7280; vertical-align: top;">Message:</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; white-space: pre-wrap;">{feedback.message}</td>
+                </tr>
+            </table>
+            
+            <p style="margin-top: 20px; color: #9ca3af; font-size: 12px;">
+                Sent from RallyCommand App on {datetime.now(timezone.utc).strftime('%B %d, %Y at %H:%M UTC')}
+            </p>
+        </div>
+        """
+        
+        params = {
+            "from": "onboarding@resend.dev",
+            "to": [FEEDBACK_RECIPIENT],
+            "subject": f"[RallyCommand] {feedback_type_label}: {feedback.name}",
+            "html": html_content,
+            "reply_to": feedback.email
+        }
+        
+        logging.info(f"Sending feedback email from {feedback.email} to {FEEDBACK_RECIPIENT}")
+        
+        try:
+            email_response = await asyncio.to_thread(resend.Emails.send, params)
+            logging.info(f"Email sent successfully: {email_response}")
+            feedback_doc["email_sent"] = True
+            feedback_doc["email_id"] = email_response.get("id") if isinstance(email_response, dict) else str(email_response)
+        except Exception as e:
+            logging.error(f"Failed to send email (will store in DB anyway): {type(e).__name__}: {str(e)}")
+            # Continue - we'll still save to database
+    else:
+        logging.warning("RESEND_API_KEY not configured - storing feedback in database only")
     
-    try:
-        # Run sync SDK in thread to keep FastAPI non-blocking
-        email_response = await asyncio.to_thread(resend.Emails.send, params)
-        logging.info(f"Email sent successfully: {email_response}")
-        
-        # Also store in database for record keeping
-        feedback_doc = {
-            "id": str(uuid.uuid4()),
-            "name": feedback.name,
-            "email": feedback.email,
-            "feedback_type": feedback.feedback_type,
-            "message": feedback.message,
-            "email_id": email_response.get("id") if isinstance(email_response, dict) else str(email_response),
-            "created_at": datetime.now(timezone.utc).isoformat()
-        }
-        await db.feedback.insert_one(feedback_doc)
-        
-        return {
-            "status": "success",
-            "message": "Feedback sent successfully. Thank you!"
-        }
-    except Exception as e:
-        logging.error(f"Failed to send feedback email: {type(e).__name__}: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to send feedback: {str(e)}")
+    # Save to database
+    await db.feedback.insert_one(feedback_doc)
+    
+    return {
+        "status": "success",
+        "message": "Feedback sent successfully. Thank you!"
+    }
 
 # Include the router in the main app
 app.include_router(api_router)
