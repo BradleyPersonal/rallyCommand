@@ -1246,18 +1246,23 @@ async def send_feedback(feedback: FeedbackRequest):
                     feedback_doc["email_id"] = result.get("id")
                 else:
                     logging.error(f"Resend API error: {response.status_code} - {response.text}")
+                    feedback_doc["email_error"] = f"{response.status_code}: {response.text}"
         except Exception as e:
             logging.error(f"Failed to send email via HTTP: {type(e).__name__}: {str(e)}")
+            feedback_doc["email_error"] = str(e)
             # Continue - we'll still save to database
     else:
         logging.warning("RESEND_API_KEY not configured - storing feedback in database only")
+        feedback_doc["email_error"] = "API key not configured"
     
     # Save to database
     await db.feedback.insert_one(feedback_doc)
     
     return {
         "status": "success",
-        "message": "Feedback sent successfully. Thank you!"
+        "message": "Feedback sent successfully. Thank you!",
+        "email_sent": feedback_doc.get("email_sent", False),
+        "email_id": feedback_doc.get("email_id")
     }
 
 # Include the router in the main app
