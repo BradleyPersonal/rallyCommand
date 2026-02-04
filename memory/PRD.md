@@ -144,7 +144,7 @@ Build an app that can keep track of inventory for a rally car.
 
 ## Database Schema
 - **users:** { id, name, email, password_hash, created_at }
-- **inventory:** { id, name, category, subcategory, quantity, price, supplier_url, photos[], vehicle_ids[], user_id, ... }
+- **inventory:** { id, name, category, subcategory, condition, quantity, price, supplier_url, photos[], vehicle_ids[], user_id, ... }
 - **vehicles:** { id, make, model, registration, vin, photo, user_id, created_at, updated_at }
 - **setups:** { id, vehicle_id, name, conditions, rating, tyre_pressure_*, ride_height_*, camber_*, toe_*, spring_rate_*, damper_*, arb_*, aero_*, event_name, event_date, notes, user_id, ... }
 - **usage_logs:** { id, item_id, quantity_used, reason, event_name, user_id, created_at }
