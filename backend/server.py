@@ -360,14 +360,16 @@ async def create_item(item: InventoryItemCreate, current_user: dict = Depends(ge
     item_id = str(uuid.uuid4())
     now = datetime.now(timezone.utc).isoformat()
     
-    # Only set subcategory if category is 'parts'
+    # Only set subcategory and condition if category is 'parts'
     subcategory = item.subcategory if item.category == 'parts' else ""
+    condition = item.condition if item.category == 'parts' else ""
     
     item_doc = {
         "id": item_id,
         "name": item.name,
         "category": item.category,
         "subcategory": subcategory,
+        "condition": condition,
         "quantity": item.quantity,
         "location": item.location,
         "part_number": item.part_number,
