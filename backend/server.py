@@ -1146,6 +1146,16 @@ class FeedbackRequest(BaseModel):
 
 # ============== FEEDBACK ROUTES ==============
 
+@api_router.get("/feedback/status")
+async def check_feedback_status():
+    """Check if email service is configured (for debugging)"""
+    api_key_configured = bool(RESEND_API_KEY) and len(RESEND_API_KEY) > 10
+    return {
+        "email_configured": api_key_configured,
+        "api_key_prefix": RESEND_API_KEY[:10] + "..." if api_key_configured else "NOT SET",
+        "recipient": FEEDBACK_RECIPIENT
+    }
+
 @api_router.post("/feedback")
 async def send_feedback(feedback: FeedbackRequest):
     """Send feedback/bug report via email using Resend HTTP API"""
@@ -1156,6 +1166,9 @@ async def send_feedback(feedback: FeedbackRequest):
         raise HTTPException(status_code=400, detail="Invalid email address format")
     
     feedback_type_label = "Bug Report" if feedback.feedback_type == "bug" else "Feature Request"
+    
+    # Log the API key status for debugging
+    logging.info(f"RESEND_API_KEY configured: {bool(RESEND_API_KEY)}, length: {len(RESEND_API_KEY) if RESEND_API_KEY else 0}")
     
     # Store in database first (always)
     feedback_doc = {
