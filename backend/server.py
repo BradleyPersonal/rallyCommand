@@ -61,6 +61,7 @@ class InventoryItemCreate(BaseModel):
     name: str
     category: str  # parts, tools, fluids
     subcategory: str = ""  # panel, suspension, driveline, powertrain, other (only for parts)
+    condition: str = ""  # new, used-good, used-fair, poor-damaged (only for parts)
     quantity: int = 0
     location: str = ""
     part_number: str = ""
@@ -76,6 +77,7 @@ class InventoryItemUpdate(BaseModel):
     name: Optional[str] = None
     category: Optional[str] = None
     subcategory: Optional[str] = None
+    condition: Optional[str] = None
     quantity: Optional[int] = None
     location: Optional[str] = None
     part_number: Optional[str] = None
@@ -93,6 +95,7 @@ class InventoryItem(BaseModel):
     name: str
     category: str
     subcategory: str = ""
+    condition: str = ""
     quantity: int
     location: str
     part_number: str
