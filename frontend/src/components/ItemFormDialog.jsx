@@ -232,9 +232,10 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
                 value={formData.category}
                 onValueChange={(value) => {
                   handleChange('category', value);
-                  // Clear subcategory when changing away from parts
+                  // Clear subcategory and condition when changing away from parts
                   if (value !== 'parts') {
                     handleChange('subcategory', '');
+                    handleChange('condition', '');
                   }
                 }}
               >
