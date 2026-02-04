@@ -500,6 +500,23 @@ export default function InventoryPage() {
         onSaved={handleSaved}
         item={editingItem}
       />
+
+      {/* Stocktake Dialog */}
+      <StocktakeDialog
+        open={stocktakeDialogOpen}
+        onClose={() => setStocktakeDialogOpen(false)}
+        items={items}
+        onStocktakeComplete={() => {
+          fetchItems();
+          setStocktakeDialogOpen(false);
+        }}
+      />
+
+      {/* Stocktake History Dialog */}
+      <StocktakeHistoryDialog
+        open={stocktakeHistoryOpen}
+        onClose={() => setStocktakeHistoryOpen(false)}
+      />
     </Layout>
   );
 }
