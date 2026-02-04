@@ -273,6 +273,28 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
               </div>
             )}
 
+            {/* Condition - Only shown for parts */}
+            {formData.category === 'parts' && (
+              <div className="space-y-2">
+                <Label htmlFor="condition" className="form-label">Part Condition</Label>
+                <Select
+                  value={formData.condition}
+                  onValueChange={(value) => handleChange('condition', value)}
+                >
+                  <SelectTrigger className="bg-secondary border-border" data-testid="item-condition-select">
+                    <SelectValue placeholder="Select condition" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {partConditions.map((cond) => (
+                      <SelectItem key={cond.value} value={cond.value}>
+                        {cond.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             {/* Part Number */}
             <div className="space-y-2">
               <Label htmlFor="part_number" className="form-label">Part Number</Label>
