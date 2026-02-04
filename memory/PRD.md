@@ -174,6 +174,7 @@ Build an app that can keep track of inventory for a rally car.
 - Setups: POST /api/setups, GET /api/setups/vehicle/:id?search=, GET/PUT/DELETE /api/setups/:id
 - Repairs: GET/POST /api/repairs, GET /api/repairs/vehicle/:id, GET/PUT/DELETE /api/repairs/:id
 - Stocktakes: GET/POST /api/stocktakes, GET/DELETE /api/stocktakes/:id, POST /api/stocktakes/:id/apply
+- Feedback: POST /api/feedback (sends email via Resend)
 
 ## Prioritized Backlog
 
