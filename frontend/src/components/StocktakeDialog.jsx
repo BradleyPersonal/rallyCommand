@@ -200,14 +200,14 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
           h1 { text-align: center; margin-bottom: 5px; }
           .date { text-align: center; color: #666; margin-bottom: 30px; }
           table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-          th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-          th { background-color: #f5f5f5; font-weight: bold; }
+          th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+          th { background-color: #f5f5f5; font-weight: 600; }
           .qty { text-align: center; width: 80px; }
           .price { text-align: right; }
-          .value { text-align: right; font-weight: bold; }
+          .value { text-align: right; font-weight: 600; }
           .location { color: #666; }
-          .total-row { background-color: #f9f9f9; font-weight: bold; }
-          .counted-col { width: 100px; }
+          .total-row { background-color: #f9f9f9; font-weight: 600; }
+          .counted-col { width: 100px; border: 1px solid #999; }
           @media print { body { padding: 0; } }
         </style>
       </head>
@@ -221,6 +221,7 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
           <thead>
             <tr>
               <th>Item Name</th>
+              <th>Category</th>
               <th>Location</th>
               <th class="qty">Stock Qty</th>
               <th class="counted-col">Counted</th>
@@ -232,15 +233,16 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
             ${items.map(item => `
               <tr>
                 <td>${item.name}</td>
+                <td style="text-transform: capitalize;">${item.category}</td>
                 <td class="location">${item.location || '-'}</td>
                 <td class="qty">${item.quantity}</td>
-                <td class="counted-col" style="border: 2px solid #000;"></td>
+                <td class="counted-col"></td>
                 <td class="price">$${item.price.toFixed(2)}</td>
                 <td class="price">$${(item.quantity * item.price).toFixed(2)}</td>
               </tr>
             `).join('')}
             <tr class="total-row">
-              <td colspan="2">TOTAL</td>
+              <td colspan="3">TOTAL</td>
               <td class="qty">${items.reduce((sum, item) => sum + item.quantity, 0)}</td>
               <td></td>
               <td></td>
@@ -252,7 +254,7 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
           <p><strong>Counted By:</strong> _________________________</p>
           <p><strong>Date:</strong> _________________________</p>
           <p><strong>Notes:</strong></p>
-          <div style="border: 1px solid #ddd; min-height: 100px; padding: 10px;"></div>
+          <div style="border: 1px solid #ccc; min-height: 100px; padding: 10px;"></div>
         </div>
       </body>
       </html>
