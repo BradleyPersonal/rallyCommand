@@ -216,14 +216,50 @@ export default function InventoryPage() {
               {filteredItems.length} item{filteredItems.length !== 1 ? 's' : ''} in stock
             </p>
           </div>
-          <Button 
-            onClick={() => setDialogOpen(true)}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm font-bold uppercase tracking-wider"
-            data-testid="add-item-btn"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Item
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {/* Stocktake Buttons */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="border-border"
+                  data-testid="stocktake-menu-btn"
+                >
+                  <ClipboardList className="w-4 h-4 mr-2" />
+                  Stocktake
+                  <ChevronDown className="w-4 h-4 ml-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem 
+                  onClick={() => setStocktakeDialogOpen(true)}
+                  className="cursor-pointer"
+                  data-testid="run-stocktake-btn"
+                  disabled={items.length === 0}
+                >
+                  <ClipboardList className="w-4 h-4 mr-2" />
+                  Run Stocktake
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setStocktakeHistoryOpen(true)}
+                  className="cursor-pointer"
+                  data-testid="stocktake-history-btn"
+                >
+                  <History className="w-4 h-4 mr-2" />
+                  View History
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            <Button 
+              onClick={() => setDialogOpen(true)}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm font-bold uppercase tracking-wider"
+              data-testid="add-item-btn"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Item
+            </Button>
+          </div>
         </div>
 
         {/* Filters */}
