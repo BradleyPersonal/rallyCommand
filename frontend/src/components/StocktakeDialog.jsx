@@ -131,6 +131,12 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
     setSaving(true);
     try {
       const headers = getAuthHeader();
+      if (!headers.Authorization) {
+        toast.error('Session expired. Please log in again.');
+        setSaving(false);
+        return;
+      }
+      
       const payload = {
         items: countedItems.map(item => ({
           item_id: item.item_id,
@@ -145,14 +151,20 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
         notes
       };
       
-      console.log('Saving stocktake with payload:', payload);
+      console.log('Saving stocktake to:', `${API}/stocktakes`);
+      console.log('Payload:', JSON.stringify(payload, null, 2));
+      console.log('Headers:', headers);
       
       const response = await axios.post(`${API}/stocktakes`, payload, { headers });
+      console.log('Response:', response.data);
       setSavedStocktake(response.data);
       toast.success('Stocktake saved successfully');
     } catch (error) {
-      console.error('Failed to save stocktake:', error.response?.data || error.message);
-      toast.error(`Failed to save stocktake: ${error.response?.data?.detail || error.message}`);
+      console.error('Stocktake save error:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      const errorMsg = error.response?.data?.detail || error.message || 'Unknown error';
+      toast.error(`Failed to save stocktake: ${errorMsg}`);
     } finally {
       setSaving(false);
     }
