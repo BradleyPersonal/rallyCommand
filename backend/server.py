@@ -1140,7 +1140,7 @@ async def delete_stocktake(stocktake_id: str, current_user: dict = Depends(get_c
 
 class FeedbackRequest(BaseModel):
     name: str
-    email: EmailStr
+    email: str  # Changed from EmailStr to str for compatibility
     feedback_type: str  # 'bug' or 'feature'
     message: str
 
@@ -1150,7 +1150,13 @@ class FeedbackRequest(BaseModel):
 async def send_feedback(feedback: FeedbackRequest):
     """Send feedback/bug report via email"""
     
+    # Validate email format manually
+    email_regex = r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
+    if not re.match(email_regex, feedback.email):
+        raise HTTPException(status_code=400, detail="Invalid email address format")
+    
     if not resend.api_key:
+        logging.error("Resend API key not configured")
         raise HTTPException(status_code=500, detail="Email service not configured")
     
     feedback_type_label = "Bug Report" if feedback.feedback_type == "bug" else "Feature Request"
@@ -1187,16 +1193,19 @@ async def send_feedback(feedback: FeedbackRequest):
     """
     
     params = {
-        "from": SENDER_EMAIL,
+        "from": "onboarding@resend.dev",
         "to": [FEEDBACK_RECIPIENT],
         "subject": f"[RallyCommand] {feedback_type_label}: {feedback.name}",
         "html": html_content,
         "reply_to": feedback.email
     }
     
+    logging.info(f"Sending feedback email from {feedback.email} to {FEEDBACK_RECIPIENT}")
+    
     try:
         # Run sync SDK in thread to keep FastAPI non-blocking
         email_response = await asyncio.to_thread(resend.Emails.send, params)
+        logging.info(f"Email sent successfully: {email_response}")
         
         # Also store in database for record keeping
         feedback_doc = {
@@ -1205,7 +1214,7 @@ async def send_feedback(feedback: FeedbackRequest):
             "email": feedback.email,
             "feedback_type": feedback.feedback_type,
             "message": feedback.message,
-            "email_id": email_response.get("id"),
+            "email_id": email_response.get("id") if isinstance(email_response, dict) else str(email_response),
             "created_at": datetime.now(timezone.utc).isoformat()
         }
         await db.feedback.insert_one(feedback_doc)
@@ -1215,7 +1224,7 @@ async def send_feedback(feedback: FeedbackRequest):
             "message": "Feedback sent successfully. Thank you!"
         }
     except Exception as e:
-        logging.error(f"Failed to send feedback email: {str(e)}")
+        logging.error(f"Failed to send feedback email: {type(e).__name__}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to send feedback: {str(e)}")
 
 # Include the router in the main app
