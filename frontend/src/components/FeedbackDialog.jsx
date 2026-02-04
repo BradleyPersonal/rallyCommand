@@ -53,12 +53,23 @@ export default function FeedbackDialog({ open, onClose }) {
 
     setLoading(true);
     try {
-      await axios.post(`${API}/feedback`, formData);
+      const response = await axios.post(`${API}/feedback`, formData);
+      console.log('Feedback response:', response.data);
       setSubmitted(true);
       toast.success('Feedback sent successfully!');
     } catch (error) {
       console.error('Failed to send feedback:', error);
-      toast.error(error.response?.data?.detail || 'Failed to send feedback. Please try again.');
+      console.error('Error response:', error.response);
+      console.error('Error status:', error.response?.status);
+      console.error('Error data:', error.response?.data);
+      
+      let errorMessage = 'Failed to send feedback. Please try again.';
+      if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
