@@ -4,6 +4,8 @@ import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import Layout from '@/components/Layout';
 import ItemFormDialog from '@/components/ItemFormDialog';
+import StocktakeDialog from '@/components/StocktakeDialog';
+import StocktakeHistoryDialog from '@/components/StocktakeHistoryDialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,7 +46,9 @@ import {
   MoreHorizontal,
   Pencil,
   Trash2,
-  Car
+  Car,
+  ClipboardList,
+  History
 } from 'lucide-react';
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
