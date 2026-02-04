@@ -1148,7 +1148,7 @@ class FeedbackRequest(BaseModel):
 
 @api_router.post("/feedback")
 async def send_feedback(feedback: FeedbackRequest):
-    """Send feedback/bug report via email"""
+    """Send feedback/bug report via email using Resend HTTP API"""
     
     # Validate email format manually
     email_regex = r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
@@ -1170,7 +1170,7 @@ async def send_feedback(feedback: FeedbackRequest):
     }
     
     # Try to send email if API key is configured
-    if resend.api_key:
+    if RESEND_API_KEY:
         html_content = f"""
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <h2 style="color: #dc2626; margin-bottom: 20px;">RallyCommand {feedback_type_label}</h2>
@@ -1202,7 +1202,7 @@ async def send_feedback(feedback: FeedbackRequest):
         </div>
         """
         
-        params = {
+        email_payload = {
             "from": "onboarding@resend.dev",
             "to": [FEEDBACK_RECIPIENT],
             "subject": f"[RallyCommand] {feedback_type_label}: {feedback.name}",
@@ -1210,15 +1210,31 @@ async def send_feedback(feedback: FeedbackRequest):
             "reply_to": feedback.email
         }
         
-        logging.info(f"Sending feedback email from {feedback.email} to {FEEDBACK_RECIPIENT}")
+        headers = {
+            "Authorization": f"Bearer {RESEND_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        logging.info(f"Sending feedback email via HTTP POST from {feedback.email} to {FEEDBACK_RECIPIENT}")
         
         try:
-            email_response = await asyncio.to_thread(resend.Emails.send, params)
-            logging.info(f"Email sent successfully: {email_response}")
-            feedback_doc["email_sent"] = True
-            feedback_doc["email_id"] = email_response.get("id") if isinstance(email_response, dict) else str(email_response)
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    RESEND_API_URL,
+                    json=email_payload,
+                    headers=headers,
+                    timeout=30.0
+                )
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    logging.info(f"Email sent successfully: {result}")
+                    feedback_doc["email_sent"] = True
+                    feedback_doc["email_id"] = result.get("id")
+                else:
+                    logging.error(f"Resend API error: {response.status_code} - {response.text}")
         except Exception as e:
-            logging.error(f"Failed to send email (will store in DB anyway): {type(e).__name__}: {str(e)}")
+            logging.error(f"Failed to send email via HTTP: {type(e).__name__}: {str(e)}")
             # Continue - we'll still save to database
     else:
         logging.warning("RESEND_API_KEY not configured - storing feedback in database only")
