@@ -80,26 +80,27 @@ export const Layout = ({ children }) => {
 
             {/* User Menu */}
             <div className="flex items-center gap-2">
-              {/* Feedback Menu */}
+              {/* Feedback Button - More Prominent */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
-                    variant="ghost" 
-                    size="icon"
-                    className="text-muted-foreground hover:text-foreground"
+                    variant="outline" 
+                    size="sm"
+                    className="border-primary/50 text-primary hover:bg-primary/10 hover:text-primary gap-2"
                     data-testid="feedback-menu-btn"
                   >
-                    <MessageSquarePlus className="w-5 h-5" />
+                    <MessageSquarePlus className="w-4 h-4" />
+                    <span className="hidden sm:inline">Feedback</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-52">
                   <DropdownMenuItem 
                     onClick={() => setFeedbackDialogOpen(true)}
                     className="cursor-pointer"
                     data-testid="report-bug-btn"
                   >
                     <Bug className="w-4 h-4 mr-2 text-red-500" />
-                    Report Bug
+                    Report a Bug
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     onClick={() => setFeedbackDialogOpen(true)}
@@ -107,7 +108,7 @@ export const Layout = ({ children }) => {
                     data-testid="suggest-feature-btn"
                   >
                     <Lightbulb className="w-4 h-4 mr-2 text-blue-500" />
-                    Suggest Feature
+                    Suggest a Feature
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
