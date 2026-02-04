@@ -1003,6 +1003,126 @@ async def delete_repair(repair_id: str, current_user: dict = Depends(get_current
     
     return {"message": "Repair log deleted successfully"}
 
+# ============== STOCKTAKE MODELS ==============
+
+class StocktakeItem(BaseModel):
+    item_id: str
+    item_name: str
+    location: str
+    expected_quantity: int
+    actual_quantity: int
+    difference: int
+    price: float
+    value_difference: float
+
+class StocktakeCreate(BaseModel):
+    items: List[StocktakeItem]
+    notes: str = ""
+
+class Stocktake(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    user_id: str
+    items: List[dict]
+    total_items_counted: int
+    items_matched: int
+    items_over: int
+    items_under: int
+    total_value_difference: float
+    status: str  # 'completed', 'applied'
+    notes: str
+    created_at: str
+    applied_at: Optional[str] = None
+
+# ============== STOCKTAKE ROUTES ==============
+
+@api_router.post("/stocktakes", response_model=Stocktake)
+async def create_stocktake(stocktake: StocktakeCreate, current_user: dict = Depends(get_current_user)):
+    stocktake_id = str(uuid.uuid4())
+    now = datetime.now(timezone.utc).isoformat()
+    
+    # Calculate summary stats
+    items_data = [item.model_dump() for item in stocktake.items]
+    total_items = len(items_data)
+    items_matched = sum(1 for item in items_data if item["difference"] == 0)
+    items_over = sum(1 for item in items_data if item["difference"] > 0)
+    items_under = sum(1 for item in items_data if item["difference"] < 0)
+    total_value_diff = sum(item["value_difference"] for item in items_data)
+    
+    stocktake_doc = {
+        "id": stocktake_id,
+        "user_id": current_user["id"],
+        "items": items_data,
+        "total_items_counted": total_items,
+        "items_matched": items_matched,
+        "items_over": items_over,
+        "items_under": items_under,
+        "total_value_difference": total_value_diff,
+        "status": "completed",
+        "notes": stocktake.notes,
+        "created_at": now,
+        "applied_at": None
+    }
+    await db.stocktakes.insert_one(stocktake_doc)
+    
+    return Stocktake(**stocktake_doc)
+
+@api_router.get("/stocktakes", response_model=List[Stocktake])
+async def get_stocktakes(current_user: dict = Depends(get_current_user)):
+    stocktakes = await db.stocktakes.find(
+        {"user_id": current_user["id"]},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(50)
+    
+    return [Stocktake(**s) for s in stocktakes]
+
+@api_router.get("/stocktakes/{stocktake_id}", response_model=Stocktake)
+async def get_stocktake(stocktake_id: str, current_user: dict = Depends(get_current_user)):
+    stocktake = await db.stocktakes.find_one(
+        {"id": stocktake_id, "user_id": current_user["id"]},
+        {"_id": 0}
+    )
+    if not stocktake:
+        raise HTTPException(status_code=404, detail="Stocktake not found")
+    return Stocktake(**stocktake)
+
+@api_router.post("/stocktakes/{stocktake_id}/apply")
+async def apply_stocktake(stocktake_id: str, current_user: dict = Depends(get_current_user)):
+    stocktake = await db.stocktakes.find_one(
+        {"id": stocktake_id, "user_id": current_user["id"]}
+    )
+    if not stocktake:
+        raise HTTPException(status_code=404, detail="Stocktake not found")
+    
+    if stocktake.get("status") == "applied":
+        raise HTTPException(status_code=400, detail="Stocktake already applied")
+    
+    # Update inventory quantities based on stocktake
+    now = datetime.now(timezone.utc).isoformat()
+    for item in stocktake["items"]:
+        await db.inventory.update_one(
+            {"id": item["item_id"], "user_id": current_user["id"]},
+            {"$set": {"quantity": item["actual_quantity"], "updated_at": now}}
+        )
+    
+    # Mark stocktake as applied
+    await db.stocktakes.update_one(
+        {"id": stocktake_id},
+        {"$set": {"status": "applied", "applied_at": now}}
+    )
+    
+    return {"message": "Stocktake applied successfully", "items_updated": len(stocktake["items"])}
+
+@api_router.delete("/stocktakes/{stocktake_id}")
+async def delete_stocktake(stocktake_id: str, current_user: dict = Depends(get_current_user)):
+    result = await db.stocktakes.delete_one(
+        {"id": stocktake_id, "user_id": current_user["id"]}
+    )
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Stocktake not found")
+    
+    return {"message": "Stocktake deleted successfully"}
+
 # Include the router in the main app
 app.include_router(api_router)
 
