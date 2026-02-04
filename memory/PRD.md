@@ -142,6 +142,7 @@ Build an app that can keep track of inventory for a rally car.
 - **setups:** { id, vehicle_id, name, conditions, rating, tyre_pressure_*, ride_height_*, camber_*, toe_*, spring_rate_*, damper_*, arb_*, aero_*, event_name, event_date, notes, user_id, ... }
 - **usage_logs:** { id, item_id, quantity_used, reason, event_name, user_id, created_at }
 - **repairs:** { id, vehicle_id, cause_of_damage, affected_area, parts_used[], total_parts_cost, repair_details, technicians[], user_id, created_at, updated_at }
+- **stocktakes:** { id, user_id, items[], total_items_counted, items_matched, items_over, items_under, total_value_difference, status, notes, created_at, applied_at }
 
 ## API Endpoints
 - Auth: POST /api/auth/register, /api/auth/login, GET /api/auth/me
@@ -151,6 +152,7 @@ Build an app that can keep track of inventory for a rally car.
 - Vehicles: GET/POST /api/vehicles, GET/PUT/DELETE /api/vehicles/:id
 - Setups: POST /api/setups, GET /api/setups/vehicle/:id?search=, GET/PUT/DELETE /api/setups/:id
 - Repairs: GET/POST /api/repairs, GET /api/repairs/vehicle/:id, GET/PUT/DELETE /api/repairs/:id
+- Stocktakes: GET/POST /api/stocktakes, GET/DELETE /api/stocktakes/:id, POST /api/stocktakes/:id/apply
 
 ## Prioritized Backlog
 
