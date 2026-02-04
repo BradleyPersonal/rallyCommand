@@ -29,9 +29,16 @@ JWT_SECRET = os.environ.get('JWT_SECRET', 'rallycommand-secret-key-2024')
 JWT_ALGORITHM = "HS256"
 
 # Resend Configuration (using HTTP API)
-RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+# Check multiple possible env var names for flexibility
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY') or os.environ.get('resend_api_key') or os.environ.get('RESEND_KEY') or ''
 RESEND_API_URL = "https://api.resend.com/emails"
 FEEDBACK_RECIPIENT = "francisdevstudios@gmail.com"
+
+# Log API key status on startup
+if RESEND_API_KEY:
+    print(f"✓ Resend API key configured (starts with: {RESEND_API_KEY[:10]}...)")
+else:
+    print("⚠ WARNING: RESEND_API_KEY not found in environment variables!")
 
 # Create the main app
 app = FastAPI()
