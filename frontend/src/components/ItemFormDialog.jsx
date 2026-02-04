@@ -55,6 +55,7 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
     name: '',
     category: 'parts',
     subcategory: '',
+    condition: '',
     quantity: 0,
     location: '',
     part_number: '',
