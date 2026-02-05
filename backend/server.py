@@ -1167,10 +1167,14 @@ async def check_feedback_status():
 async def send_feedback(feedback: FeedbackRequest):
     """Send feedback/bug report via email using Resend HTTP API"""
     
-    # Validate email format manually
-    email_regex = r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
-    if not re.match(email_regex, feedback.email):
-        raise HTTPException(status_code=400, detail="Invalid email address format")
+    # Validate email if provided
+    if feedback.email:
+        email_regex = r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
+        if not re.match(email_regex, feedback.email):
+            raise HTTPException(status_code=400, detail="Invalid email address format")
+        # Check for allowed domains (.com or .co.nz)
+        if not (feedback.email.lower().endswith('.com') or feedback.email.lower().endswith('.co.nz')):
+            raise HTTPException(status_code=400, detail="Email must end with .com or .co.nz")
     
     feedback_type_label = "Bug Report" if feedback.feedback_type == "bug" else "Feature Request"
     
