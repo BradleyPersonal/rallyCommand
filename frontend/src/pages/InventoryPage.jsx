@@ -94,7 +94,7 @@ export default function InventoryPage() {
 
   useEffect(() => {
     fetchItems();
-  }, [categoryFilter, subcategoryFilter, vehicleFilter, showLowStock, selectedVehicle]);
+  }, [categoryFilter, subcategoryFilter, showLowStock, selectedVehicle]);
 
   // Clear subcategory filter when category changes away from parts
   useEffect(() => {
