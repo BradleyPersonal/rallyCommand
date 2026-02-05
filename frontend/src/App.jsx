@@ -54,101 +54,111 @@ const PublicRoute = ({ children }) => {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route
-            path="/login"
-            element={
-              <PublicRoute>
-                <LoginPage />
-              </PublicRoute>
-            }
+      <VehicleFilterProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route
+              path="/login"
+              element={
+                <PublicRoute>
+                  <LoginPage />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <PublicRoute>
+                  <RegisterPage />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/inventory"
+              element={
+                <ProtectedRoute>
+                  <InventoryPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/inventory/:id"
+              element={
+                <ProtectedRoute>
+                  <ItemDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/garage"
+              element={
+                <ProtectedRoute>
+                  <GaragePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/vehicle/:id"
+              element={
+                <ProtectedRoute>
+                  <VehicleDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/vehicle/:id/setups"
+              element={
+                <ProtectedRoute>
+                  <VehicleSetupsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/vehicle/:id/repairs"
+              element={
+                <ProtectedRoute>
+                  <VehicleRepairsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/repairs"
+              element={
+                <ProtectedRoute>
+                  <RepairsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/setups"
+              element={
+                <ProtectedRoute>
+                  <SetupsPage />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+          <Toaster 
+            position="top-right" 
+            toastOptions={{
+              style: {
+                background: 'hsl(240 6% 7%)',
+                border: '1px solid hsl(240 4% 16%)',
+                color: 'hsl(0 0% 98%)',
+              },
+            }}
           />
-          <Route
-            path="/register"
-            element={
-              <PublicRoute>
-                <RegisterPage />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/inventory"
-            element={
-              <ProtectedRoute>
-                <InventoryPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/inventory/:id"
-            element={
-              <ProtectedRoute>
-                <ItemDetailPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/garage"
-            element={
-              <ProtectedRoute>
-                <GaragePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/vehicle/:id"
-            element={
-              <ProtectedRoute>
-                <VehicleDetailPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/vehicle/:id/setups"
-            element={
-              <ProtectedRoute>
-                <VehicleSetupsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/vehicle/:id/repairs"
-            element={
-              <ProtectedRoute>
-                <VehicleRepairsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/repairs"
-            element={
-              <ProtectedRoute>
-                <RepairsPage />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-        <Toaster 
-          position="top-right" 
-          toastOptions={{
-            style: {
-              background: 'hsl(240 6% 7%)',
-              border: '1px solid hsl(240 4% 16%)',
-              color: 'hsl(0 0% 98%)',
-            },
-          }}
-        />
-      </BrowserRouter>
+        </BrowserRouter>
+      </VehicleFilterProvider>
     </AuthProvider>
   );
 }
