@@ -119,7 +119,6 @@ export default function InventoryPage() {
       const params = new URLSearchParams();
       if (categoryFilter) params.append('category', categoryFilter);
       if (subcategoryFilter && categoryFilter === 'parts') params.append('subcategory', subcategoryFilter);
-      if (vehicleFilter) params.append('vehicle_id', vehicleFilter);
       if (showLowStock) params.append('low_stock', 'true');
       
       const response = await axios.get(`${API}/inventory?${params}`, {
