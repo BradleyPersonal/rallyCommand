@@ -277,26 +277,10 @@ export default function SetupsPage() {
           </Button>
         </div>
 
-        {/* Filters */}
+        {/* Search */}
         {vehicles.length > 0 && setups.length > 0 && (
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-            <div className="flex items-center gap-3">
-              <Filter className="w-4 h-4 text-muted-foreground" />
-              <Select value={selectedVehicle} onValueChange={setSelectedVehicle}>
-                <SelectTrigger className="w-[200px] bg-secondary border-border" data-testid="vehicle-filter-select">
-                  <SelectValue placeholder="Filter by vehicle" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Vehicles</SelectItem>
-                  {vehicles.map((vehicle) => (
-                    <SelectItem key={vehicle.id} value={vehicle.id}>
-                      {vehicle.make} {vehicle.model}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="relative flex-1 max-w-xs">
+          <div className="flex items-start sm:items-center gap-3">
+            <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 type="text"
