@@ -240,15 +240,15 @@ export default function DashboardPage() {
             <CardContent className="p-4 md:p-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs text-muted-foreground tracking-widest uppercase mb-2">
+                  <p className="text-[10px] md:text-xs text-muted-foreground tracking-widest uppercase mb-1 md:mb-2">
                     Categories
                   </p>
-                  <p className="text-4xl font-mono font-bold text-foreground">
+                  <p className="text-2xl md:text-4xl font-mono font-bold text-foreground">
                     {Object.keys(filteredStats?.categories || {}).length}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-secondary rounded-sm flex items-center justify-center">
-                  <Layers className="w-6 h-6 text-primary" strokeWidth={1.5} />
+                <div className="w-8 h-8 md:w-12 md:h-12 bg-secondary rounded-sm flex items-center justify-center">
+                  <Layers className="w-4 h-4 md:w-6 md:h-6 text-primary" strokeWidth={1.5} />
                 </div>
               </div>
             </CardContent>
@@ -256,17 +256,17 @@ export default function DashboardPage() {
         </div>
 
         {/* Bottom Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {/* Category Breakdown */}
           <Card className="bg-card border-border/50" data-testid="category-breakdown">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-xl tracking-tight uppercase">
+            <CardHeader className="pb-3 md:pb-4">
+              <CardTitle className="text-lg md:text-xl tracking-tight uppercase">
                 Category Breakdown
               </CardTitle>
             </CardHeader>
             <CardContent>
               {filteredStats?.categories && Object.keys(filteredStats.categories).length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-3 md:space-y-4">
                   {Object.entries(filteredStats.categories).map(([category, count]) => (
                     <Link 
                       key={category}
