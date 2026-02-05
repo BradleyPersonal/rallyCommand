@@ -208,6 +208,24 @@ Build an app that can keep track of inventory for a rally car.
   - Shows on Item Detail page only (not list view)
   - Color-coded badge: New (green), Used (yellow), Refurbished (blue)
 
+### Phase 12 - Mobile Responsiveness (Feb 5, 2026)
+- ✅ **Inventory table responsive columns** (progressive hiding):
+  - XL+ (1280px+): All columns visible
+  - LG (1024px+): Hide Location
+  - MD (768px+): Hide Part #
+  - SM (640px+): Hide Category
+  - XS (<640px): Show only Name, Qty, Actions
+- ✅ **Profile menu moved to burger menu** on mobile
+  - Full-width touch-friendly navigation items
+  - User profile section with name/email
+  - Logout button
+  - Send Feedback option
+- ✅ **Garage button simplified** on mobile (icon only)
+- ✅ **Reduced heading sizes** on mobile (text-3xl instead of text-4xl/5xl)
+- ✅ **Stacked filter buttons** on mobile screens
+- ✅ **Compact stat cards** on mobile (2-column grid, smaller padding)
+- ✅ **Touch-friendly button sizing** throughout
+
 ## API Endpoints
 - Auth: POST /api/auth/register, /api/auth/login, GET /api/auth/me
 - Inventory: GET/POST /api/inventory, GET/PUT/DELETE /api/inventory/:id
