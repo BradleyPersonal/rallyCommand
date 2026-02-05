@@ -232,12 +232,12 @@ export default function InventoryPage() {
     <Layout>
       <div className="space-y-6" data-testid="inventory-page">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
           <div>
-            <h1 className="text-4xl md:text-5xl tracking-tighter uppercase text-foreground">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl tracking-tighter uppercase text-foreground">
               Inventory
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-muted-foreground text-sm md:text-base mt-1">
               {filteredItems.length} item{filteredItems.length !== 1 ? 's' : ''} in stock
             </p>
           </div>
@@ -247,12 +247,12 @@ export default function InventoryPage() {
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="outline" 
-                  className="border-border"
+                  className="border-border text-sm"
                   data-testid="stocktake-menu-btn"
                 >
-                  <ClipboardList className="w-4 h-4 mr-2" />
-                  Stocktake
-                  <ChevronDown className="w-4 h-4 ml-2" />
+                  <ClipboardList className="w-4 h-4 mr-1 md:mr-2" />
+                  <span className="hidden sm:inline">Stocktake</span>
+                  <ChevronDown className="w-4 h-4 ml-1 md:ml-2" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -278,11 +278,12 @@ export default function InventoryPage() {
             
             <Button 
               onClick={() => setDialogOpen(true)}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm font-bold uppercase tracking-wider"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm font-bold uppercase tracking-wider text-sm"
               data-testid="add-item-btn"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Item
+              <Plus className="w-4 h-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Add Item</span>
+              <span className="sm:hidden">Add</span>
             </Button>
           </div>
         </div>
