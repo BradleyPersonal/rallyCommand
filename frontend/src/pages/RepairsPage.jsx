@@ -239,7 +239,7 @@ export default function RepairsPage() {
               Repair Logs
             </h1>
             <p className="text-muted-foreground mt-1">
-              {filteredRepairs.length} repair{filteredRepairs.length !== 1 ? 's' : ''} {selectedVehicle !== 'all' ? 'found' : 'logged'}
+              {filteredRepairs.length} repair{filteredRepairs.length !== 1 ? 's' : ''} {searchQuery || globalVehicle ? 'found' : 'logged'}
             </p>
           </div>
           <Button 
@@ -253,19 +253,35 @@ export default function RepairsPage() {
           </Button>
         </div>
 
-        {/* Vehicle Filter */}
+        {/* Search and Sort */}
         {vehicles.length > 0 && repairs.length > 0 && (
-          <div className="flex items-center gap-3">
-            <Filter className="w-4 h-4 text-muted-foreground" />
-            <Select value={selectedVehicle} onValueChange={setSelectedVehicle}>
-              <SelectTrigger className="w-[250px] bg-secondary border-border" data-testid="vehicle-filter-select">
-                <SelectValue placeholder="Filter by vehicle" />
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            {/* Search */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search by title or affected area..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 bg-secondary border-border"
+                data-testid="repair-search-input"
+              />
+            </div>
+            
+            {/* Sort */}
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[180px] bg-secondary border-border" data-testid="repair-sort-select">
+                <ArrowUpDown className="w-4 h-4 mr-2" />
+                <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Vehicles</SelectItem>
-                {vehicles.map((vehicle) => (
-                  <SelectItem key={vehicle.id} value={vehicle.id}>
-                    {vehicle.make} {vehicle.model}
+                {sortOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    <span className="flex items-center gap-2">
+                      <option.icon className="w-3 h-3" />
+                      {option.label}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>
