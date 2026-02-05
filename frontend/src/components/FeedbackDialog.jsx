@@ -39,16 +39,24 @@ export default function FeedbackDialog({ open, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
-      toast.error('Please fill in all fields');
+    if (!formData.name.trim() || !formData.message.trim()) {
+      toast.error('Please fill in your name and message');
       return;
     }
 
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      toast.error('Please enter a valid email address');
-      return;
+    // Validate email only if provided
+    if (formData.email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        toast.error('Please enter a valid email address');
+        return;
+      }
+      // Check for allowed domains
+      const email = formData.email.toLowerCase();
+      if (!email.endsWith('.com') && !email.endsWith('.co.nz')) {
+        toast.error('Email must end with .com or .co.nz');
+        return;
+      }
     }
 
     setLoading(true);
