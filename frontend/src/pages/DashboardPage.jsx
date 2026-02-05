@@ -174,18 +174,18 @@ export default function DashboardPage() {
           {/* Total Items */}
           <Link to="/inventory">
             <Card className="bg-card border-border/50 stat-card cursor-pointer hover:border-primary/50 transition-colors" data-testid="stat-total-items">
-              <CardContent className="p-6">
+              <CardContent className="p-4 md:p-6">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs text-muted-foreground tracking-widest uppercase mb-2">
+                    <p className="text-[10px] md:text-xs text-muted-foreground tracking-widest uppercase mb-1 md:mb-2">
                       Total Items
                     </p>
-                    <p className="text-4xl font-mono font-bold text-foreground">
+                    <p className="text-2xl md:text-4xl font-mono font-bold text-foreground">
                       {filteredStats?.total_items || 0}
                     </p>
                   </div>
-                  <div className="w-12 h-12 bg-secondary rounded-sm flex items-center justify-center">
-                    <Package className="w-6 h-6 text-primary" strokeWidth={1.5} />
+                  <div className="w-8 h-8 md:w-12 md:h-12 bg-secondary rounded-sm flex items-center justify-center">
+                    <Package className="w-4 h-4 md:w-6 md:h-6 text-primary" strokeWidth={1.5} />
                   </div>
                 </div>
               </CardContent>
@@ -198,38 +198,38 @@ export default function DashboardPage() {
               className={`bg-card border-border/50 stat-card cursor-pointer hover:border-primary/50 transition-colors ${filteredStats?.low_stock_count > 0 ? 'border-l-4 border-l-accent' : ''}`}
               data-testid="stat-low-stock"
             >
-              <CardContent className="p-6">
+              <CardContent className="p-4 md:p-6">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs text-muted-foreground tracking-widest uppercase mb-2">
+                    <p className="text-[10px] md:text-xs text-muted-foreground tracking-widest uppercase mb-1 md:mb-2">
                       Low Stock
                     </p>
-                    <p className={`text-4xl font-mono font-bold ${filteredStats?.low_stock_count > 0 ? 'text-accent' : 'text-foreground'}`}>
+                    <p className={`text-2xl md:text-4xl font-mono font-bold ${filteredStats?.low_stock_count > 0 ? 'text-accent' : 'text-foreground'}`}>
                       {filteredStats?.low_stock_count || 0}
                     </p>
                   </div>
-                  <div className={`w-12 h-12 rounded-sm flex items-center justify-center ${filteredStats?.low_stock_count > 0 ? 'bg-accent/20' : 'bg-secondary'}`}>
-                  <AlertTriangle className={`w-6 h-6 ${filteredStats?.low_stock_count > 0 ? 'text-accent' : 'text-muted-foreground'}`} strokeWidth={1.5} />
+                  <div className={`w-8 h-8 md:w-12 md:h-12 rounded-sm flex items-center justify-center ${filteredStats?.low_stock_count > 0 ? 'bg-accent/20' : 'bg-secondary'}`}>
+                    <AlertTriangle className={`w-4 h-4 md:w-6 md:h-6 ${filteredStats?.low_stock_count > 0 ? 'text-accent' : 'text-muted-foreground'}`} strokeWidth={1.5} />
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
           </Link>
 
           {/* Total Value */}
           <Card className="bg-card border-border/50 stat-card" data-testid="stat-total-value">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs text-muted-foreground tracking-widest uppercase mb-2">
+                  <p className="text-[10px] md:text-xs text-muted-foreground tracking-widest uppercase mb-1 md:mb-2">
                     Total Value
                   </p>
-                  <p className="text-3xl font-mono font-bold text-accent">
+                  <p className="text-xl md:text-3xl font-mono font-bold text-accent">
                     {formatCurrency(filteredStats?.total_value || 0)}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-secondary rounded-sm flex items-center justify-center">
-                  <DollarSign className="w-6 h-6 text-accent" strokeWidth={1.5} />
+                <div className="w-8 h-8 md:w-12 md:h-12 bg-secondary rounded-sm flex items-center justify-center">
+                  <DollarSign className="w-4 h-4 md:w-6 md:h-6 text-accent" strokeWidth={1.5} />
                 </div>
               </div>
             </CardContent>
@@ -237,7 +237,7 @@ export default function DashboardPage() {
 
           {/* Categories */}
           <Card className="bg-card border-border/50 stat-card" data-testid="stat-categories">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs text-muted-foreground tracking-widest uppercase mb-2">
