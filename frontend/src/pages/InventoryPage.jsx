@@ -491,7 +491,6 @@ export default function InventoryPage() {
                   ))}
                 </TableBody>
               </Table>
-            </div>
           )}
         </Card>
       </div>
