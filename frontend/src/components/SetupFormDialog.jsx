@@ -201,6 +201,25 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
+          {/* Vehicle Selector (only when vehicles prop is provided and no vehicleId) */}
+          {showVehicleSelector && (
+            <div className="space-y-2">
+              <Label htmlFor="vehicle" className="form-label">Vehicle *</Label>
+              <Select value={selectedVehicleId} onValueChange={setSelectedVehicleId}>
+                <SelectTrigger className="bg-secondary border-border" data-testid="setup-vehicle-select">
+                  <SelectValue placeholder="Select a vehicle" />
+                </SelectTrigger>
+                <SelectContent>
+                  {vehicles.map((vehicle) => (
+                    <SelectItem key={vehicle.id} value={vehicle.id}>
+                      {vehicle.make} {vehicle.model}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           {/* Basic Info */}
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2 space-y-2">
