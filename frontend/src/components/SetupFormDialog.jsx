@@ -100,6 +100,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
         rating: setup.rating || 0,
         notes: setup.notes || ''
       });
+      setSelectedVehicleId(setup.vehicle_id || vehicleId || preselectedVehicleId || '');
     } else {
       setFormData({
         name: '',
