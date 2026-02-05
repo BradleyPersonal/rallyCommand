@@ -119,14 +119,42 @@ export default function RepairsPage() {
     fetchData();
   }, [fetchData]);
 
-  // Filter repairs when selectedVehicle or repairs change
+  // Filter and sort repairs
   useEffect(() => {
-    if (selectedVehicle === 'all') {
-      setFilteredRepairs(repairs);
-    } else {
-      setFilteredRepairs(repairs.filter(r => r.vehicle_id === selectedVehicle));
+    let filtered = repairs;
+    
+    // Apply global vehicle filter
+    if (globalVehicle) {
+      filtered = filtered.filter(r => r.vehicle_id === globalVehicle.id);
     }
-  }, [selectedVehicle, repairs]);
+    
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(r => 
+        r.cause_of_damage?.toLowerCase().includes(query) ||
+        r.affected_area?.toLowerCase().includes(query)
+      );
+    }
+    
+    // Apply sorting
+    filtered = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'date_asc':
+          return new Date(a.created_at) - new Date(b.created_at);
+        case 'date_desc':
+          return new Date(b.created_at) - new Date(a.created_at);
+        case 'cost_asc':
+          return (a.total_parts_cost || 0) - (b.total_parts_cost || 0);
+        case 'cost_desc':
+          return (b.total_parts_cost || 0) - (a.total_parts_cost || 0);
+        default:
+          return new Date(b.created_at) - new Date(a.created_at);
+      }
+    });
+    
+    setFilteredRepairs(filtered);
+  }, [repairs, globalVehicle, searchQuery, sortBy]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this repair log?')) return;
