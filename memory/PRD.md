@@ -193,9 +193,20 @@ Build an app that can keep track of inventory for a rally car.
 - ✅ **New Setups page** (/setups)
   - Similar to Repairs page layout
   - Shows all setups across all vehicles
-  - Vehicle filter dropdown synced with global filter
   - Search functionality
   - New Setup button with vehicle selector
+
+### Phase 11 - UI Refinements (Feb 5, 2026)
+- ✅ **Removed local vehicle filters** from:
+  - Inventory page (global Garage filter still works)
+  - Setups page (search-only now)
+  - Repairs page (replaced with search + sort)
+- ✅ **Repairs page enhancements**
+  - Search by title (cause of damage) and affected area
+  - Sort by: Date (Newest/Oldest), Cost (High/Low)
+- ✅ **Part Condition display**
+  - Shows on Item Detail page only (not list view)
+  - Color-coded badge: New (green), Used (yellow), Refurbished (blue)
 
 ## API Endpoints
 - Auth: POST /api/auth/register, /api/auth/login, GET /api/auth/me
