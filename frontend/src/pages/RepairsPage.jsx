@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
+import { useVehicleFilter } from '@/context/VehicleFilterContext';
 import Layout from '@/components/Layout';
 import RepairFormDialog from '@/components/RepairFormDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,6 +40,7 @@ const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
 export default function RepairsPage() {
   const { getAuthHeader } = useAuth();
+  const { selectedVehicle: globalVehicle } = useVehicleFilter();
   const [repairs, setRepairs] = useState([]);
   const [filteredRepairs, setFilteredRepairs] = useState([]);
   const [vehicles, setVehicles] = useState([]);
@@ -47,6 +49,15 @@ export default function RepairsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingRepair, setEditingRepair] = useState(null);
   const [selectedVehicle, setSelectedVehicle] = useState('all');
+
+  // Sync local filter with global vehicle filter
+  useEffect(() => {
+    if (globalVehicle) {
+      setSelectedVehicle(globalVehicle.id);
+    } else {
+      setSelectedVehicle('all');
+    }
+  }, [globalVehicle]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
