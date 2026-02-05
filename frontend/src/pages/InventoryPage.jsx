@@ -406,80 +406,79 @@ export default function InventoryPage() {
               )}
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table className="inventory-table">
-                <TableHeader>
-                  <TableRow className="border-b border-border hover:bg-transparent">
-                    <TableHead className="text-muted-foreground">Name</TableHead>
-                    <TableHead className="text-muted-foreground">Part #</TableHead>
-                    <TableHead className="text-muted-foreground">Category</TableHead>
-                    <TableHead className="text-muted-foreground text-center">Qty</TableHead>
-                    <TableHead className="text-muted-foreground">Location</TableHead>
-                    <TableHead className="text-muted-foreground text-right">Price</TableHead>
-                    <TableHead className="text-muted-foreground text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredItems.map((item, index) => (
-                    <TableRow 
-                      key={item.id}
-                      className={`inventory-row border-b border-border/50 animate-fade-in ${isLowStock(item) ? 'low-stock' : ''}`}
-                      style={{ animationDelay: `${index * 0.03}s` }}
-                      data-testid={`inventory-row-${item.id}`}
-                    >
-                      <TableCell className="font-medium text-foreground">
-                        <Link 
-                          to={`/inventory/${item.id}`}
-                          className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
-                          data-testid={`item-name-link-${item.id}`}
-                        >
-                          {isLowStock(item) && (
-                            <AlertTriangle className="w-4 h-4 text-accent flex-shrink-0" />
-                          )}
-                          {item.name}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="font-mono text-muted-foreground">
-                        {item.part_number || '-'}
-                      </TableCell>
-                      <TableCell>
-                        {getCategoryBadge(item.category)}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge 
-                          variant="secondary"
-                          className={`quantity-badge ${isLowStock(item) ? 'quantity-low' : 'quantity-ok'}`}
-                        >
-                          {item.quantity}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {item.location || '-'}
-                      </TableCell>
-                      <TableCell className="text-right price font-mono">
-                        ${item.price.toFixed(2)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" data-testid={`item-menu-${item.id}`}>
-                              <MoreHorizontal className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild>
-                              <Link to={`/inventory/${item.id}`} className="cursor-pointer" data-testid={`view-item-${item.id}`}>
-                                <Eye className="w-4 h-4 mr-2" />
-                                View Details
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleEdit(item)} className="cursor-pointer" data-testid={`edit-item-${item.id}`}>
-                              <Pencil className="w-4 h-4 mr-2" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => handleDelete(item.id)} 
-                              className="cursor-pointer text-destructive focus:text-destructive"
+            <Table className="inventory-table">
+              <TableHeader>
+                <TableRow className="border-b border-border hover:bg-transparent">
+                  <TableHead className="text-muted-foreground">Name</TableHead>
+                  <TableHead className="text-muted-foreground hidden lg:table-cell">Part #</TableHead>
+                  <TableHead className="text-muted-foreground hidden md:table-cell">Category</TableHead>
+                  <TableHead className="text-muted-foreground text-center">Qty</TableHead>
+                  <TableHead className="text-muted-foreground hidden xl:table-cell">Location</TableHead>
+                  <TableHead className="text-muted-foreground text-right hidden sm:table-cell">Price</TableHead>
+                  <TableHead className="text-muted-foreground text-right w-12">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredItems.map((item, index) => (
+                  <TableRow 
+                    key={item.id}
+                    className={`inventory-row border-b border-border/50 animate-fade-in ${isLowStock(item) ? 'low-stock' : ''}`}
+                    style={{ animationDelay: `${index * 0.03}s` }}
+                    data-testid={`inventory-row-${item.id}`}
+                  >
+                    <TableCell className="font-medium text-foreground py-3">
+                      <Link 
+                        to={`/inventory/${item.id}`}
+                        className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
+                        data-testid={`item-name-link-${item.id}`}
+                      >
+                        {isLowStock(item) && (
+                          <AlertTriangle className="w-4 h-4 text-accent flex-shrink-0" />
+                        )}
+                        <span className="truncate">{item.name}</span>
+                      </Link>
+                    </TableCell>
+                    <TableCell className="font-mono text-muted-foreground hidden lg:table-cell">
+                      {item.part_number || '-'}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {getCategoryBadge(item.category)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge 
+                        variant="secondary"
+                        className={`quantity-badge ${isLowStock(item) ? 'quantity-low' : 'quantity-ok'}`}
+                      >
+                        {item.quantity}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground hidden xl:table-cell">
+                      {item.location || '-'}
+                    </TableCell>
+                    <TableCell className="text-right price font-mono hidden sm:table-cell">
+                      ${item.price.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right p-2">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" data-testid={`item-menu-${item.id}`}>
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem asChild>
+                            <Link to={`/inventory/${item.id}`} className="cursor-pointer" data-testid={`view-item-${item.id}`}>
+                              <Eye className="w-4 h-4 mr-2" />
+                              View Details
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEdit(item)} className="cursor-pointer" data-testid={`edit-item-${item.id}`}>
+                            <Pencil className="w-4 h-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleDelete(item.id)} 
+                            className="cursor-pointer text-destructive focus:text-destructive"
                               data-testid={`delete-item-${item.id}`}
                             >
                               <Trash2 className="w-4 h-4 mr-2" />
