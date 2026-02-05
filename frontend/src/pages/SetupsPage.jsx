@@ -1,0 +1,649 @@
+import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
+import { useAuth } from '@/context/AuthContext';
+import { useVehicleFilter } from '@/context/VehicleFilterContext';
+import Layout from '@/components/Layout';
+import SetupFormDialog from '@/components/SetupFormDialog';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
+import { 
+  Plus, 
+  Settings,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  Car,
+  Calendar,
+  Star,
+  Search,
+  Filter,
+  Eye,
+  Cloud,
+  CloudRain,
+  Sun,
+  Droplets
+} from 'lucide-react';
+
+const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
+
+// Condition icons mapping
+const conditionIcons = {
+  sunny: Sun,
+  dry: Sun,
+  raining: CloudRain,
+  wet: Droplets,
+  mixed: Cloud,
+  dusty: Cloud,
+  muddy: Droplets,
+  'snow/ice': Cloud,
+};
+
+export default function SetupsPage() {
+  const { getAuthHeader } = useAuth();
+  const { selectedVehicle: globalVehicle } = useVehicleFilter();
+  const [setups, setSetups] = useState([]);
+  const [filteredSetups, setFilteredSetups] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingSetup, setEditingSetup] = useState(null);
+  const [selectedVehicle, setSelectedVehicle] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [viewingSetup, setViewingSetup] = useState(null);
+
+  // Sync local filter with global vehicle filter
+  useEffect(() => {
+    if (globalVehicle) {
+      setSelectedVehicle(globalVehicle.id);
+    } else {
+      setSelectedVehicle('all');
+    }
+  }, [globalVehicle]);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const headers = getAuthHeader();
+      if (!headers.Authorization) {
+        toast.error('Please log in to view setups');
+        setLoading(false);
+        return;
+      }
+      
+      let vehiclesData = [];
+      let setupsData = [];
+      
+      try {
+        const vehiclesRes = await axios.get(`${API}/vehicles`, { headers });
+        vehiclesData = vehiclesRes.data;
+      } catch (vErr) {
+        console.error('Failed to fetch vehicles:', vErr);
+      }
+      
+      // Fetch setups for all vehicles
+      for (const vehicle of vehiclesData) {
+        try {
+          const setupsRes = await axios.get(`${API}/setups/vehicle/${vehicle.id}`, { headers });
+          setupsData = [...setupsData, ...setupsRes.data];
+        } catch (sErr) {
+          console.error(`Failed to fetch setups for vehicle ${vehicle.id}:`, sErr);
+        }
+      }
+      
+      // Sort by created_at descending
+      setupsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      
+      setVehicles(vehiclesData);
+      setSetups(setupsData);
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+      setError(true);
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please log in again.');
+      } else {
+        toast.error('Failed to fetch data. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [getAuthHeader]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Filter setups based on vehicle and search
+  useEffect(() => {
+    let filtered = setups;
+    
+    // Filter by vehicle
+    if (selectedVehicle !== 'all') {
+      filtered = filtered.filter(s => s.vehicle_id === selectedVehicle);
+    }
+    
+    // Filter by search
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(s => 
+        s.name.toLowerCase().includes(query) ||
+        s.event_name?.toLowerCase().includes(query) ||
+        s.conditions?.toLowerCase().includes(query)
+      );
+    }
+    
+    setFilteredSetups(filtered);
+  }, [selectedVehicle, searchQuery, setups]);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this setup?')) return;
+    
+    try {
+      await axios.delete(`${API}/setups/${id}`, {
+        headers: getAuthHeader()
+      });
+      toast.success('Setup deleted');
+      fetchData();
+    } catch (error) {
+      toast.error('Failed to delete setup');
+    }
+  };
+
+  const handleEdit = (setup) => {
+    setEditingSetup(setup);
+    setDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setEditingSetup(null);
+  };
+
+  const handleSaved = () => {
+    handleDialogClose();
+    fetchData();
+  };
+
+  const getVehicleName = (vehicleId) => {
+    const vehicle = vehicles.find(v => v.id === vehicleId);
+    return vehicle ? `${vehicle.make} ${vehicle.model}` : 'Unknown Vehicle';
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const renderStars = (rating) => {
+    return (
+      <div className="flex items-center gap-0.5">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            className={`w-4 h-4 ${
+              star <= rating 
+                ? 'text-yellow-500 fill-yellow-500' 
+                : 'text-muted-foreground/30'
+            }`}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  const getConditionIcon = (conditions) => {
+    if (!conditions) return null;
+    const conditionLower = conditions.toLowerCase();
+    for (const [key, Icon] of Object.entries(conditionIcons)) {
+      if (conditionLower.includes(key)) {
+        return <Icon className="w-4 h-4" />;
+      }
+    }
+    return <Cloud className="w-4 h-4" />;
+  };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center h-64">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full spinner" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center h-64 space-y-4">
+          <Settings className="w-16 h-16 text-muted-foreground opacity-50" />
+          <p className="text-lg text-muted-foreground">Failed to load data</p>
+          <Button onClick={fetchData} className="mt-2">
+            Try Again
+          </Button>
+        </div>
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout>
+      <div className="space-y-6" data-testid="setups-page">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-4xl md:text-5xl tracking-tighter uppercase text-foreground">
+              Vehicle Setups
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              {filteredSetups.length} setup{filteredSetups.length !== 1 ? 's' : ''} {selectedVehicle !== 'all' || searchQuery ? 'found' : 'saved'}
+            </p>
+          </div>
+          <Button 
+            onClick={() => setDialogOpen(true)}
+            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm font-bold uppercase tracking-wider"
+            data-testid="add-setup-btn"
+            disabled={vehicles.length === 0}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            New Setup
+          </Button>
+        </div>
+
+        {/* Filters */}
+        {vehicles.length > 0 && setups.length > 0 && (
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <div className="flex items-center gap-3">
+              <Filter className="w-4 h-4 text-muted-foreground" />
+              <Select value={selectedVehicle} onValueChange={setSelectedVehicle}>
+                <SelectTrigger className="w-[200px] bg-secondary border-border" data-testid="vehicle-filter-select">
+                  <SelectValue placeholder="Filter by vehicle" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Vehicles</SelectItem>
+                  {vehicles.map((vehicle) => (
+                    <SelectItem key={vehicle.id} value={vehicle.id}>
+                      {vehicle.make} {vehicle.model}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="relative flex-1 max-w-xs">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search setups..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 bg-secondary border-border"
+                data-testid="setup-search-input"
+              />
+            </div>
+          </div>
+        )}
+
+        {vehicles.length === 0 ? (
+          <Card className="bg-card border-border/50">
+            <CardContent className="py-16 text-center text-muted-foreground">
+              <Car className="w-16 h-16 mx-auto mb-4 opacity-50" />
+              <p className="text-lg">No vehicles in your garage</p>
+              <p className="text-sm mt-1">
+                Add a vehicle first before creating setups
+              </p>
+              <Link to="/garage">
+                <Button className="mt-4">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Vehicle
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        ) : setups.length === 0 ? (
+          <Card className="bg-card border-border/50">
+            <CardContent className="py-16 text-center text-muted-foreground">
+              <Settings className="w-16 h-16 mx-auto mb-4 opacity-50" />
+              <p className="text-lg">No setups saved</p>
+              <p className="text-sm mt-1">
+                Start tracking your vehicle setups
+              </p>
+              <Button 
+                onClick={() => setDialogOpen(true)}
+                className="mt-4"
+                data-testid="empty-add-setup-btn"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Create First Setup
+              </Button>
+            </CardContent>
+          </Card>
+        ) : filteredSetups.length === 0 ? (
+          <Card className="bg-card border-border/50">
+            <CardContent className="py-16 text-center text-muted-foreground">
+              <Settings className="w-16 h-16 mx-auto mb-4 opacity-50" />
+              <p className="text-lg">No setups found</p>
+              <p className="text-sm mt-1">
+                Try a different search or filter
+              </p>
+              <Button 
+                onClick={() => { setSelectedVehicle('all'); setSearchQuery(''); }}
+                variant="outline"
+                className="mt-4"
+              >
+                Clear Filters
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredSetups.map((setup, index) => (
+              <Card 
+                key={setup.id}
+                className="bg-card border-border/50 hover:border-primary/50 transition-colors animate-fade-in cursor-pointer"
+                style={{ animationDelay: `${index * 0.05}s` }}
+                data-testid={`setup-card-${setup.id}`}
+                onClick={() => setViewingSetup(setup)}
+              >
+                <CardHeader className="pb-2">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Badge variant="secondary" className="font-medium">
+                          <Car className="w-3 h-3 mr-1" />
+                          {getVehicleName(setup.vehicle_id)}
+                        </Badge>
+                        {setup.conditions && (
+                          <Badge variant="outline" className="text-xs flex items-center gap-1">
+                            {getConditionIcon(setup.conditions)}
+                            {setup.conditions}
+                          </Badge>
+                        )}
+                      </div>
+                      <CardTitle className="text-xl tracking-tight flex items-center gap-2">
+                        <Settings className="w-5 h-5 text-blue-500" />
+                        {setup.name}
+                      </CardTitle>
+                      {setup.event_name && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {setup.event_name}
+                          {setup.event_date && ` • ${setup.event_date}`}
+                        </p>
+                      )}
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem 
+                          onClick={(e) => { e.stopPropagation(); setViewingSetup(setup); }}
+                          className="cursor-pointer"
+                        >
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={(e) => { e.stopPropagation(); handleEdit(setup); }}
+                          className="cursor-pointer"
+                        >
+                          <Pencil className="w-4 h-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={(e) => { e.stopPropagation(); handleDelete(setup.id); }}
+                          className="cursor-pointer text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="w-4 h-4" />
+                      {formatDate(setup.created_at)}
+                    </div>
+                    {setup.rating > 0 && renderStars(setup.rating)}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Add/Edit Setup Dialog */}
+      <SetupFormDialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        onSaved={handleSaved}
+        setup={editingSetup}
+        vehicles={vehicles}
+        preselectedVehicleId={selectedVehicle !== 'all' ? selectedVehicle : vehicles[0]?.id}
+      />
+
+      {/* View Setup Dialog */}
+      <SetupViewDialog 
+        setup={viewingSetup} 
+        vehicleName={viewingSetup ? getVehicleName(viewingSetup.vehicle_id) : ''}
+        onClose={() => setViewingSetup(null)} 
+      />
+    </Layout>
+  );
+}
+
+// Setup View Dialog Component
+function SetupViewDialog({ setup, vehicleName, onClose }) {
+  if (!setup) return null;
+
+  const formatValue = (value, unit = '') => {
+    if (value === 0 || value === '') return '-';
+    return `${value}${unit}`;
+  };
+
+  return (
+    <Dialog open={!!setup} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-card border-border">
+        <DialogHeader>
+          <DialogTitle className="text-2xl tracking-tight uppercase flex items-center gap-2">
+            <Settings className="w-6 h-6 text-blue-500" />
+            {setup.name}
+          </DialogTitle>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Badge variant="secondary">
+              <Car className="w-3 h-3 mr-1" />
+              {vehicleName}
+            </Badge>
+            {setup.conditions && (
+              <Badge variant="outline">{setup.conditions}</Badge>
+            )}
+            {setup.rating > 0 && (
+              <div className="flex items-center gap-0.5 ml-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={`w-4 h-4 ${
+                      star <= setup.rating 
+                        ? 'text-yellow-500 fill-yellow-500' 
+                        : 'text-muted-foreground/30'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogHeader>
+
+        <div className="space-y-6 mt-4">
+          {/* Event Info */}
+          {(setup.event_name || setup.event_date) && (
+            <div className="p-4 bg-secondary/30 rounded-lg">
+              <p className="text-xs text-muted-foreground tracking-widest uppercase mb-1">Event</p>
+              <p className="font-medium">{setup.event_name || 'Unnamed Event'}</p>
+              {setup.event_date && (
+                <p className="text-sm text-muted-foreground">{setup.event_date}</p>
+              )}
+            </div>
+          )}
+
+          {/* Tyre Pressures */}
+          <div>
+            <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Tyre Pressures (PSI)</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-3 bg-secondary/30 rounded text-center">
+                <p className="text-xs text-muted-foreground">FL</p>
+                <p className="text-lg font-mono">{formatValue(setup.tyre_pressure_fl)}</p>
+              </div>
+              <div className="p-3 bg-secondary/30 rounded text-center">
+                <p className="text-xs text-muted-foreground">FR</p>
+                <p className="text-lg font-mono">{formatValue(setup.tyre_pressure_fr)}</p>
+              </div>
+              <div className="p-3 bg-secondary/30 rounded text-center">
+                <p className="text-xs text-muted-foreground">RL</p>
+                <p className="text-lg font-mono">{formatValue(setup.tyre_pressure_rl)}</p>
+              </div>
+              <div className="p-3 bg-secondary/30 rounded text-center">
+                <p className="text-xs text-muted-foreground">RR</p>
+                <p className="text-lg font-mono">{formatValue(setup.tyre_pressure_rr)}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Ride Heights */}
+          <div>
+            <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Ride Height (mm)</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-3 bg-secondary/30 rounded text-center">
+                <p className="text-xs text-muted-foreground">FL</p>
+                <p className="text-lg font-mono">{formatValue(setup.ride_height_fl)}</p>
+              </div>
+              <div className="p-3 bg-secondary/30 rounded text-center">
+                <p className="text-xs text-muted-foreground">FR</p>
+                <p className="text-lg font-mono">{formatValue(setup.ride_height_fr)}</p>
+              </div>
+              <div className="p-3 bg-secondary/30 rounded text-center">
+                <p className="text-xs text-muted-foreground">RL</p>
+                <p className="text-lg font-mono">{formatValue(setup.ride_height_rl)}</p>
+              </div>
+              <div className="p-3 bg-secondary/30 rounded text-center">
+                <p className="text-xs text-muted-foreground">RR</p>
+                <p className="text-lg font-mono">{formatValue(setup.ride_height_rr)}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Alignment */}
+          <div>
+            <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Alignment</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-3 bg-secondary/30 rounded">
+                <p className="text-xs text-muted-foreground">Camber Front</p>
+                <p className="text-lg font-mono">{formatValue(setup.camber_front, '°')}</p>
+              </div>
+              <div className="p-3 bg-secondary/30 rounded">
+                <p className="text-xs text-muted-foreground">Camber Rear</p>
+                <p className="text-lg font-mono">{formatValue(setup.camber_rear, '°')}</p>
+              </div>
+              <div className="p-3 bg-secondary/30 rounded">
+                <p className="text-xs text-muted-foreground">Toe Front</p>
+                <p className="text-lg font-mono">{formatValue(setup.toe_front, 'mm')}</p>
+              </div>
+              <div className="p-3 bg-secondary/30 rounded">
+                <p className="text-xs text-muted-foreground">Toe Rear</p>
+                <p className="text-lg font-mono">{formatValue(setup.toe_rear, 'mm')}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Suspension */}
+          <div>
+            <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Suspension</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-3 bg-secondary/30 rounded">
+                <p className="text-xs text-muted-foreground">Spring Rate Front</p>
+                <p className="text-lg font-mono">{formatValue(setup.spring_rate_front)}</p>
+              </div>
+              <div className="p-3 bg-secondary/30 rounded">
+                <p className="text-xs text-muted-foreground">Spring Rate Rear</p>
+                <p className="text-lg font-mono">{formatValue(setup.spring_rate_rear)}</p>
+              </div>
+              <div className="p-3 bg-secondary/30 rounded">
+                <p className="text-xs text-muted-foreground">Damper Front</p>
+                <p className="text-lg font-mono">{formatValue(setup.damper_front)}</p>
+              </div>
+              <div className="p-3 bg-secondary/30 rounded">
+                <p className="text-xs text-muted-foreground">Damper Rear</p>
+                <p className="text-lg font-mono">{formatValue(setup.damper_rear)}</p>
+              </div>
+              <div className="p-3 bg-secondary/30 rounded">
+                <p className="text-xs text-muted-foreground">ARB Front</p>
+                <p className="text-lg font-mono">{formatValue(setup.arb_front)}</p>
+              </div>
+              <div className="p-3 bg-secondary/30 rounded">
+                <p className="text-xs text-muted-foreground">ARB Rear</p>
+                <p className="text-lg font-mono">{formatValue(setup.arb_rear)}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Aero */}
+          {(setup.aero_front || setup.aero_rear) && (
+            <div>
+              <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Aero</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 bg-secondary/30 rounded">
+                  <p className="text-xs text-muted-foreground">Front</p>
+                  <p className="text-lg">{setup.aero_front || '-'}</p>
+                </div>
+                <div className="p-3 bg-secondary/30 rounded">
+                  <p className="text-xs text-muted-foreground">Rear</p>
+                  <p className="text-lg">{setup.aero_rear || '-'}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Notes */}
+          {setup.notes && (
+            <div>
+              <p className="text-xs text-muted-foreground tracking-widest uppercase mb-2">Notes</p>
+              <p className="text-sm whitespace-pre-wrap">{setup.notes}</p>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
