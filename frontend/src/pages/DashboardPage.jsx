@@ -181,7 +181,7 @@ export default function DashboardPage() {
                       Total Items
                     </p>
                     <p className="text-4xl font-mono font-bold text-foreground">
-                      {stats?.total_items || 0}
+                      {filteredStats?.total_items || 0}
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-secondary rounded-sm flex items-center justify-center">
@@ -195,7 +195,7 @@ export default function DashboardPage() {
           {/* Low Stock */}
           <Link to="/inventory?low_stock=true">
             <Card 
-              className={`bg-card border-border/50 stat-card cursor-pointer hover:border-primary/50 transition-colors ${stats?.low_stock_count > 0 ? 'border-l-4 border-l-accent' : ''}`}
+              className={`bg-card border-border/50 stat-card cursor-pointer hover:border-primary/50 transition-colors ${filteredStats?.low_stock_count > 0 ? 'border-l-4 border-l-accent' : ''}`}
               data-testid="stat-low-stock"
             >
               <CardContent className="p-6">
@@ -204,12 +204,12 @@ export default function DashboardPage() {
                     <p className="text-xs text-muted-foreground tracking-widest uppercase mb-2">
                       Low Stock
                     </p>
-                    <p className={`text-4xl font-mono font-bold ${stats?.low_stock_count > 0 ? 'text-accent' : 'text-foreground'}`}>
-                      {stats?.low_stock_count || 0}
+                    <p className={`text-4xl font-mono font-bold ${filteredStats?.low_stock_count > 0 ? 'text-accent' : 'text-foreground'}`}>
+                      {filteredStats?.low_stock_count || 0}
                     </p>
                   </div>
-                  <div className={`w-12 h-12 rounded-sm flex items-center justify-center ${stats?.low_stock_count > 0 ? 'bg-accent/20' : 'bg-secondary'}`}>
-                  <AlertTriangle className={`w-6 h-6 ${stats?.low_stock_count > 0 ? 'text-accent' : 'text-muted-foreground'}`} strokeWidth={1.5} />
+                  <div className={`w-12 h-12 rounded-sm flex items-center justify-center ${filteredStats?.low_stock_count > 0 ? 'bg-accent/20' : 'bg-secondary'}`}>
+                  <AlertTriangle className={`w-6 h-6 ${filteredStats?.low_stock_count > 0 ? 'text-accent' : 'text-muted-foreground'}`} strokeWidth={1.5} />
                 </div>
               </div>
             </CardContent>
@@ -225,7 +225,7 @@ export default function DashboardPage() {
                     Total Value
                   </p>
                   <p className="text-3xl font-mono font-bold text-accent">
-                    {formatCurrency(stats?.total_value || 0)}
+                    {formatCurrency(filteredStats?.total_value || 0)}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-secondary rounded-sm flex items-center justify-center">
@@ -244,7 +244,7 @@ export default function DashboardPage() {
                     Categories
                   </p>
                   <p className="text-4xl font-mono font-bold text-foreground">
-                    {Object.keys(stats?.categories || {}).length}
+                    {Object.keys(filteredStats?.categories || {}).length}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-secondary rounded-sm flex items-center justify-center">
