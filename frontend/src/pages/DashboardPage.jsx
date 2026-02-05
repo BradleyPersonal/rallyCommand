@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
+import { useVehicleFilter } from '@/context/VehicleFilterContext';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,25 +26,89 @@ const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
 export default function DashboardPage() {
   const { getAuthHeader } = useAuth();
+  const { selectedVehicle } = useVehicleFilter();
   const [stats, setStats] = useState(null);
+  const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchStats();
-  }, []);
+    fetchData();
+  }, [selectedVehicle]);
 
-  const fetchStats = async () => {
+  const fetchData = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get(`${API}/dashboard/stats`, {
-        headers: getAuthHeader()
-      });
-      setStats(response.data);
+      const headers = getAuthHeader();
+      
+      // Fetch stats and inventory
+      const [statsRes, inventoryRes] = await Promise.all([
+        axios.get(`${API}/dashboard/stats`, { headers }),
+        axios.get(`${API}/inventory`, { headers })
+      ]);
+      
+      setStats(statsRes.data);
+      setInventory(inventoryRes.data);
     } catch (error) {
-      console.error('Failed to fetch stats:', error);
+      console.error('Failed to fetch data:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  // Filter inventory based on selected vehicle
+  const getFilteredInventory = () => {
+    if (!selectedVehicle) return inventory;
+    
+    // Show items linked to selected vehicle OR items not linked to any vehicle
+    return inventory.filter(item => 
+      item.vehicle_ids?.includes(selectedVehicle.id) || 
+      !item.vehicle_ids || 
+      item.vehicle_ids.length === 0
+    );
+  };
+
+  // Calculate filtered stats
+  const getFilteredStats = () => {
+    if (!selectedVehicle || !stats) return stats;
+    
+    const filteredItems = getFilteredInventory();
+    
+    const totalItems = filteredItems.length;
+    const lowStockCount = filteredItems.filter(item => item.quantity <= item.min_stock).length;
+    const totalValue = filteredItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    
+    const categories = {};
+    filteredItems.forEach(item => {
+      if (!categories[item.category]) categories[item.category] = 0;
+      categories[item.category]++;
+    });
+    
+    // Filter recent activity
+    const filteredActivity = stats.recent_activity?.filter(activity => {
+      const item = inventory.find(i => i.id === activity.item_id);
+      if (!item) return false;
+      return item.vehicle_ids?.includes(selectedVehicle.id) || 
+             !item.vehicle_ids || 
+             item.vehicle_ids.length === 0;
+    }) || [];
+    
+    // Filter setups and repairs
+    const filteredSetups = stats.recent_setups?.filter(s => s.vehicle_id === selectedVehicle.id) || [];
+    const filteredRepairs = stats.recent_repairs?.filter(r => r.vehicle_id === selectedVehicle.id) || [];
+    
+    return {
+      ...stats,
+      total_items: totalItems,
+      low_stock_count: lowStockCount,
+      total_value: totalValue,
+      categories,
+      recent_activity: filteredActivity,
+      recent_setups: filteredSetups,
+      recent_repairs: filteredRepairs
+    };
+  };
+
+  const filteredStats = getFilteredStats();
 
   const getCategoryIcon = (category) => {
     switch (category) {
