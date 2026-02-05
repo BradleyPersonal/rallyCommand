@@ -355,10 +355,10 @@ export default function InventoryPage() {
               </Button>
             </div>
 
-            {/* Additional Filters Row */}
-            <div className="flex flex-col md:flex-row gap-4 mt-4">
-              {/* Subcategory Filter - Only shown when Parts category is selected */}
-              {categoryFilter === 'parts' && (
+            {/* Additional Filters Row - Subcategory only */}
+            {categoryFilter === 'parts' && (
+              <div className="flex flex-col md:flex-row gap-4 mt-4">
+                {/* Subcategory Filter - Only shown when Parts category is selected */}
                 <Select
                   value={subcategoryFilter || 'all'}
                   onValueChange={(value) => setSubcategoryFilter(value === 'all' ? '' : value)}
@@ -375,31 +375,8 @@ export default function InventoryPage() {
                     ))}
                   </SelectContent>
                 </Select>
-              )}
-
-              {/* Vehicle Filter */}
-              {vehicles.length > 0 && (
-                <Select
-                  value={vehicleFilter || 'all'}
-                  onValueChange={(value) => setVehicleFilter(value === 'all' ? '' : value)}
-                >
-                  <SelectTrigger className="w-full md:w-[220px] bg-secondary border-border" data-testid="vehicle-filter">
-                    <span className="flex items-center gap-2">
-                      <Car className="w-4 h-4" />
-                      <SelectValue placeholder="All Vehicles" />
-                    </span>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Vehicles</SelectItem>
-                    {vehicles.map((vehicle) => (
-                      <SelectItem key={vehicle.id} value={vehicle.id}>
-                        {vehicle.make} {vehicle.model}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
