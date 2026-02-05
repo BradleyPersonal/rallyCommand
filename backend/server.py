@@ -1195,6 +1195,23 @@ async def send_feedback(feedback: FeedbackRequest):
     
     # Try to send email if API key is configured
     if RESEND_API_KEY:
+        # Build email row only if email was provided
+        email_row = ""
+        if feedback.email:
+            email_row = f"""
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Email:</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">
+                        <a href="mailto:{feedback.email}" style="color: #dc2626;">{feedback.email}</a>
+                    </td>
+                </tr>"""
+        else:
+            email_row = """
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Email:</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; color: #9ca3af; font-style: italic;">Not provided</td>
+                </tr>"""
+        
         html_content = f"""
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <h2 style="color: #dc2626; margin-bottom: 20px;">RallyCommand {feedback_type_label}</h2>
@@ -1208,12 +1225,7 @@ async def send_feedback(feedback: FeedbackRequest):
                     <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Name:</td>
                     <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">{feedback.name}</td>
                 </tr>
-                <tr>
-                    <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Email:</td>
-                    <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">
-                        <a href="mailto:{feedback.email}" style="color: #dc2626;">{feedback.email}</a>
-                    </td>
-                </tr>
+                {email_row}
                 <tr>
                     <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; color: #6b7280; vertical-align: top;">Message:</td>
                     <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; white-space: pre-wrap;">{feedback.message}</td>
@@ -1230,9 +1242,12 @@ async def send_feedback(feedback: FeedbackRequest):
             "from": "onboarding@resend.dev",
             "to": [FEEDBACK_RECIPIENT],
             "subject": f"[RallyCommand] {feedback_type_label}: {feedback.name}",
-            "html": html_content,
-            "reply_to": feedback.email
+            "html": html_content
         }
+        
+        # Only add reply_to if email was provided
+        if feedback.email:
+            email_payload["reply_to"] = feedback.email
         
         headers = {
             "Authorization": f"Bearer {RESEND_API_KEY}",
