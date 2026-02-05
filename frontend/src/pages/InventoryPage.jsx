@@ -156,7 +156,6 @@ export default function InventoryPage() {
       params.append('search', search);
       if (categoryFilter) params.append('category', categoryFilter);
       if (subcategoryFilter && categoryFilter === 'parts') params.append('subcategory', subcategoryFilter);
-      if (vehicleFilter) params.append('vehicle_id', vehicleFilter);
       
       const response = await axios.get(`${API}/inventory?${params}`, {
         headers: getAuthHeader()
