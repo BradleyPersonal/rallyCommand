@@ -67,6 +67,11 @@ export const Layout = ({ children }) => {
     fetchVehicles();
   }, [getAuthHeader]);
 
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
   const isActive = (path) => location.pathname === path;
 
   const handleVehicleSelect = (vehicle) => {
@@ -82,14 +87,14 @@ export const Layout = ({ children }) => {
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-14 md:h-16">
             {/* Logo */}
-            <Link to="/dashboard" className="flex items-center gap-3" data-testid="logo-link">
-              <div className="w-10 h-10 bg-primary rounded-sm flex items-center justify-center">
-                <Gauge className="w-6 h-6 text-primary-foreground" strokeWidth={1.5} />
+            <Link to="/dashboard" className="flex items-center gap-2 md:gap-3" data-testid="logo-link">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-sm flex items-center justify-center">
+                <Gauge className="w-5 h-5 md:w-6 md:h-6 text-primary-foreground" strokeWidth={1.5} />
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-lg tracking-tight uppercase text-foreground leading-none">
+                <h1 className="text-base md:text-lg tracking-tight uppercase text-foreground leading-none">
                   RallyCommand
                 </h1>
                 <p className="text-[10px] text-muted-foreground tracking-widest uppercase">
@@ -115,21 +120,22 @@ export const Layout = ({ children }) => {
             </nav>
 
             {/* Right Side Controls */}
-            <div className="flex items-center gap-2">
-              {/* Garage Dropdown - Moved to right side */}
+            <div className="flex items-center gap-1 md:gap-2">
+              {/* Garage Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant={selectedVehicle ? "default" : "outline"}
                     size="sm"
-                    className={`gap-2 ${selectedVehicle ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-border'}`}
+                    className={`gap-1 md:gap-2 px-2 md:px-3 ${selectedVehicle ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-border'}`}
                     data-testid="garage-menu-btn"
                   >
                     <Car className="w-4 h-4" />
-                    <span className="hidden sm:inline">
+                    {/* Hide text on mobile, show on sm+ */}
+                    <span className="hidden sm:inline max-w-[120px] truncate">
                       {selectedVehicle ? `${selectedVehicle.make} ${selectedVehicle.model}` : 'Garage'}
                     </span>
-                    <ChevronDown className="w-3 h-3" />
+                    <ChevronDown className="w-3 h-3 hidden sm:block" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
@@ -188,17 +194,17 @@ export const Layout = ({ children }) => {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* Feedback Button */}
+              {/* Feedback Button - Hidden on mobile, shown in burger menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant="outline" 
                     size="sm"
-                    className="border-primary/50 text-primary hover:bg-primary/10 hover:text-primary gap-2"
+                    className="hidden md:flex border-primary/50 text-primary hover:bg-primary/10 hover:text-primary gap-2"
                     data-testid="feedback-menu-btn"
                   >
                     <MessageSquarePlus className="w-4 h-4" />
-                    <span className="hidden sm:inline">Feedback</span>
+                    <span className="hidden lg:inline">Feedback</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">
@@ -221,15 +227,15 @@ export const Layout = ({ children }) => {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* User Account Menu */}
+              {/* User Account Menu - Hidden on mobile, shown in burger menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="gap-2" data-testid="user-menu-btn">
+                  <Button variant="ghost" className="hidden md:flex gap-2 px-2" data-testid="user-menu-btn">
                     <div className="w-8 h-8 bg-secondary rounded-sm flex items-center justify-center">
                       <User className="w-4 h-4 text-muted-foreground" />
                     </div>
-                    <span className="hidden sm:inline text-foreground">{user?.name}</span>
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    <span className="hidden lg:inline text-foreground max-w-[100px] truncate">{user?.name}</span>
+                    <ChevronDown className="w-4 h-4 text-muted-foreground hidden lg:block" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
@@ -249,7 +255,7 @@ export const Layout = ({ children }) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden"
+                className="md:hidden h-9 w-9"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 data-testid="mobile-menu-btn"
               >
@@ -267,7 +273,7 @@ export const Layout = ({ children }) => {
                 data-testid="active-filter-badge"
               >
                 <Car className="w-3 h-3 mr-1" />
-                Filtering: {selectedVehicle.make} {selectedVehicle.model}
+                <span className="hidden sm:inline">Filtering:</span> {selectedVehicle.make} {selectedVehicle.model}
                 <button 
                   onClick={clearFilter}
                   className="ml-2 hover:text-blue-300"
@@ -280,10 +286,11 @@ export const Layout = ({ children }) => {
           )}
         </div>
 
-        {/* Mobile Nav */}
+        {/* Mobile Nav Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-border bg-background">
-            <nav className="container mx-auto px-4 py-4 space-y-1">
+            <nav className="container mx-auto px-4 py-3 space-y-1">
+              {/* Navigation Items */}
               {navItems.map((item) => (
                 <Link 
                   key={item.path} 
@@ -292,9 +299,9 @@ export const Layout = ({ children }) => {
                 >
                   <Button
                     variant="ghost"
-                    className={`w-full justify-start ${isActive(item.path) ? 'bg-secondary text-primary' : 'text-muted-foreground'}`}
+                    className={`w-full justify-start h-12 text-base ${isActive(item.path) ? 'bg-secondary text-primary' : 'text-muted-foreground'}`}
                   >
-                    <item.icon className="w-4 h-4 mr-2" />
+                    <item.icon className="w-5 h-5 mr-3" />
                     {item.label}
                   </Button>
                 </Link>
@@ -307,19 +314,59 @@ export const Layout = ({ children }) => {
               >
                 <Button
                   variant="ghost"
-                  className={`w-full justify-start ${isActive('/garage') ? 'bg-secondary text-primary' : 'text-muted-foreground'}`}
+                  className={`w-full justify-start h-12 text-base ${isActive('/garage') ? 'bg-secondary text-primary' : 'text-muted-foreground'}`}
                 >
-                  <Car className="w-4 h-4 mr-2" />
+                  <Car className="w-5 h-5 mr-3" />
                   Garage
                 </Button>
               </Link>
+
+              <div className="border-t border-border my-2 pt-2">
+                {/* Feedback Options */}
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start h-12 text-base text-muted-foreground"
+                  onClick={() => {
+                    setFeedbackDialogOpen(true);
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <MessageSquarePlus className="w-5 h-5 mr-3" />
+                  Send Feedback
+                </Button>
+              </div>
+
+              {/* User Profile Section */}
+              <div className="border-t border-border pt-3 mt-2">
+                <div className="flex items-center gap-3 px-2 py-2 mb-2">
+                  <div className="w-10 h-10 bg-secondary rounded-sm flex items-center justify-center">
+                    <User className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{user?.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start h-12 text-base text-destructive hover:text-destructive hover:bg-destructive/10"
+                  onClick={() => {
+                    logout();
+                    setMobileMenuOpen(false);
+                  }}
+                  data-testid="mobile-logout-btn"
+                >
+                  <LogOut className="w-5 h-5 mr-3" />
+                  Logout
+                </Button>
+              </div>
             </nav>
           </div>
         )}
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 md:px-8 py-8">
+      <main className="container mx-auto px-4 md:px-8 py-4 md:py-8">
         {children}
       </main>
 
