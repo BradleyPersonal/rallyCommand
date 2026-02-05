@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
+import { useVehicleFilter } from '@/context/VehicleFilterContext';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import FeedbackDialog from '@/components/FeedbackDialog';
 import {
   DropdownMenu,
@@ -16,6 +19,7 @@ import {
   Package, 
   Car,
   Wrench,
+  Settings,
   Menu,
   X,
   LogOut,
@@ -23,23 +27,55 @@ import {
   ChevronDown,
   MessageSquarePlus,
   Bug,
-  Lightbulb
+  Lightbulb,
+  Eye,
+  CheckCircle2
 } from 'lucide-react';
 
+const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
+
+// Main nav items (without Garage - it moves to the right)
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/inventory', label: 'Inventory', icon: Package },
-  { path: '/garage', label: 'Garage', icon: Car },
+  { path: '/setups', label: 'Setups', icon: Settings },
   { path: '/repairs', label: 'Repairs', icon: Wrench },
 ];
 
 export const Layout = ({ children }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, getAuthHeader } = useAuth();
+  const { selectedVehicle, selectVehicle, clearFilter } = useVehicleFilter();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
+  const [vehicles, setVehicles] = useState([]);
+
+  // Fetch vehicles for the dropdown
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        const headers = getAuthHeader();
+        if (!headers.Authorization) return;
+        
+        const response = await axios.get(`${API}/vehicles`, { headers });
+        setVehicles(response.data);
+      } catch (error) {
+        console.error('Failed to fetch vehicles:', error);
+      }
+    };
+    
+    fetchVehicles();
+  }, [getAuthHeader]);
 
   const isActive = (path) => location.pathname === path;
+
+  const handleVehicleSelect = (vehicle) => {
+    selectVehicle(vehicle);
+  };
+
+  const handleAllVehicles = () => {
+    clearFilter();
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -78,9 +114,81 @@ export const Layout = ({ children }) => {
               ))}
             </nav>
 
-            {/* User Menu */}
+            {/* Right Side Controls */}
             <div className="flex items-center gap-2">
-              {/* Feedback Button - More Prominent */}
+              {/* Garage Dropdown - Moved to right side */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant={selectedVehicle ? "default" : "outline"}
+                    size="sm"
+                    className={`gap-2 ${selectedVehicle ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-border'}`}
+                    data-testid="garage-menu-btn"
+                  >
+                    <Car className="w-4 h-4" />
+                    <span className="hidden sm:inline">
+                      {selectedVehicle ? `${selectedVehicle.make} ${selectedVehicle.model}` : 'Garage'}
+                    </span>
+                    <ChevronDown className="w-3 h-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  {/* View Garage Option */}
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link to="/garage" className="flex items-center">
+                      <Eye className="w-4 h-4 mr-2 text-muted-foreground" />
+                      View Garage
+                    </Link>
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuSeparator />
+                  
+                  {/* Vehicle Options */}
+                  {vehicles.length > 0 ? (
+                    <>
+                      {vehicles.map((vehicle) => (
+                        <DropdownMenuItem 
+                          key={vehicle.id}
+                          onClick={() => handleVehicleSelect(vehicle)}
+                          className="cursor-pointer flex items-center justify-between"
+                          data-testid={`select-vehicle-${vehicle.id}`}
+                        >
+                          <span className="flex items-center">
+                            <Car className="w-4 h-4 mr-2 text-muted-foreground" />
+                            {vehicle.make} {vehicle.model}
+                          </span>
+                          {selectedVehicle?.id === vehicle.id && (
+                            <CheckCircle2 className="w-4 h-4 text-blue-500" />
+                          )}
+                        </DropdownMenuItem>
+                      ))}
+                      
+                      <DropdownMenuSeparator />
+                      
+                      {/* All Vehicles Option */}
+                      <DropdownMenuItem 
+                        onClick={handleAllVehicles}
+                        className="cursor-pointer flex items-center justify-between"
+                        data-testid="select-all-vehicles"
+                      >
+                        <span className="flex items-center">
+                          <Package className="w-4 h-4 mr-2 text-muted-foreground" />
+                          All Vehicles
+                        </span>
+                        {!selectedVehicle && (
+                          <CheckCircle2 className="w-4 h-4 text-blue-500" />
+                        )}
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <DropdownMenuItem disabled className="text-muted-foreground">
+                      No vehicles added yet
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Feedback Button */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
@@ -149,6 +257,27 @@ export const Layout = ({ children }) => {
               </Button>
             </div>
           </div>
+
+          {/* Active Filter Indicator */}
+          {selectedVehicle && (
+            <div className="pb-2 -mt-1">
+              <Badge 
+                variant="secondary" 
+                className="bg-blue-500/10 text-blue-500 border-blue-500/30 text-xs"
+                data-testid="active-filter-badge"
+              >
+                <Car className="w-3 h-3 mr-1" />
+                Filtering: {selectedVehicle.make} {selectedVehicle.model}
+                <button 
+                  onClick={clearFilter}
+                  className="ml-2 hover:text-blue-300"
+                  data-testid="clear-filter-btn"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </Badge>
+            </div>
+          )}
         </div>
 
         {/* Mobile Nav */}
@@ -170,6 +299,20 @@ export const Layout = ({ children }) => {
                   </Button>
                 </Link>
               ))}
+              
+              {/* Mobile Garage Link */}
+              <Link 
+                to="/garage"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Button
+                  variant="ghost"
+                  className={`w-full justify-start ${isActive('/garage') ? 'bg-secondary text-primary' : 'text-muted-foreground'}`}
+                >
+                  <Car className="w-4 h-4 mr-2" />
+                  Garage
+                </Button>
+              </Link>
             </nav>
           </div>
         )}
