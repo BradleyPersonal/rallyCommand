@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
+import { useVehicleFilter } from '@/context/VehicleFilterContext';
 import Layout from '@/components/Layout';
 import ItemFormDialog from '@/components/ItemFormDialog';
 import StocktakeDialog from '@/components/StocktakeDialog';
@@ -71,8 +72,10 @@ const partSubcategories = [
 
 export default function InventoryPage() {
   const { getAuthHeader } = useAuth();
+  const { selectedVehicle } = useVehicleFilter();
   const [searchParams] = useSearchParams();
   const [items, setItems] = useState([]);
+  const [allItems, setAllItems] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -92,7 +95,7 @@ export default function InventoryPage() {
 
   useEffect(() => {
     fetchItems();
-  }, [categoryFilter, subcategoryFilter, vehicleFilter, showLowStock]);
+  }, [categoryFilter, subcategoryFilter, vehicleFilter, showLowStock, selectedVehicle]);
 
   // Clear subcategory filter when category changes away from parts
   useEffect(() => {
@@ -123,7 +126,20 @@ export default function InventoryPage() {
       const response = await axios.get(`${API}/inventory?${params}`, {
         headers: getAuthHeader()
       });
-      setItems(response.data);
+      
+      let fetchedItems = response.data;
+      setAllItems(fetchedItems);
+      
+      // Apply global vehicle filter if selected
+      if (selectedVehicle) {
+        fetchedItems = fetchedItems.filter(item => 
+          item.vehicle_ids?.includes(selectedVehicle.id) || 
+          !item.vehicle_ids || 
+          item.vehicle_ids.length === 0
+        );
+      }
+      
+      setItems(fetchedItems);
     } catch (error) {
       toast.error('Failed to fetch inventory');
     } finally {
@@ -147,7 +163,19 @@ export default function InventoryPage() {
       const response = await axios.get(`${API}/inventory?${params}`, {
         headers: getAuthHeader()
       });
-      setItems(response.data);
+      
+      let fetchedItems = response.data;
+      
+      // Apply global vehicle filter if selected
+      if (selectedVehicle) {
+        fetchedItems = fetchedItems.filter(item => 
+          item.vehicle_ids?.includes(selectedVehicle.id) || 
+          !item.vehicle_ids || 
+          item.vehicle_ids.length === 0
+        );
+      }
+      
+      setItems(fetchedItems);
     } catch (error) {
       toast.error('Search failed');
     }
