@@ -168,6 +168,35 @@ Build an app that can keep track of inventory for a rally car.
 - **repairs:** { id, vehicle_id, cause_of_damage, affected_area, parts_used[], total_parts_cost, repair_details, technicians[], user_id, created_at, updated_at }
 - **stocktakes:** { id, user_id, items[], total_items_counted, items_matched, items_over, items_under, total_value_difference, status, notes, created_at, applied_at }
 
+### Phase 10 - Garage Feature Rework & Global Vehicle Filter (Feb 5, 2026)
+- ✅ **Navbar restructure**
+  - Moved "Garage" button to right side of navbar (next to Feedback)
+  - Added "Setups" nav item in main nav (Dashboard, Inventory, Setups, Repairs)
+- ✅ **Garage dropdown menu** with:
+  - "View Garage" option → navigates to /garage page
+  - List of user's saved vehicles
+  - "All Vehicles" option to clear filter
+  - Checkmark indicator on selected option
+- ✅ **Global vehicle filter context**
+  - VehicleFilterContext for app-wide filter state
+  - Filter persists across page navigation
+  - Filter persists after page refresh (localStorage)
+  - Garage button shows selected vehicle name (blue highlighted)
+- ✅ **Filter indicator badge**
+  - Shows "Filtering: [Vehicle Name]" when active
+  - X button to clear filter
+- ✅ **Page filtering behavior**
+  - Dashboard: Stats and recent activity filtered by vehicle
+  - Inventory: Shows items for selected vehicle OR items with no vehicle assigned
+  - Setups: Shows only setups for selected vehicle
+  - Repairs: Shows only repairs for selected vehicle
+- ✅ **New Setups page** (/setups)
+  - Similar to Repairs page layout
+  - Shows all setups across all vehicles
+  - Vehicle filter dropdown synced with global filter
+  - Search functionality
+  - New Setup button with vehicle selector
+
 ## API Endpoints
 - Auth: POST /api/auth/register, /api/auth/login, GET /api/auth/me
 - Inventory: GET/POST /api/inventory, GET/PUT/DELETE /api/inventory/:id
