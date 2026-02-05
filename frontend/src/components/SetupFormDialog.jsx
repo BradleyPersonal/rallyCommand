@@ -130,8 +130,9 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
         rating: 0,
         notes: ''
       });
+      setSelectedVehicleId(vehicleId || preselectedVehicleId || '');
     }
-  }, [setup, open]);
+  }, [setup, open, vehicleId, preselectedVehicleId]);
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
