@@ -147,20 +147,20 @@ export default function DashboardPage() {
 
   return (
     <Layout>
-      <div className="space-y-8" data-testid="dashboard-page">
+      <div className="space-y-6 md:space-y-8" data-testid="dashboard-page">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
           <div>
-            <h1 className="text-4xl md:text-5xl tracking-tighter uppercase text-foreground">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl tracking-tighter uppercase text-foreground">
               Command Center
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-muted-foreground text-sm md:text-base mt-1">
               Rally car inventory overview
             </p>
           </div>
           <Link to="/inventory">
             <Button 
-              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm font-bold uppercase tracking-wider"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm font-bold uppercase tracking-wider text-sm"
               data-testid="view-inventory-btn"
             >
               View Inventory
@@ -170,7 +170,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {/* Total Items */}
           <Link to="/inventory">
             <Card className="bg-card border-border/50 stat-card cursor-pointer hover:border-primary/50 transition-colors" data-testid="stat-total-items">
