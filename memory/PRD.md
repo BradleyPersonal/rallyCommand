@@ -127,17 +127,20 @@ Build an app that can keep track of inventory for a rally car.
   - Options: New, Used - Good, Used - Fair, Poor/Damaged
   - Stored in database and displayed on item details
 
-### Phase 9 - Feedback System (Feb 4, 2026)
+### Phase 9 - Feedback System (Feb 4-5, 2026)
 - ✅ **Feedback menu** in top right of navbar (message icon)
   - Dropdown with "Report Bug" and "Suggest Feature" options
 - ✅ **Feedback dialog** with:
   - Type selection (Bug Report / Feature Request)
-  - Name input field
-  - Email input field
+  - Name input field (required)
+  - **Email input field (OPTIONAL)**
+    - Shows "(optional)" label
+    - Hint text: "If provided, must end with .com or .co.nz"
+    - Validation: Only accepts .com or .co.nz domain extensions
   - Message textarea with contextual placeholder
-- ✅ **Email integration** using Resend API
+- ✅ **Email integration** using Resend API (via httpx HTTP POST)
   - Sends formatted HTML email to francisdevstudios@gmail.com
-  - Includes reply-to header for easy response
+  - Includes reply-to header ONLY if email is provided
   - Stores feedback records in database
 - ✅ **Success confirmation** with thank you message
 
