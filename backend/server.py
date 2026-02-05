@@ -1147,7 +1147,7 @@ async def delete_stocktake(stocktake_id: str, current_user: dict = Depends(get_c
 
 class FeedbackRequest(BaseModel):
     name: str
-    email: str  # Changed from EmailStr to str for compatibility
+    email: str = ""  # Optional - empty string if not provided
     feedback_type: str  # 'bug' or 'feature'
     message: str
 
