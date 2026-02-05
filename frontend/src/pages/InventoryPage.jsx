@@ -290,78 +290,79 @@ export default function InventoryPage() {
 
         {/* Filters */}
         <Card className="bg-card border-border/50">
-          <CardContent className="p-4">
-            <div className="flex flex-col md:flex-row gap-4">
-              {/* Search */}
-              <div className="flex-1 flex gap-2">
+          <CardContent className="p-3 md:p-4">
+            <div className="flex flex-col gap-3 md:gap-4">
+              {/* Search Row */}
+              <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search by name, part number, supplier..."
+                    placeholder="Search..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    className="pl-10 bg-secondary border-border h-10"
+                    className="pl-10 bg-secondary border-border h-10 text-sm"
                     data-testid="search-input"
                   />
                 </div>
                 <Button 
                   variant="secondary" 
                   onClick={handleSearch}
-                  className="px-4"
+                  className="px-3 md:px-4"
                   data-testid="search-btn"
                 >
-                  Search
+                  <Search className="w-4 h-4 md:hidden" />
+                  <span className="hidden md:inline">Search</span>
                 </Button>
               </div>
 
-              {/* Category Filter */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="min-w-[160px] justify-between" data-testid="category-filter-btn">
-                    <span className="flex items-center gap-2">
-                      <Filter className="w-4 h-4" />
-                      {categories.find(c => c.value === categoryFilter)?.label || 'All Categories'}
-                    </span>
-                    <ChevronDown className="w-4 h-4 ml-2" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[160px]">
-                  {categories.map((cat) => (
-                    <DropdownMenuItem
-                      key={cat.value}
-                      onClick={() => setCategoryFilter(cat.value)}
-                      className="cursor-pointer"
-                      data-testid={`filter-${cat.value || 'all'}`}
-                    >
-                      <cat.icon className="w-4 h-4 mr-2" />
-                      {cat.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {/* Filter Buttons Row */}
+              <div className="flex flex-wrap gap-2">
+                {/* Category Filter */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="flex-1 sm:flex-none min-w-0 sm:min-w-[140px] justify-between text-sm" data-testid="category-filter-btn">
+                      <span className="flex items-center gap-2 truncate">
+                        <Filter className="w-4 h-4 flex-shrink-0" />
+                        <span className="truncate">{categories.find(c => c.value === categoryFilter)?.label || 'All'}</span>
+                      </span>
+                      <ChevronDown className="w-4 h-4 ml-1 flex-shrink-0" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-[160px]">
+                    {categories.map((cat) => (
+                      <DropdownMenuItem
+                        key={cat.value}
+                        onClick={() => setCategoryFilter(cat.value)}
+                        className="cursor-pointer"
+                        data-testid={`filter-${cat.value || 'all'}`}
+                      >
+                        <cat.icon className="w-4 h-4 mr-2" />
+                        {cat.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-              {/* Low Stock Toggle */}
-              <Button
-                variant={showLowStock ? 'default' : 'outline'}
-                onClick={() => setShowLowStock(!showLowStock)}
-                className={showLowStock ? 'bg-accent text-accent-foreground hover:bg-accent/90' : ''}
-                data-testid="low-stock-filter-btn"
-              >
-                <AlertTriangle className="w-4 h-4 mr-2" />
-                Low Stock
-              </Button>
-            </div>
+                {/* Low Stock Toggle */}
+                <Button
+                  variant={showLowStock ? 'default' : 'outline'}
+                  onClick={() => setShowLowStock(!showLowStock)}
+                  className={`flex-1 sm:flex-none text-sm ${showLowStock ? 'bg-accent text-accent-foreground hover:bg-accent/90' : ''}`}
+                  data-testid="low-stock-filter-btn"
+                >
+                  <AlertTriangle className="w-4 h-4 mr-1 md:mr-2" />
+                  <span>Low Stock</span>
+                </Button>
+              </div>
 
-            {/* Additional Filters Row - Subcategory only */}
-            {categoryFilter === 'parts' && (
-              <div className="flex flex-col md:flex-row gap-4 mt-4">
-                {/* Subcategory Filter - Only shown when Parts category is selected */}
+              {/* Subcategory Filter - Only shown when Parts category is selected */}
+              {categoryFilter === 'parts' && (
                 <Select
                   value={subcategoryFilter || 'all'}
                   onValueChange={(value) => setSubcategoryFilter(value === 'all' ? '' : value)}
                 >
-                  <SelectTrigger className="w-full md:w-[180px] bg-secondary border-border" data-testid="subcategory-filter">
+                  <SelectTrigger className="w-full sm:w-[180px] bg-secondary border-border text-sm" data-testid="subcategory-filter">
                     <SelectValue placeholder="All Part Types" />
                   </SelectTrigger>
                   <SelectContent>
@@ -373,8 +374,8 @@ export default function InventoryPage() {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-            )}
+              )}
+            </div>
           </CardContent>
         </Card>
 
