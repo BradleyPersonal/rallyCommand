@@ -45,11 +45,12 @@ else:
 app = FastAPI(redirect_slashes=False)
 
 # CORS middleware - must be added before routes
+# Using allow_origin_regex to allow all origins while supporting credentials
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["*"],
-    allow_methods=["*"],
+    allow_origin_regex=".*",
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
 )
 
