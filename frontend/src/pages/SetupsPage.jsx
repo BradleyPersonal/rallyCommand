@@ -255,39 +255,40 @@ export default function SetupsPage() {
 
   return (
     <Layout>
-      <div className="space-y-6" data-testid="setups-page">
+      <div className="space-y-4 md:space-y-6" data-testid="setups-page">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
           <div>
-            <h1 className="text-4xl md:text-5xl tracking-tighter uppercase text-foreground">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl tracking-tighter uppercase text-foreground">
               Vehicle Setups
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-muted-foreground text-sm md:text-base mt-1">
               {filteredSetups.length} setup{filteredSetups.length !== 1 ? 's' : ''} {selectedVehicle !== 'all' || searchQuery ? 'found' : 'saved'}
             </p>
           </div>
           <Button 
             onClick={() => setDialogOpen(true)}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm font-bold uppercase tracking-wider"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm font-bold uppercase tracking-wider text-sm"
             data-testid="add-setup-btn"
             disabled={vehicles.length === 0}
           >
-            <Plus className="w-4 h-4 mr-2" />
-            New Setup
+            <Plus className="w-4 h-4 mr-1 md:mr-2" />
+            <span className="hidden sm:inline">New Setup</span>
+            <span className="sm:hidden">New</span>
           </Button>
         </div>
 
         {/* Search */}
         {vehicles.length > 0 && setups.length > 0 && (
-          <div className="flex items-start sm:items-center gap-3">
-            <div className="relative flex-1 max-w-md">
+          <div className="flex items-stretch sm:items-center gap-3">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="Search setups..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 bg-secondary border-border"
+                className="pl-9 bg-secondary border-border text-sm"
                 data-testid="setup-search-input"
               />
             </div>
