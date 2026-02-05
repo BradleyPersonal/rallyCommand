@@ -179,7 +179,9 @@ export default function FeedbackDialog({ open, onClose }) {
 
           {/* Email */}
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-muted-foreground">Email Address</Label>
+            <Label htmlFor="email" className="text-muted-foreground">
+              Email Address <span className="text-xs text-muted-foreground/70">(optional)</span>
+            </Label>
             <Input
               id="email"
               type="email"
@@ -189,6 +191,9 @@ export default function FeedbackDialog({ open, onClose }) {
               className="bg-secondary border-border focus:border-primary"
               data-testid="feedback-email-input"
             />
+            <p className="text-xs text-muted-foreground">
+              If provided, must end with .com or .co.nz
+            </p>
           </div>
 
           {/* Message */}
