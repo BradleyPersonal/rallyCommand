@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { VehicleFilterProvider } from "@/context/VehicleFilterContext";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import DashboardPage from "@/pages/DashboardPage";
@@ -11,6 +12,7 @@ import VehicleDetailPage from "@/pages/VehicleDetailPage";
 import VehicleSetupsPage from "@/pages/VehicleSetupsPage";
 import VehicleRepairsPage from "@/pages/VehicleRepairsPage";
 import RepairsPage from "@/pages/RepairsPage";
+import SetupsPage from "@/pages/SetupsPage";
 import "@/App.css";
 
 const ProtectedRoute = ({ children }) => {
