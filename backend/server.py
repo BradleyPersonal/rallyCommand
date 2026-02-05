@@ -843,8 +843,13 @@ async def delete_setup(setup_id: str, current_user: dict = Depends(get_current_u
 # ============== ROOT ROUTE ==============
 
 @api_router.get("/")
-async def root():
+async def api_root():
     return {"message": "RallyCommand API"}
+
+# Health check at actual root "/" for deployment platforms
+@app.get("/")
+async def root():
+    return {"status": "ok", "message": "RallyCommand API is running"}
 
 # ============== REPAIR LOG MODELS ==============
 
