@@ -8,6 +8,7 @@ import RepairFormDialog from '@/components/RepairFormDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -33,10 +34,21 @@ import {
   DollarSign,
   Users,
   AlertTriangle,
-  Filter
+  Search,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
+
+// Sorting options
+const sortOptions = [
+  { value: 'date_desc', label: 'Date (Newest)', icon: ArrowDown },
+  { value: 'date_asc', label: 'Date (Oldest)', icon: ArrowUp },
+  { value: 'cost_desc', label: 'Cost (High to Low)', icon: ArrowDown },
+  { value: 'cost_asc', label: 'Cost (Low to High)', icon: ArrowUp },
+];
 
 export default function RepairsPage() {
   const { getAuthHeader } = useAuth();
@@ -48,16 +60,8 @@ export default function RepairsPage() {
   const [error, setError] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingRepair, setEditingRepair] = useState(null);
-  const [selectedVehicle, setSelectedVehicle] = useState('all');
-
-  // Sync local filter with global vehicle filter
-  useEffect(() => {
-    if (globalVehicle) {
-      setSelectedVehicle(globalVehicle.id);
-    } else {
-      setSelectedVehicle('all');
-    }
-  }, [globalVehicle]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('date_desc');
 
   const fetchData = useCallback(async () => {
     setLoading(true);
