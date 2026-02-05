@@ -44,6 +44,15 @@ else:
 # Disable redirect_slashes to prevent 405 errors on POST requests in production
 app = FastAPI(redirect_slashes=False)
 
+# CORS middleware - must be added before routes
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
