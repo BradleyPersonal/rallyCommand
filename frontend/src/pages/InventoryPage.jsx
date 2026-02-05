@@ -81,7 +81,6 @@ export default function InventoryPage() {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState(searchParams.get('category') || '');
   const [subcategoryFilter, setSubcategoryFilter] = useState('');
-  const [vehicleFilter, setVehicleFilter] = useState('');
   const [showLowStock, setShowLowStock] = useState(searchParams.get('low_stock') === 'true');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
