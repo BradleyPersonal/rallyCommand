@@ -41,7 +41,8 @@ else:
     print("⚠ WARNING: RESEND_API_KEY not found in environment variables!")
 
 # Create the main app
-app = FastAPI()
+# Disable redirect_slashes to prevent 405 errors on POST requests in production
+app = FastAPI(redirect_slashes=False)
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
