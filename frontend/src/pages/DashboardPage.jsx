@@ -265,9 +265,9 @@ export default function DashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {stats?.categories && Object.keys(stats.categories).length > 0 ? (
+              {filteredStats?.categories && Object.keys(filteredStats.categories).length > 0 ? (
                 <div className="space-y-4">
-                  {Object.entries(stats.categories).map(([category, count]) => (
+                  {Object.entries(filteredStats.categories).map(([category, count]) => (
                     <Link 
                       key={category}
                       to={`/inventory?category=${category}`}
@@ -318,8 +318,8 @@ export default function DashboardPage() {
                 const allActivity = [];
                 
                 // Add usage logs (inventory usage)
-                if (stats?.recent_activity) {
-                  stats.recent_activity.forEach((activity) => {
+                if (filteredStats?.recent_activity) {
+                  filteredStats.recent_activity.forEach((activity) => {
                     allActivity.push({
                       type: 'usage',
                       id: activity.id,
@@ -333,8 +333,8 @@ export default function DashboardPage() {
                 }
                 
                 // Add recent setups
-                if (stats?.recent_setups) {
-                  stats.recent_setups.forEach((setup) => {
+                if (filteredStats?.recent_setups) {
+                  filteredStats.recent_setups.forEach((setup) => {
                     allActivity.push({
                       type: 'setup',
                       id: setup.id,
@@ -349,8 +349,8 @@ export default function DashboardPage() {
                 }
                 
                 // Add recent repairs
-                if (stats?.recent_repairs) {
-                  stats.recent_repairs.forEach((repair) => {
+                if (filteredStats?.recent_repairs) {
+                  filteredStats.recent_repairs.forEach((repair) => {
                     allActivity.push({
                       type: 'repair',
                       id: repair.id,
