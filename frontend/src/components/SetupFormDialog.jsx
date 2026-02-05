@@ -35,10 +35,12 @@ const CONDITION_OPTIONS = [
   { value: 'snow', label: 'Snow/Ice' },
 ];
 
-export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId }) => {
+export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehicles, preselectedVehicleId }) => {
   const { getAuthHeader } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [selectedVehicleId, setSelectedVehicleId] = useState(vehicleId || preselectedVehicleId || '');
   const isEditing = !!setup; // Only show rating when editing an existing setup
+  const showVehicleSelector = !vehicleId && vehicles && vehicles.length > 0;
   const [formData, setFormData] = useState({
     name: '',
     conditions: '',
