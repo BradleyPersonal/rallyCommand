@@ -289,6 +289,27 @@ export default function ItemDetailPage() {
                       <p className="text-foreground">{item.location || '-'}</p>
                     </div>
                   </div>
+
+                  {/* Part Condition - only for 'parts' category */}
+                  {item.category === 'parts' && item.condition && (
+                    <div className="flex items-start gap-3">
+                      <Package className="w-5 h-5 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-xs text-muted-foreground tracking-widest uppercase">Condition</p>
+                        <Badge 
+                          variant="outline" 
+                          className={`mt-1 capitalize ${
+                            item.condition === 'new' ? 'border-green-500 text-green-500' :
+                            item.condition === 'used' ? 'border-yellow-500 text-yellow-500' :
+                            item.condition === 'refurbished' ? 'border-blue-500 text-blue-500' :
+                            'border-muted-foreground text-muted-foreground'
+                          }`}
+                        >
+                          {item.condition}
+                        </Badge>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-4">
