@@ -150,10 +150,12 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
       return;
     }
 
+    // Determine the vehicle ID to use
+    const effectiveVehicleId = vehicleId || selectedVehicleId;
+
     // Validate vehicleId for new setups
-    if (!setup && !vehicleId) {
-      toast.error('Vehicle ID is missing. Please refresh the page and try again.');
-      console.error('Setup creation failed: vehicleId is undefined');
+    if (!setup && !effectiveVehicleId) {
+      toast.error('Please select a vehicle');
       return;
     }
 
@@ -170,7 +172,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
         const payload = {
           ...newSetupData,
           rating: 0, // Always start with 0 rating for new setups
-          vehicle_id: vehicleId
+          vehicle_id: effectiveVehicleId
         };
         console.log('Creating setup with payload:', payload);
         await axios.post(`${API}/setups`, payload, {
