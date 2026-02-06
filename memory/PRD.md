@@ -226,6 +226,14 @@ Build an app that can keep track of inventory for a rally car.
 - ✅ **Compact stat cards** on mobile (2-column grid, smaller padding)
 - ✅ **Touch-friendly button sizing** throughout
 
+### Phase 13 - Stocktake Vehicle Filter (Feb 6, 2026)
+- ✅ **Vehicle filter dropdown** in stocktake dialog
+  - "All Vehicles" option (default) - includes all inventory items
+  - Specific vehicle options - includes items for that vehicle OR universal items (no vehicle assigned)
+- ✅ **Dynamic item count** updates based on selected vehicle filter
+- ✅ **Helper text** explains what items will be included
+- ✅ **PDF generation** respects vehicle filter and includes filter info in header
+
 ## API Endpoints
 - Auth: POST /api/auth/register, /api/auth/login, GET /api/auth/me
 - Inventory: GET/POST /api/inventory, GET/PUT/DELETE /api/inventory/:id
