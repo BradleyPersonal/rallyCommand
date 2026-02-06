@@ -53,13 +53,27 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const refreshUser = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    
+    try {
+      const response = await axios.get(`${API}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUser(response.data);
+    } catch (error) {
+      console.error('Failed to refresh user:', error);
+    }
+  };
+
   const getAuthHeader = () => {
     const token = localStorage.getItem('token');
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, getAuthHeader }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, getAuthHeader, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
