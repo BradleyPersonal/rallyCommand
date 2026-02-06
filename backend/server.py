@@ -82,6 +82,14 @@ class TokenResponse(BaseModel):
     token: str
     user: UserResponse
 
+class AccountUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[str] = None
+    current_password: Optional[str] = None  # Required when changing email
+
+class AccountDelete(BaseModel):
+    password: str
+
 class InventoryItemCreate(BaseModel):
     name: str
     category: str  # parts, tools, fluids
