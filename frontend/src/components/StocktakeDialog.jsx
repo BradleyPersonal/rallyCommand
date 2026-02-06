@@ -16,6 +16,13 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { toast } from 'sonner';
 import { 
   ClipboardList, 
@@ -33,7 +40,8 @@ import {
   MapPin,
   DollarSign,
   AlertTriangle,
-  ArrowLeft
+  ArrowLeft,
+  Car
 } from 'lucide-react';
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
@@ -48,11 +56,52 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
   const [showSummary, setShowSummary] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savedStocktake, setSavedStocktake] = useState(null);
+  const [vehicles, setVehicles] = useState([]);
+  const [selectedVehicle, setSelectedVehicle] = useState('all');
+  const [filteredItems, setFilteredItems] = useState([]);
 
-  // Initialize stocktake data when items change
+  // Fetch vehicles when dialog opens
   useEffect(() => {
-    if (items && items.length > 0) {
-      setStocktakeData(items.map(item => ({
+    if (open) {
+      fetchVehicles();
+    }
+  }, [open]);
+
+  const fetchVehicles = async () => {
+    try {
+      const headers = getAuthHeader();
+      if (!headers.Authorization) return;
+      const response = await axios.get(`${API}/vehicles`, { headers });
+      setVehicles(response.data);
+    } catch (error) {
+      console.error('Failed to fetch vehicles:', error);
+    }
+  };
+
+  // Filter items based on selected vehicle
+  useEffect(() => {
+    if (!items || items.length === 0) {
+      setFilteredItems([]);
+      return;
+    }
+
+    if (selectedVehicle === 'all') {
+      setFilteredItems(items);
+    } else {
+      // Show items linked to selected vehicle OR items with no vehicle assigned
+      const filtered = items.filter(item => 
+        item.vehicle_ids?.includes(selectedVehicle) || 
+        !item.vehicle_ids || 
+        item.vehicle_ids.length === 0
+      );
+      setFilteredItems(filtered);
+    }
+  }, [items, selectedVehicle]);
+
+  // Initialize stocktake data when filtered items change
+  useEffect(() => {
+    if (filteredItems && filteredItems.length > 0) {
+      setStocktakeData(filteredItems.map(item => ({
         item_id: item.id,
         item_name: item.name,
         location: item.location || 'Not specified',
@@ -63,8 +112,10 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
         price: item.price,
         value_difference: 0
       })));
+    } else {
+      setStocktakeData([]);
     }
-  }, [items]);
+  }, [filteredItems]);
 
   // Reset when dialog closes
   useEffect(() => {
