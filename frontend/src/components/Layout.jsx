@@ -345,7 +345,12 @@ export const Layout = ({ children }) => {
 
               {/* User Profile Section */}
               <div className="border-t border-border pt-3 mt-2">
-                <div className="flex items-center gap-3 px-2 py-2 mb-2">
+                <Link 
+                  to="/account"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-2 py-2 mb-2 rounded-lg hover:bg-secondary/50 transition-colors"
+                  data-testid="mobile-profile-link"
+                >
                   <div className="w-10 h-10 bg-secondary rounded-sm flex items-center justify-center">
                     <User className="w-5 h-5 text-muted-foreground" />
                   </div>
@@ -353,19 +358,7 @@ export const Layout = ({ children }) => {
                     <p className="text-sm font-medium text-foreground truncate">{user?.name}</p>
                     <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                   </div>
-                </div>
-                <Link 
-                  to="/account"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start h-12 text-base text-muted-foreground mb-1"
-                    data-testid="mobile-account-settings-btn"
-                  >
-                    <Settings className="w-5 h-5 mr-3" />
-                    Account Settings
-                  </Button>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground -rotate-90" />
                 </Link>
                 <Button
                   variant="ghost"
