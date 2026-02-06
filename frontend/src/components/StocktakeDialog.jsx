@@ -126,6 +126,7 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
       setNotes('');
       setSavedStocktake(null);
       setTempCount(0);
+      setSelectedVehicle('all');
     }
   }, [open]);
 
