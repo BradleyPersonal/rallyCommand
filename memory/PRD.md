@@ -234,6 +234,29 @@ Build an app that can keep track of inventory for a rally car.
 - ✅ **Helper text** explains what items will be included
 - ✅ **PDF generation** respects vehicle filter and includes filter info in header
 
+### Phase 14 - Account Settings & Theme System (Feb 6, 2026)
+- ✅ **Account Settings Page** (`/account`)
+  - View profile information (name, email, member since)
+  - Email displayed redacted (e.g., `de*o@r*******.com`) with toggle to reveal
+  - Edit name directly
+  - Edit email with password confirmation required
+- ✅ **Theme System**
+  - Three options: Light, Dark (default), System
+  - Theme persists across sessions (localStorage)
+  - System option follows OS preference
+  - Theme previews in account settings
+  - Professional light theme with proper contrast
+- ✅ **Data Export**
+  - Export all user data as JSON
+  - Includes: profile, vehicles, inventory, repairs, setups, stocktakes
+- ✅ **Account Deletion**
+  - Danger Zone section with red styling
+  - Requires typing "DELETE" and password confirmation
+  - Deletes all associated data (vehicles, inventory, repairs, etc.)
+- ✅ **Navigation Updates**
+  - Account Settings link in desktop user dropdown
+  - Clickable profile card in mobile menu → Account Settings
+
 ## API Endpoints
 - Auth: POST /api/auth/register, /api/auth/login, GET /api/auth/me
 - Inventory: GET/POST /api/inventory, GET/PUT/DELETE /api/inventory/:id
