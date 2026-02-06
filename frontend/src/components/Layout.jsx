@@ -354,6 +354,19 @@ export const Layout = ({ children }) => {
                     <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                   </div>
                 </div>
+                <Link 
+                  to="/account"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start h-12 text-base text-muted-foreground mb-1"
+                    data-testid="mobile-account-settings-btn"
+                  >
+                    <Settings className="w-5 h-5 mr-3" />
+                    Account Settings
+                  </Button>
+                </Link>
                 <Button
                   variant="ghost"
                   className="w-full justify-start h-12 text-base text-destructive hover:text-destructive hover:bg-destructive/10"
