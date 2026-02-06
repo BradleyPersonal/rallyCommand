@@ -149,20 +149,29 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/account"
+              element={
+                <ProtectedRoute>
+                  <AccountPage />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
           <Toaster 
             position="top-right" 
             toastOptions={{
               style: {
-                background: 'hsl(240 6% 7%)',
-                border: '1px solid hsl(240 4% 16%)',
-                color: 'hsl(0 0% 98%)',
+                background: 'hsl(var(--card))',
+                border: '1px solid hsl(var(--border))',
+                color: 'hsl(var(--foreground))',
               },
             }}
           />
         </BrowserRouter>
       </VehicleFilterProvider>
     </AuthProvider>
+    </ThemeProvider>
   );
 }
 
