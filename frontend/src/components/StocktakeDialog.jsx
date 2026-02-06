@@ -242,6 +242,11 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
   };
 
   const generatePDF = () => {
+    const itemsToInclude = filteredItems;
+    const vehicleName = selectedVehicle === 'all' 
+      ? 'All Vehicles' 
+      : vehicles.find(v => v.id === selectedVehicle)?.make + ' ' + vehicles.find(v => v.id === selectedVehicle)?.model || 'Unknown';
+
     const printContent = `
       <!DOCTYPE html>
       <html>
@@ -250,6 +255,7 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
         <style>
           body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
           h1 { text-align: center; margin-bottom: 5px; }
+          .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 5px; }
           .date { text-align: center; color: #666; margin-bottom: 30px; }
           table { width: 100%; border-collapse: collapse; margin-top: 20px; }
           th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
@@ -265,6 +271,7 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
       </head>
       <body>
         <h1>RALLYCOMMAND STOCKTAKE REPORT</h1>
+        <p class="subtitle">Vehicle Filter: ${vehicleName}</p>
         <p class="date">Generated: ${new Date().toLocaleDateString('en-US', { 
           weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
           hour: '2-digit', minute: '2-digit'
@@ -282,7 +289,7 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
             </tr>
           </thead>
           <tbody>
-            ${items.map(item => `
+            ${itemsToInclude.map(item => `
               <tr>
                 <td>${item.name}</td>
                 <td style="text-transform: capitalize;">${item.category}</td>
@@ -295,10 +302,10 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
             `).join('')}
             <tr class="total-row">
               <td colspan="3">TOTAL</td>
-              <td class="qty">${items.reduce((sum, item) => sum + item.quantity, 0)}</td>
+              <td class="qty">${itemsToInclude.reduce((sum, item) => sum + item.quantity, 0)}</td>
               <td></td>
               <td></td>
-              <td class="price">$${items.reduce((sum, item) => sum + (item.quantity * item.price), 0).toFixed(2)}</td>
+              <td class="price">$${itemsToInclude.reduce((sum, item) => sum + (item.quantity * item.price), 0).toFixed(2)}</td>
             </tr>
           </tbody>
         </table>
