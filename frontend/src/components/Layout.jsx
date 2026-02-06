@@ -244,6 +244,13 @@ export const Layout = ({ children }) => {
                     <p className="text-xs text-muted-foreground">{user?.email}</p>
                   </div>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link to="/account" data-testid="account-settings-link">
+                      <Settings className="w-4 h-4 mr-2" />
+                      Account Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={logout} className="cursor-pointer text-destructive focus:text-destructive" data-testid="logout-btn">
                     <LogOut className="w-4 h-4 mr-2" />
                     Logout
