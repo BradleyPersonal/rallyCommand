@@ -332,6 +332,11 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
 
   // Mode Selection Screen
   if (mode === null) {
+    const getVehicleName = (vehicleId) => {
+      const vehicle = vehicles.find(v => v.id === vehicleId);
+      return vehicle ? `${vehicle.make} ${vehicle.model}` : 'Unknown';
+    };
+
     return (
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-[500px] bg-card border-border">
@@ -341,11 +346,46 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
               Stocktake Report
             </DialogTitle>
             <DialogDescription>
-              Choose how you want to complete the stocktake
+              Choose which items to count and how to complete the stocktake
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid grid-cols-1 gap-4 mt-6">
+          {/* Vehicle Filter Selection */}
+          <div className="space-y-2 mt-4">
+            <Label className="text-muted-foreground flex items-center gap-2">
+              <Car className="w-4 h-4" />
+              Vehicle Filter
+            </Label>
+            <Select value={selectedVehicle} onValueChange={setSelectedVehicle}>
+              <SelectTrigger className="bg-secondary border-border" data-testid="stocktake-vehicle-select">
+                <SelectValue placeholder="Select vehicle filter" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  <span className="flex items-center gap-2">
+                    <Package className="w-4 h-4 text-muted-foreground" />
+                    All Vehicles (All Items)
+                  </span>
+                </SelectItem>
+                {vehicles.map((vehicle) => (
+                  <SelectItem key={vehicle.id} value={vehicle.id}>
+                    <span className="flex items-center gap-2">
+                      <Car className="w-4 h-4 text-muted-foreground" />
+                      {vehicle.make} {vehicle.model}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              {selectedVehicle === 'all' 
+                ? 'All inventory items will be included in the stocktake'
+                : `Items for ${getVehicleName(selectedVehicle)} and universal parts will be included`
+              }
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 mt-4">
             <Card 
               className="bg-secondary/30 border-border hover:border-primary/50 cursor-pointer transition-colors"
               onClick={() => setMode('device')}
@@ -389,7 +429,7 @@ export default function StocktakeDialog({ open, onClose, items, onStocktakeCompl
           </div>
 
           <div className="text-center text-sm text-muted-foreground mt-4">
-            {items.length} items to count • Total value: ${items.reduce((sum, item) => sum + (item.quantity * item.price), 0).toFixed(2)}
+            {filteredItems.length} items to count • Total value: ${filteredItems.reduce((sum, item) => sum + (item.quantity * item.price), 0).toFixed(2)}
           </div>
         </DialogContent>
       </Dialog>
