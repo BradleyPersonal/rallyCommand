@@ -386,6 +386,135 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         created_at=current_user["created_at"]
     )
 
+# ============== ACCOUNT ROUTES ==============
+
+@api_router.put("/account")
+async def update_account(update_data: AccountUpdate, current_user: dict = Depends(get_current_user)):
+    """Update account details. Email change requires password confirmation."""
+    updates = {}
+    
+    # Update name if provided
+    if update_data.name is not None:
+        if not update_data.name.strip():
+            raise HTTPException(status_code=400, detail="Name cannot be empty")
+        updates["name"] = update_data.name.strip()
+    
+    # Update email if provided (requires password)
+    if update_data.email is not None:
+        if not update_data.current_password:
+            raise HTTPException(status_code=400, detail="Password required to change email")
+        
+        # Verify current password
+        if current_user["password"] != hash_password(update_data.current_password):
+            raise HTTPException(status_code=401, detail="Incorrect password")
+        
+        # Validate new email
+        new_email = update_data.email.lower().strip()
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", new_email):
+            raise HTTPException(status_code=400, detail="Invalid email format")
+        
+        # Check if email is already in use
+        existing = await db.users.find_one({"email": new_email, "id": {"$ne": current_user["id"]}})
+        if existing:
+            raise HTTPException(status_code=400, detail="Email already in use")
+        
+        updates["email"] = new_email
+    
+    if not updates:
+        raise HTTPException(status_code=400, detail="No updates provided")
+    
+    await db.users.update_one(
+        {"id": current_user["id"]},
+        {"$set": updates}
+    )
+    
+    # Get updated user
+    updated_user = await db.users.find_one({"id": current_user["id"]}, {"_id": 0, "password": 0})
+    return updated_user
+
+@api_router.get("/account/export")
+async def export_account_data(current_user: dict = Depends(get_current_user)):
+    """Export all user data as JSON."""
+    user_id = current_user["id"]
+    
+    # Gather all user data
+    export_data = {
+        "exported_at": datetime.now(timezone.utc).isoformat(),
+        "user": {
+            "id": current_user["id"],
+            "email": current_user["email"],
+            "name": current_user["name"],
+            "created_at": current_user.get("created_at")
+        },
+        "vehicles": [],
+        "inventory": [],
+        "repairs": [],
+        "setups": [],
+        "stocktakes": [],
+        "feedback": []
+    }
+    
+    # Get vehicles
+    vehicles = await db.vehicles.find({"user_id": user_id}, {"_id": 0}).to_list(None)
+    export_data["vehicles"] = vehicles
+    
+    # Get inventory
+    inventory = await db.inventory.find({"user_id": user_id}, {"_id": 0}).to_list(None)
+    export_data["inventory"] = inventory
+    
+    # Get repairs
+    repairs = await db.repairs.find({"user_id": user_id}, {"_id": 0}).to_list(None)
+    export_data["repairs"] = repairs
+    
+    # Get setups for user's vehicles
+    vehicle_ids = [v["id"] for v in vehicles]
+    if vehicle_ids:
+        setups = await db.setups.find({"vehicle_id": {"$in": vehicle_ids}}, {"_id": 0}).to_list(None)
+        export_data["setups"] = setups
+    
+    # Get stocktakes
+    stocktakes = await db.stocktake_records.find({"user_id": user_id}, {"_id": 0}).to_list(None)
+    export_data["stocktakes"] = stocktakes
+    
+    # Get feedback
+    feedback = await db.feedback.find({"user_id": user_id}, {"_id": 0}).to_list(None)
+    export_data["feedback"] = feedback
+    
+    return export_data
+
+@api_router.delete("/account")
+async def delete_account(delete_data: AccountDelete, current_user: dict = Depends(get_current_user)):
+    """Delete account and all associated data. Requires password confirmation."""
+    # Verify password
+    if current_user["password"] != hash_password(delete_data.password):
+        raise HTTPException(status_code=401, detail="Incorrect password")
+    
+    user_id = current_user["id"]
+    
+    # Get vehicle IDs for deleting setups
+    vehicles = await db.vehicles.find({"user_id": user_id}, {"id": 1}).to_list(None)
+    vehicle_ids = [v["id"] for v in vehicles]
+    
+    # Delete all user data
+    await db.inventory.delete_many({"user_id": user_id})
+    await db.usage_logs.delete_many({"user_id": user_id})
+    await db.repairs.delete_many({"user_id": user_id})
+    await db.stocktake_records.delete_many({"user_id": user_id})
+    await db.feedback.delete_many({"user_id": user_id})
+    
+    # Delete setups for user's vehicles
+    if vehicle_ids:
+        await db.setups.delete_many({"vehicle_id": {"$in": vehicle_ids}})
+    
+    # Delete vehicles
+    await db.vehicles.delete_many({"user_id": user_id})
+    
+    # Delete user
+    await db.users.delete_one({"id": user_id})
+    
+    return {"status": "success", "message": "Account and all data deleted"}
+
+
 # ============== INVENTORY ROUTES ==============
 
 @api_router.post("/inventory", response_model=InventoryItem)
