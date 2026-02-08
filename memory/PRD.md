@@ -300,6 +300,7 @@ Build an app that can keep track of inventory for a rally car.
 - Maintenance scheduling reminders
 - Team roles/permissions
 - Setup templates/presets
+- Setup comparison (side-by-side view of two setups)
 - Barcode/QR code scanning
 
 ### P3 (Low Priority)
