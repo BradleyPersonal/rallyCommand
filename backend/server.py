@@ -196,6 +196,12 @@ class SetupCreate(BaseModel):
     name: str
     vehicle_id: str
     conditions: str = ""  # e.g., raining, sunny, dry, wet, mixed
+    # Tyre information
+    tyre_compound: str = ""  # hard, medium, soft
+    tyre_type: str = ""  # slick, wet, rally, gravel
+    tyre_size: str = ""
+    tyre_condition: str = ""  # new, roaded, used, poor
+    # Tyre pressures
     tyre_pressure_fl: float = 0
     tyre_pressure_fr: float = 0
     tyre_pressure_rl: float = 0
@@ -224,6 +230,10 @@ class SetupCreate(BaseModel):
 class SetupUpdate(BaseModel):
     name: Optional[str] = None
     conditions: Optional[str] = None
+    tyre_compound: Optional[str] = None
+    tyre_type: Optional[str] = None
+    tyre_size: Optional[str] = None
+    tyre_condition: Optional[str] = None
     tyre_pressure_fl: Optional[float] = None
     tyre_pressure_fr: Optional[float] = None
     tyre_pressure_rl: Optional[float] = None
