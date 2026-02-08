@@ -497,6 +497,188 @@ async def export_account_data(current_user: dict = Depends(get_current_user)):
     
     return export_data
 
+class ImportData(BaseModel):
+    vehicles: List[dict] = []
+    inventory: List[dict] = []
+    repairs: List[dict] = []
+    setups: List[dict] = []
+    stocktakes: List[dict] = []
+
+@api_router.post("/account/import")
+async def import_account_data(import_data: ImportData, current_user: dict = Depends(get_current_user)):
+    """Import user data from a JSON file. Creates new records with new IDs."""
+    user_id = current_user["id"]
+    now = datetime.now(timezone.utc).isoformat()
+    
+    stats = {
+        "vehicles_imported": 0,
+        "inventory_imported": 0,
+        "repairs_imported": 0,
+        "setups_imported": 0,
+        "stocktakes_imported": 0,
+        "errors": []
+    }
+    
+    # Map old vehicle IDs to new ones
+    vehicle_id_map = {}
+    
+    # Import vehicles
+    for vehicle in import_data.vehicles:
+        try:
+            old_id = vehicle.get("id")
+            new_id = str(uuid.uuid4())
+            vehicle_id_map[old_id] = new_id
+            
+            new_vehicle = {
+                "id": new_id,
+                "make": vehicle.get("make", "Unknown"),
+                "model": vehicle.get("model", "Unknown"),
+                "registration": vehicle.get("registration", ""),
+                "vin": vehicle.get("vin", ""),
+                "photo": vehicle.get("photo", ""),
+                "user_id": user_id,
+                "created_at": now,
+                "updated_at": now
+            }
+            await db.vehicles.insert_one(new_vehicle)
+            stats["vehicles_imported"] += 1
+        except Exception as e:
+            stats["errors"].append(f"Vehicle import error: {str(e)}")
+    
+    # Import inventory
+    for item in import_data.inventory:
+        try:
+            # Map old vehicle IDs to new ones
+            old_vehicle_ids = item.get("vehicle_ids", [])
+            new_vehicle_ids = [vehicle_id_map.get(vid, vid) for vid in old_vehicle_ids if vid in vehicle_id_map]
+            
+            new_item = {
+                "id": str(uuid.uuid4()),
+                "name": item.get("name", "Unknown"),
+                "part_number": item.get("part_number", ""),
+                "category": item.get("category", "parts"),
+                "subcategory": item.get("subcategory", ""),
+                "quantity": item.get("quantity", 0),
+                "min_stock": item.get("min_stock", 1),
+                "price": item.get("price", 0),
+                "supplier": item.get("supplier", ""),
+                "location": item.get("location", ""),
+                "notes": item.get("notes", ""),
+                "photos": item.get("photos", []),
+                "vehicle_ids": new_vehicle_ids,
+                "condition": item.get("condition", ""),
+                "user_id": user_id,
+                "created_at": now,
+                "updated_at": now
+            }
+            await db.inventory.insert_one(new_item)
+            stats["inventory_imported"] += 1
+        except Exception as e:
+            stats["errors"].append(f"Inventory import error: {str(e)}")
+    
+    # Import repairs
+    for repair in import_data.repairs:
+        try:
+            old_vehicle_id = repair.get("vehicle_id")
+            new_vehicle_id = vehicle_id_map.get(old_vehicle_id)
+            
+            if not new_vehicle_id:
+                stats["errors"].append(f"Repair skipped: vehicle not found")
+                continue
+            
+            new_repair = {
+                "id": str(uuid.uuid4()),
+                "vehicle_id": new_vehicle_id,
+                "cause_of_damage": repair.get("cause_of_damage", ""),
+                "affected_area": repair.get("affected_area", ""),
+                "parts_used": repair.get("parts_used", []),
+                "total_parts_cost": repair.get("total_parts_cost", 0),
+                "repair_details": repair.get("repair_details", ""),
+                "technicians": repair.get("technicians", []),
+                "user_id": user_id,
+                "created_at": now,
+                "updated_at": now
+            }
+            await db.repairs.insert_one(new_repair)
+            stats["repairs_imported"] += 1
+        except Exception as e:
+            stats["errors"].append(f"Repair import error: {str(e)}")
+    
+    # Import setups
+    for setup in import_data.setups:
+        try:
+            old_vehicle_id = setup.get("vehicle_id")
+            new_vehicle_id = vehicle_id_map.get(old_vehicle_id)
+            
+            if not new_vehicle_id:
+                stats["errors"].append(f"Setup skipped: vehicle not found")
+                continue
+            
+            new_setup = {
+                "id": str(uuid.uuid4()),
+                "name": setup.get("name", "Imported Setup"),
+                "vehicle_id": new_vehicle_id,
+                "user_id": user_id,
+                "conditions": setup.get("conditions", ""),
+                "tyre_compound": setup.get("tyre_compound", ""),
+                "tyre_type": setup.get("tyre_type", ""),
+                "tyre_size": setup.get("tyre_size", ""),
+                "tyre_condition": setup.get("tyre_condition", ""),
+                "tyre_pressure_fl": setup.get("tyre_pressure_fl", 0),
+                "tyre_pressure_fr": setup.get("tyre_pressure_fr", 0),
+                "tyre_pressure_rl": setup.get("tyre_pressure_rl", 0),
+                "tyre_pressure_rr": setup.get("tyre_pressure_rr", 0),
+                "ride_height_fl": setup.get("ride_height_fl", 0),
+                "ride_height_fr": setup.get("ride_height_fr", 0),
+                "ride_height_rl": setup.get("ride_height_rl", 0),
+                "ride_height_rr": setup.get("ride_height_rr", 0),
+                "camber_front": setup.get("camber_front", 0),
+                "camber_rear": setup.get("camber_rear", 0),
+                "toe_front": setup.get("toe_front", 0),
+                "toe_rear": setup.get("toe_rear", 0),
+                "spring_rate_front": setup.get("spring_rate_front", 0),
+                "spring_rate_rear": setup.get("spring_rate_rear", 0),
+                "damper_front": setup.get("damper_front", 0),
+                "damper_rear": setup.get("damper_rear", 0),
+                "arb_front": setup.get("arb_front", 0),
+                "arb_rear": setup.get("arb_rear", 0),
+                "aero_front": setup.get("aero_front", ""),
+                "aero_rear": setup.get("aero_rear", ""),
+                "event_name": setup.get("event_name", ""),
+                "event_date": setup.get("event_date", ""),
+                "rating": setup.get("rating", 0),
+                "notes": setup.get("notes", ""),
+                "created_at": now,
+                "updated_at": now
+            }
+            await db.setups.insert_one(new_setup)
+            stats["setups_imported"] += 1
+        except Exception as e:
+            stats["errors"].append(f"Setup import error: {str(e)}")
+    
+    # Import stocktakes
+    for stocktake in import_data.stocktakes:
+        try:
+            new_stocktake = {
+                "id": str(uuid.uuid4()),
+                "user_id": user_id,
+                "items": stocktake.get("items", []),
+                "notes": stocktake.get("notes", ""),
+                "status": stocktake.get("status", "completed"),
+                "created_at": now,
+                "applied_at": stocktake.get("applied_at")
+            }
+            await db.stocktake_records.insert_one(new_stocktake)
+            stats["stocktakes_imported"] += 1
+        except Exception as e:
+            stats["errors"].append(f"Stocktake import error: {str(e)}")
+    
+    return {
+        "status": "success",
+        "message": "Data imported successfully",
+        "stats": stats
+    }
+
 @api_router.delete("/account")
 async def delete_account(delete_data: AccountDelete, current_user: dict = Depends(get_current_user)):
     """Delete account and all associated data. Requires password confirmation."""
