@@ -503,6 +503,31 @@ function SetupViewDialog({ setup, vehicleName, onClose }) {
             </div>
           )}
 
+          {/* Tyre Information */}
+          {(setup.tyre_compound || setup.tyre_type || setup.tyre_size || setup.tyre_condition) && (
+            <div>
+              <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Tyre Information</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 bg-secondary/30 rounded">
+                  <p className="text-xs text-muted-foreground">Compound</p>
+                  <p className="text-lg capitalize">{formatValue(setup.tyre_compound)}</p>
+                </div>
+                <div className="p-3 bg-secondary/30 rounded">
+                  <p className="text-xs text-muted-foreground">Condition</p>
+                  <p className="text-lg capitalize">{formatValue(setup.tyre_condition)}</p>
+                </div>
+                <div className="p-3 bg-secondary/30 rounded">
+                  <p className="text-xs text-muted-foreground">Type</p>
+                  <p className="text-lg">{formatValue(setup.tyre_type)}</p>
+                </div>
+                <div className="p-3 bg-secondary/30 rounded">
+                  <p className="text-xs text-muted-foreground">Size</p>
+                  <p className="text-lg font-mono">{formatValue(setup.tyre_size)}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Tyre Pressures */}
           <div>
             <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Tyre Pressures (PSI)</p>
