@@ -747,6 +747,60 @@ export default function AccountPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Export Confirmation Dialog */}
+      <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
+        <DialogContent className="bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="text-xl flex items-center gap-2">
+              <Download className="w-5 h-5 text-primary" />
+              Export Data
+            </DialogTitle>
+            <DialogDescription>
+              Download a backup of your RallyCommand data
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-4">
+            <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+              <p className="text-sm font-medium text-amber-600 dark:text-amber-400 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4" />
+                Security Notice
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">
+                The exported file will contain <strong>all your saved data</strong> including:
+              </p>
+              <ul className="text-sm text-muted-foreground mt-2 space-y-1">
+                <li>• Your profile information (name, email)</li>
+                <li>• All vehicles and their details</li>
+                <li>• Complete inventory records</li>
+                <li>• All repair logs with costs</li>
+                <li>• Vehicle setup configurations</li>
+                <li>• Stocktake history</li>
+              </ul>
+              <p className="text-sm text-muted-foreground mt-3">
+                <strong>Note:</strong> Account credentials (password) are NOT included in the export.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowExportDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleExportData}
+              data-testid="confirm-export-btn"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Download Export File
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 }
