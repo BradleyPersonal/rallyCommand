@@ -266,32 +266,36 @@ class Setup(BaseModel):
     vehicle_id: str
     user_id: str
     conditions: str = ""
-    tyre_pressure_fl: float
-    tyre_pressure_fr: float
-    tyre_pressure_rl: float
-    tyre_pressure_rr: float
-    ride_height_fl: float
-    ride_height_fr: float
-    ride_height_rl: float
-    ride_height_rr: float
-    camber_front: float
-    camber_rear: float
-    toe_front: float
-    toe_rear: float
-    spring_rate_front: float
-    spring_rate_rear: float
-    damper_front: float
-    damper_rear: float
-    arb_front: float
-    arb_rear: float
-    aero_front: str
-    aero_rear: str
-    event_name: str
-    event_date: str
-    rating: int
-    notes: str
-    created_at: str
-    updated_at: str
+    tyre_compound: str = ""
+    tyre_type: str = ""
+    tyre_size: str = ""
+    tyre_condition: str = ""
+    tyre_pressure_fl: float = 0
+    tyre_pressure_fr: float = 0
+    tyre_pressure_rl: float = 0
+    tyre_pressure_rr: float = 0
+    ride_height_fl: float = 0
+    ride_height_fr: float = 0
+    ride_height_rl: float = 0
+    ride_height_rr: float = 0
+    camber_front: float = 0
+    camber_rear: float = 0
+    toe_front: float = 0
+    toe_rear: float = 0
+    spring_rate_front: float = 0
+    spring_rate_rear: float = 0
+    damper_front: float = 0
+    damper_rear: float = 0
+    arb_front: float = 0
+    arb_rear: float = 0
+    aero_front: str = ""
+    aero_rear: str = ""
+    event_name: str = ""
+    event_date: str = ""
+    rating: int = 0
+    notes: str = ""
+    created_at: str = ""
+    updated_at: str = ""
 
 class DashboardStats(BaseModel):
     total_items: int
