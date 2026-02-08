@@ -257,6 +257,27 @@ Build an app that can keep track of inventory for a rally car.
   - Account Settings link in desktop user dropdown
   - Clickable profile card in mobile menu → Account Settings
 
+### Phase 15 - Setup Tyre Fields & Data Import (Feb 8, 2026)
+- ✅ **New Tyre Information fields** in Setup form:
+  - `tyre_compound` dropdown: Soft, Medium, Hard
+  - `tyre_condition` dropdown: New, Roaded, Used, Worn
+  - `tyre_type` text input: e.g., Slick, Wet, Rally, Gravel
+  - `tyre_size` text input: e.g., 205/65R15
+- ✅ **Setup View Dialog** shows Tyre Information section
+  - Displays Compound, Condition, Type, Size when data exists
+  - Capitalized values for readable display
+- ✅ **Data Management section** on Account page:
+  - **Export Data**: Confirmation dialog with Security Notice
+    - Lists all data types that will be exported
+    - Notes that password is NOT included
+    - Download Export File button
+  - **Import Data**: File picker for JSON files
+    - Validates JSON file format
+    - Creates new records with new IDs
+    - Maps old vehicle IDs to new ones for repairs/setups
+    - Shows import statistics (vehicles, inventory, repairs, setups, stocktakes)
+  - Descriptive blurb explaining backup/transfer use case
+
 ## API Endpoints
 - Auth: POST /api/auth/register, /api/auth/login, GET /api/auth/me
 - Inventory: GET/POST /api/inventory, GET/PUT/DELETE /api/inventory/:id
