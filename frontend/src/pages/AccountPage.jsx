@@ -34,8 +34,10 @@ import {
   Trash2,
   AlertTriangle,
   Download,
+  Upload,
   Eye,
-  EyeOff
+  EyeOff,
+  FileJson
 } from 'lucide-react';
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
@@ -81,6 +83,12 @@ export default function AccountPage() {
   
   // Export data
   const [exporting, setExporting] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  
+  // Import data
+  const [importing, setImporting] = useState(false);
+  const [importFile, setImportFile] = useState(null);
+  const [importStats, setImportStats] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -140,6 +148,7 @@ export default function AccountPage() {
 
   const handleExportData = async () => {
     setExporting(true);
+    setShowExportDialog(false);
     try {
       const response = await axios.get(`${API}/account/export`, {
         headers: getAuthHeader()
@@ -162,6 +171,78 @@ export default function AccountPage() {
       toast.error('Failed to export data');
     } finally {
       setExporting(false);
+    }
+  };
+
+  const handleImportFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.name.endsWith('.json')) {
+        toast.error('Please select a JSON file');
+        e.target.value = '';
+        return;
+      }
+      setImportFile(file);
+      setImportStats(null);
+    }
+  };
+
+  const handleImportData = async () => {
+    if (!importFile) {
+      toast.error('Please select a file to import');
+      return;
+    }
+    
+    setImporting(true);
+    try {
+      // Read and parse the JSON file
+      const fileContent = await importFile.text();
+      let importData;
+      
+      try {
+        importData = JSON.parse(fileContent);
+      } catch (parseError) {
+        toast.error('Invalid JSON file format');
+        setImporting(false);
+        return;
+      }
+      
+      // Extract the data arrays from the export format
+      const payload = {
+        vehicles: importData.vehicles || [],
+        inventory: importData.inventory || [],
+        repairs: importData.repairs || [],
+        setups: importData.setups || [],
+        stocktakes: importData.stocktakes || []
+      };
+      
+      // Check if there's any data to import
+      const totalItems = payload.vehicles.length + payload.inventory.length + 
+                        payload.repairs.length + payload.setups.length + payload.stocktakes.length;
+      
+      if (totalItems === 0) {
+        toast.error('No data found in the file to import');
+        setImporting(false);
+        return;
+      }
+      
+      const response = await axios.post(`${API}/account/import`, payload, {
+        headers: getAuthHeader()
+      });
+      
+      setImportStats(response.data.stats);
+      toast.success('Data imported successfully!');
+      setImportFile(null);
+      
+      // Clear the file input
+      const fileInput = document.getElementById('import-file-input');
+      if (fileInput) fileInput.value = '';
+      
+    } catch (error) {
+      console.error('Import error:', error);
+      toast.error(error.response?.data?.detail || 'Failed to import data');
+    } finally {
+      setImporting(false);
     }
   };
 
