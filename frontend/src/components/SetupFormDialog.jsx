@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Save, Settings, Star, Cloud } from 'lucide-react';
+import { Save, Settings, Star, Cloud, Circle } from 'lucide-react';
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
@@ -35,6 +35,19 @@ const CONDITION_OPTIONS = [
   { value: 'snow', label: 'Snow/Ice' },
 ];
 
+const TYRE_COMPOUND_OPTIONS = [
+  { value: 'soft', label: 'Soft' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'hard', label: 'Hard' },
+];
+
+const TYRE_CONDITION_OPTIONS = [
+  { value: 'new', label: 'New' },
+  { value: 'roaded', label: 'Roaded' },
+  { value: 'used', label: 'Used' },
+  { value: 'worn', label: 'Worn' },
+];
+
 export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehicles, preselectedVehicleId }) => {
   const { getAuthHeader } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -44,6 +57,10 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
   const [formData, setFormData] = useState({
     name: '',
     conditions: '',
+    tyre_compound: '',
+    tyre_type: '',
+    tyre_size: '',
+    tyre_condition: '',
     tyre_pressure_fl: 0,
     tyre_pressure_fr: 0,
     tyre_pressure_rl: 0,
@@ -75,6 +92,10 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
       setFormData({
         name: setup.name || '',
         conditions: setup.conditions || '',
+        tyre_compound: setup.tyre_compound || '',
+        tyre_type: setup.tyre_type || '',
+        tyre_size: setup.tyre_size || '',
+        tyre_condition: setup.tyre_condition || '',
         tyre_pressure_fl: setup.tyre_pressure_fl || 0,
         tyre_pressure_fr: setup.tyre_pressure_fr || 0,
         tyre_pressure_rl: setup.tyre_pressure_rl || 0,
@@ -105,6 +126,10 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
       setFormData({
         name: '',
         conditions: '',
+        tyre_compound: '',
+        tyre_type: '',
+        tyre_size: '',
+        tyre_condition: '',
         tyre_pressure_fl: 0,
         tyre_pressure_fr: 0,
         tyre_pressure_rl: 0,
