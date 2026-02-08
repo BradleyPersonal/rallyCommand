@@ -280,6 +280,7 @@ Build an app that can keep track of inventory for a rally car.
 
 ## API Endpoints
 - Auth: POST /api/auth/register, /api/auth/login, GET /api/auth/me
+- Account: PUT /api/account, DELETE /api/account, GET /api/account/export, POST /api/account/import
 - Inventory: GET/POST /api/inventory, GET/PUT/DELETE /api/inventory/:id
 - Usage: POST /api/usage, GET /api/usage/:item_id
 - Dashboard: GET /api/dashboard/stats (returns recent_activity, recent_setups, recent_repairs)
