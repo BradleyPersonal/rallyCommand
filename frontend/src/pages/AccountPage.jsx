@@ -515,36 +515,118 @@ export default function AccountPage() {
           </CardContent>
         </Card>
 
-        {/* Data Export */}
+        {/* Data Management */}
         <Card className="bg-card border-border/50">
           <CardHeader>
             <CardTitle className="text-xl tracking-tight uppercase flex items-center gap-2">
-              <Download className="w-5 h-5 text-primary" />
-              Export Data
+              <FileJson className="w-5 h-5 text-primary" />
+              Data Management
             </CardTitle>
             <CardDescription>
-              Download all your data including vehicles, inventory, repairs, and setups
+              Export your data for backup or import from a previous backup. Use this feature when selling/purchasing a car or to maintain regular backups.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button 
-              variant="outline" 
-              onClick={handleExportData}
-              disabled={exporting}
-              data-testid="export-data-btn"
-            >
-              {exporting ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
-                  Exporting...
-                </>
-              ) : (
-                <>
-                  <Download className="w-4 h-4 mr-2" />
-                  Export All Data (JSON)
-                </>
-              )}
-            </Button>
+          <CardContent className="space-y-6">
+            {/* Export Section */}
+            <div className="p-4 border border-border rounded-lg bg-secondary/20">
+              <div className="flex items-start gap-3">
+                <Download className="w-5 h-5 text-primary mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-foreground">Export Data</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Download all your vehicles, inventory, repairs, setups, and stocktakes as a JSON file.
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowExportDialog(true)}
+                    disabled={exporting}
+                    className="mt-3"
+                    data-testid="export-data-btn"
+                  >
+                    {exporting ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                        Exporting...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4 mr-2" />
+                        Export All Data
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Import Section */}
+            <div className="p-4 border border-border rounded-lg bg-secondary/20">
+              <div className="flex items-start gap-3">
+                <Upload className="w-5 h-5 text-primary mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-foreground">Import Data</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Restore data from a previously exported JSON file. New records will be created without affecting existing data.
+                  </p>
+                  
+                  <div className="mt-3 space-y-3">
+                    <div>
+                      <input
+                        id="import-file-input"
+                        type="file"
+                        accept=".json"
+                        onChange={handleImportFileChange}
+                        className="hidden"
+                        data-testid="import-file-input"
+                      />
+                      <label
+                        htmlFor="import-file-input"
+                        className="inline-flex items-center px-4 py-2 border border-border rounded-md cursor-pointer hover:bg-secondary transition-colors"
+                      >
+                        <FileJson className="w-4 h-4 mr-2" />
+                        {importFile ? importFile.name : 'Choose JSON File'}
+                      </label>
+                    </div>
+                    
+                    {importFile && (
+                      <Button 
+                        onClick={handleImportData}
+                        disabled={importing}
+                        data-testid="import-data-btn"
+                      >
+                        {importing ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                            Importing...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-4 h-4 mr-2" />
+                            Import Data
+                          </>
+                        )}
+                      </Button>
+                    )}
+                    
+                    {importStats && (
+                      <div className="p-3 bg-primary/10 border border-primary/30 rounded-lg mt-3">
+                        <p className="text-sm font-medium text-primary mb-2">Import Complete!</p>
+                        <ul className="text-sm text-muted-foreground space-y-1">
+                          <li>• Vehicles imported: {importStats.vehicles_imported}</li>
+                          <li>• Inventory items imported: {importStats.inventory_imported}</li>
+                          <li>• Repairs imported: {importStats.repairs_imported}</li>
+                          <li>• Setups imported: {importStats.setups_imported}</li>
+                          <li>• Stocktakes imported: {importStats.stocktakes_imported}</li>
+                          {importStats.errors?.length > 0 && (
+                            <li className="text-destructive">• Errors: {importStats.errors.length}</li>
+                          )}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
