@@ -332,6 +332,74 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
 
           <Separator className="bg-border/50" />
 
+          {/* Tyre Information */}
+          <div>
+            <Label className="form-label mb-3 block flex items-center gap-2">
+              <Circle className="w-4 h-4 text-primary" />
+              Tyre Information
+            </Label>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Tyre Compound</Label>
+                <Select
+                  value={formData.tyre_compound}
+                  onValueChange={(value) => handleChange('tyre_compound', value)}
+                >
+                  <SelectTrigger className="bg-secondary border-border focus:border-primary" data-testid="tyre-compound-select">
+                    <SelectValue placeholder="Select compound" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TYRE_COMPOUND_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Tyre Condition</Label>
+                <Select
+                  value={formData.tyre_condition}
+                  onValueChange={(value) => handleChange('tyre_condition', value)}
+                >
+                  <SelectTrigger className="bg-secondary border-border focus:border-primary" data-testid="tyre-condition-select">
+                    <SelectValue placeholder="Select condition" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TYRE_CONDITION_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Tyre Type</Label>
+                <Input
+                  value={formData.tyre_type}
+                  onChange={(e) => handleChange('tyre_type', e.target.value)}
+                  placeholder="e.g., Slick, Wet, Gravel"
+                  className="bg-secondary border-border focus:border-primary"
+                  data-testid="tyre-type-input"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Tyre Size</Label>
+                <Input
+                  value={formData.tyre_size}
+                  onChange={(e) => handleChange('tyre_size', e.target.value)}
+                  placeholder="e.g., 205/65R15"
+                  className="bg-secondary border-border focus:border-primary"
+                  data-testid="tyre-size-input"
+                />
+              </div>
+            </div>
+          </div>
+
+          <Separator className="bg-border/50" />
+
           {/* Tyre Pressures */}
           <div>
             <Label className="form-label mb-3 block">Tyre Pressures (psi)</Label>
