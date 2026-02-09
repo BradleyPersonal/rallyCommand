@@ -492,10 +492,13 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
             </div>
           </div>
 
-          <Separator className="bg-border/50" />
+          {/* Advanced Mode Only Sections */}
+          {(templateMode === 'advanced' || isEditing) && (
+            <>
+              <Separator className="bg-border/50" />
 
-          {/* Ride Height */}
-          <div>
+              {/* Ride Height */}
+              <div>
             <Label className="form-label mb-3 block">Ride Height (mm)</Label>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
