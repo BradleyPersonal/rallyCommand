@@ -123,6 +123,8 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
         notes: setup.notes || ''
       });
       setSelectedVehicleId(setup.vehicle_id || vehicleId || preselectedVehicleId || '');
+      // Always use advanced mode when editing to show all fields
+      setTemplateMode('advanced');
     } else {
       setFormData({
         name: '',
@@ -157,6 +159,8 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
         notes: ''
       });
       setSelectedVehicleId(vehicleId || preselectedVehicleId || '');
+      // Default to basic mode for new setups
+      setTemplateMode('basic');
     }
   }, [setup, open, vehicleId, preselectedVehicleId]);
 
