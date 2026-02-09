@@ -52,6 +52,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
   const { getAuthHeader } = useAuth();
   const [loading, setLoading] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState(vehicleId || preselectedVehicleId || '');
+  const [templateMode, setTemplateMode] = useState('basic'); // 'basic' or 'advanced'
   const isEditing = !!setup; // Only show rating when editing an existing setup
   const showVehicleSelector = !vehicleId && vehicles && vehicles.length > 0;
   const [formData, setFormData] = useState({
