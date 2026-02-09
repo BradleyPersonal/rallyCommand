@@ -708,6 +708,8 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
               </div>
             </div>
           </div>
+            </>
+          )}
 
           <Separator className="bg-border/50" />
 
