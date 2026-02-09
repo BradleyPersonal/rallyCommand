@@ -231,6 +231,38 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
+          {/* Template Mode Toggle - Only show for new setups */}
+          {!isEditing && (
+            <div className="flex items-center justify-center gap-1 p-1 bg-secondary/50 rounded-lg" data-testid="template-toggle">
+              <button
+                type="button"
+                onClick={() => setTemplateMode('basic')}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                  templateMode === 'basic'
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+                data-testid="template-basic-btn"
+              >
+                <LayoutList className="w-4 h-4" />
+                Basic
+              </button>
+              <button
+                type="button"
+                onClick={() => setTemplateMode('advanced')}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                  templateMode === 'advanced'
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+                data-testid="template-advanced-btn"
+              >
+                <LayoutGrid className="w-4 h-4" />
+                Advanced
+              </button>
+            </div>
+          )}
+
           {/* Vehicle Selector (only when vehicles prop is provided and no vehicleId) */}
           {showVehicleSelector && (
             <div className="space-y-2">
