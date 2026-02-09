@@ -436,7 +436,30 @@ export default function SetupsPage() {
                       <Calendar className="w-4 h-4" />
                       {formatDate(setup.created_at)}
                     </div>
-                    {setup.rating > 0 && renderStars(setup.rating)}
+                    {/* Quick Rating Component */}
+                    <div 
+                      className="flex items-center gap-0.5"
+                      onClick={(e) => e.stopPropagation()}
+                      data-testid={`quick-rating-${setup.id}`}
+                    >
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={(e) => handleQuickRating(setup.id, setup.rating === star ? 0 : star, e)}
+                          className="p-0.5 hover:scale-125 transition-transform"
+                          title={setup.rating === star ? 'Click to remove rating' : `Rate ${star} star${star > 1 ? 's' : ''}`}
+                        >
+                          <Star
+                            className={`w-4 h-4 transition-colors ${
+                              star <= setup.rating 
+                                ? 'text-yellow-500 fill-yellow-500' 
+                                : 'text-muted-foreground/30 hover:text-yellow-400'
+                            }`}
+                          />
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
