@@ -173,6 +173,22 @@ export default function SetupsPage() {
     }
   };
 
+  const handleQuickRating = async (setupId, newRating, e) => {
+    e.stopPropagation(); // Prevent card click
+    try {
+      await axios.put(`${API}/setups/${setupId}`, { rating: newRating }, {
+        headers: getAuthHeader()
+      });
+      // Update local state immediately for better UX
+      setSetups(prev => prev.map(s => 
+        s.id === setupId ? { ...s, rating: newRating } : s
+      ));
+      toast.success('Rating updated');
+    } catch (error) {
+      toast.error('Failed to update rating');
+    }
+  };
+
   const handleEdit = (setup) => {
     setEditingSetup(setup);
     setDialogOpen(true);
