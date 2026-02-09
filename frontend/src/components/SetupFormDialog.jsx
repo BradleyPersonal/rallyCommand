@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Save, Settings, Star, Cloud, Circle } from 'lucide-react';
+import { Save, Settings, Star, Cloud, Circle, LayoutList, LayoutGrid } from 'lucide-react';
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
