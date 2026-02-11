@@ -142,6 +142,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
         notes: setup.notes || ''
       });
       setSelectedVehicleId(setup.vehicle_id || vehicleId || preselectedVehicleId || '');
+      setSelectedGroupId(setup.group_id || '');
       // Set mode based on whether setup has advanced fields
       setTemplateMode(hasAdvancedFields(setup) ? 'advanced' : 'basic');
     } else {
@@ -178,10 +179,11 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
         notes: ''
       });
       setSelectedVehicleId(vehicleId || preselectedVehicleId || '');
+      setSelectedGroupId(preselectedGroupId || '');
       // Default to basic mode for new setups
       setTemplateMode('basic');
     }
-  }, [setup, open, vehicleId, preselectedVehicleId]);
+  }, [setup, open, vehicleId, preselectedVehicleId, preselectedGroupId]);
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
