@@ -267,6 +267,7 @@ class Setup(BaseModel):
     name: str
     vehicle_id: str
     user_id: str
+    group_id: Optional[str] = None  # Optional group assignment
     conditions: str = ""
     tyre_compound: str = ""
     tyre_type: str = ""
@@ -296,6 +297,29 @@ class Setup(BaseModel):
     event_date: str = ""
     rating: int = 0
     notes: str = ""
+    created_at: str = ""
+    updated_at: str = ""
+
+# Setup Group Models
+class SetupGroupCreate(BaseModel):
+    name: str
+    vehicle_id: str
+    track_name: str = ""
+    date: str = ""
+
+class SetupGroupUpdate(BaseModel):
+    name: Optional[str] = None
+    track_name: Optional[str] = None
+    date: Optional[str] = None
+
+class SetupGroup(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    name: str
+    vehicle_id: str
+    user_id: str
+    track_name: str = ""
+    date: str = ""
     created_at: str = ""
     updated_at: str = ""
 
