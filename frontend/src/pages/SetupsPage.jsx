@@ -21,6 +21,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import {
   Dialog,
@@ -48,7 +49,11 @@ import {
   GitCompare,
   Copy,
   X,
-  Check
+  Check,
+  FolderOpen,
+  ChevronDown,
+  MapPin,
+  ArrowLeft
 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
