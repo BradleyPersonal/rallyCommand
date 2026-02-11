@@ -626,6 +626,13 @@ export default function SetupsPage() {
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem 
+                          onClick={(e) => { e.stopPropagation(); openDuplicateDialog(setup); }}
+                          className="cursor-pointer"
+                        >
+                          <Copy className="w-4 h-4 mr-2" />
+                          Duplicate
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
                           onClick={(e) => { e.stopPropagation(); handleDelete(setup.id); }}
                           className="cursor-pointer text-destructive focus:text-destructive"
                         >
@@ -669,7 +676,8 @@ export default function SetupsPage() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
