@@ -309,6 +309,32 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
             </div>
           )}
 
+          {/* Group Selector */}
+          {availableGroups.length > 0 && (
+            <div className="space-y-2">
+              <Label htmlFor="group" className="form-label">Setup Group (Optional)</Label>
+              <Select 
+                value={selectedGroupId || "none"} 
+                onValueChange={(value) => setSelectedGroupId(value === "none" ? '' : value)}
+              >
+                <SelectTrigger className="bg-secondary border-border" data-testid="setup-group-select">
+                  <SelectValue placeholder="Select a group (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No Group (Individual Setup)</SelectItem>
+                  {availableGroups.map((group) => (
+                    <SelectItem key={group.id} value={group.id}>
+                      📁 {group.name} {group.track_name && `(${group.track_name})`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Add this setup to a group to organize related setups together
+              </p>
+            </div>
+          )}
+
           {/* Basic Info */}
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2 space-y-2">
