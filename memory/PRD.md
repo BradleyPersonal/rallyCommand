@@ -163,7 +163,8 @@ Build an app that can keep track of inventory for a rally car.
 - **users:** { id, name, email, password_hash, created_at }
 - **inventory:** { id, name, category, subcategory, condition, quantity, price, supplier_url, photos[], vehicle_ids[], user_id, ... }
 - **vehicles:** { id, make, model, registration, vin, photo, user_id, created_at, updated_at }
-- **setups:** { id, vehicle_id, name, conditions, rating, tyre_compound, tyre_type, tyre_size, tyre_condition, tyre_pressure_*, ride_height_*, camber_*, toe_*, spring_rate_*, damper_*, arb_*, aero_*, event_name, event_date, notes, user_id, ... }
+- **setups:** { id, vehicle_id, name, conditions, rating, group_id, tyre_compound, tyre_type, tyre_size, tyre_condition, tyre_pressure_*, ride_height_*, camber_*, toe_*, spring_rate_*, damper_*, arb_*, aero_*, event_name, event_date, notes, user_id, ... }
+- **setup_groups:** { id, name, vehicle_id, track_name, date, user_id, created_at, updated_at }
 - **usage_logs:** { id, item_id, quantity_used, reason, event_name, user_id, created_at }
 - **repairs:** { id, vehicle_id, cause_of_damage, affected_area, parts_used[], total_parts_cost, repair_details, technicians[], user_id, created_at, updated_at }
 - **stocktakes:** { id, user_id, items[], total_items_counted, items_matched, items_over, items_under, total_value_difference, status, notes, created_at, applied_at }
