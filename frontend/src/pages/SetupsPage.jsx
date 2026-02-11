@@ -705,33 +705,6 @@ function SetupViewDialog({ setup, vehicleName, onClose }) {
           )}
 
           {/* Notes */}
-                <p className="text-lg font-mono">{formatValue(setup.arb_front)}</p>
-              </div>
-              <div className="p-3 bg-secondary/30 rounded">
-                <p className="text-xs text-muted-foreground">ARB Rear</p>
-                <p className="text-lg font-mono">{formatValue(setup.arb_rear)}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Aero */}
-          {(setup.aero_front || setup.aero_rear) && (
-            <div>
-              <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Aero</p>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 bg-secondary/30 rounded">
-                  <p className="text-xs text-muted-foreground">Front</p>
-                  <p className="text-lg">{setup.aero_front || '-'}</p>
-                </div>
-                <div className="p-3 bg-secondary/30 rounded">
-                  <p className="text-xs text-muted-foreground">Rear</p>
-                  <p className="text-lg">{setup.aero_rear || '-'}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Notes */}
           {setup.notes && (
             <div>
               <p className="text-xs text-muted-foreground tracking-widest uppercase mb-2">Notes</p>
