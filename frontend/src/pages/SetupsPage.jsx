@@ -560,16 +560,38 @@ export default function SetupsPage() {
               </Button>
             )}
             
-            <Button 
-              onClick={() => setDialogOpen(true)}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm font-bold uppercase tracking-wider text-sm"
-              data-testid="add-setup-btn"
-              disabled={vehicles.length === 0}
-            >
-              <Plus className="w-4 h-4 mr-1 md:mr-2" />
-              <span className="hidden sm:inline">New Setup</span>
-              <span className="sm:hidden">New</span>
-            </Button>
+            {/* New Dropdown (Setup or Group) */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm font-bold uppercase tracking-wider text-sm"
+                  data-testid="new-dropdown-btn"
+                  disabled={vehicles.length === 0}
+                >
+                  <Plus className="w-4 h-4 mr-1 md:mr-2" />
+                  <span className="hidden sm:inline">New</span>
+                  <ChevronDown className="w-4 h-4 ml-1" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem 
+                  onClick={() => { setPreselectedGroupId(null); setDialogOpen(true); }}
+                  className="cursor-pointer"
+                  data-testid="new-setup-option"
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Setup
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => openGroupDialog()}
+                  className="cursor-pointer"
+                  data-testid="new-group-option"
+                >
+                  <FolderOpen className="w-4 h-4 mr-2" />
+                  Group
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
