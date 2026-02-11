@@ -231,37 +231,38 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
-          {/* Template Mode Toggle - Only show for new setups */}
-          {!isEditing && (
-            <div className="flex items-center justify-center gap-1 p-1 bg-secondary/50 rounded-lg" data-testid="template-toggle">
-              <button
-                type="button"
-                onClick={() => setTemplateMode('basic')}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                  templateMode === 'basic'
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-                data-testid="template-basic-btn"
-              >
-                <LayoutList className="w-4 h-4" />
-                Basic
-              </button>
-              <button
-                type="button"
-                onClick={() => setTemplateMode('advanced')}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                  templateMode === 'advanced'
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-                data-testid="template-advanced-btn"
-              >
-                <LayoutGrid className="w-4 h-4" />
-                Advanced
-              </button>
-            </div>
-          )}
+          {/* Template Mode Toggle */}
+          <div className="flex items-center justify-center gap-3 p-2 bg-secondary/30 rounded-xl border border-border/50" data-testid="template-toggle">
+            <button
+              type="button"
+              onClick={() => setTemplateMode('basic')}
+              className={`flex-1 flex flex-col items-center gap-1.5 py-3 px-4 rounded-lg text-sm font-medium transition-all border-2 ${
+                templateMode === 'basic'
+                  ? 'bg-primary/10 border-primary text-primary shadow-sm'
+                  : 'bg-transparent border-transparent text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+              }`}
+              data-testid="template-basic-btn"
+            >
+              <LayoutList className="w-5 h-5" />
+              <span className="font-semibold">Basic</span>
+              <span className="text-xs opacity-70">Event, Tyres & Pressures</span>
+            </button>
+            <div className="h-12 w-px bg-border/50" />
+            <button
+              type="button"
+              onClick={() => setTemplateMode('advanced')}
+              className={`flex-1 flex flex-col items-center gap-1.5 py-3 px-4 rounded-lg text-sm font-medium transition-all border-2 ${
+                templateMode === 'advanced'
+                  ? 'bg-amber-500/10 border-amber-500 text-amber-500 shadow-sm'
+                  : 'bg-transparent border-transparent text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+              }`}
+              data-testid="template-advanced-btn"
+            >
+              <LayoutGrid className="w-5 h-5" />
+              <span className="font-semibold">Advanced</span>
+              <span className="text-xs opacity-70">Full Setup Details</span>
+            </button>
+          </div>
 
           {/* Vehicle Selector (only when vehicles prop is provided and no vehicleId) */}
           {showVehicleSelector && (
