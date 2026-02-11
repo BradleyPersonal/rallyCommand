@@ -1550,161 +1550,587 @@ function GroupViewDialog({
   formatDate,
   getConditionIcon
 }) {
+  const [compareMode, setCompareMode] = useState(false);
+  const [selectedForCompare, setSelectedForCompare] = useState([]);
+  const [compareDialogOpen, setCompareDialogOpen] = useState(false);
+  const [viewingSetup, setViewingSetup] = useState(null);
+  
   if (!group) return null;
 
+  const toggleCompareMode = () => {
+    if (compareMode) {
+      setCompareMode(false);
+      setSelectedForCompare([]);
+    } else {
+      setCompareMode(true);
+      setSelectedForCompare([]);
+    }
+  };
+
+  const handleCompareSelect = (setup, e) => {
+    e.stopPropagation();
+    
+    if (selectedForCompare.find(s => s.id === setup.id)) {
+      setSelectedForCompare(prev => prev.filter(s => s.id !== setup.id));
+      return;
+    }
+    
+    if (selectedForCompare.length >= 2) {
+      setSelectedForCompare(prev => [...prev.slice(1), setup]);
+      return;
+    }
+    
+    setSelectedForCompare(prev => [...prev, setup]);
+  };
+
+  const openCompare = () => {
+    if (selectedForCompare.length === 2) {
+      setCompareDialogOpen(true);
+    }
+  };
+
   return (
-    <Dialog open={!!group} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card border-border">
+    <>
+      <Dialog open={!!group && !viewingSetup} onOpenChange={onClose}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card border-border">
+          <DialogHeader>
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Button variant="ghost" size="sm" onClick={onClose} className="mr-2">
+                    <ArrowLeft className="w-4 h-4" />
+                  </Button>
+                  <Badge variant="secondary" className="font-medium">
+                    <Car className="w-3 h-3 mr-1" />
+                    {vehicleName}
+                  </Badge>
+                  <Badge variant="outline" className="text-xs bg-primary/10 border-primary/30 text-primary">
+                    <FolderOpen className="w-3 h-3 mr-1" />
+                    {setups.length} setup{setups.length !== 1 ? 's' : ''}
+                  </Badge>
+                </div>
+                <DialogTitle className="text-2xl tracking-tight uppercase flex items-center gap-2">
+                  <FolderOpen className="w-6 h-6 text-primary" />
+                  {group.name}
+                </DialogTitle>
+                {(group.track_name || group.date) && (
+                  <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+                    {group.track_name && (
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-3 h-3" />
+                        {group.track_name}
+                      </span>
+                    )}
+                    {group.track_name && group.date && <span>•</span>}
+                    {group.date && group.date}
+                  </p>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                {/* Compare Mode Toggle */}
+                {setups.length >= 2 && (
+                  <Button 
+                    onClick={toggleCompareMode}
+                    variant={compareMode ? "default" : "outline"}
+                    size="sm"
+                    className={`text-xs ${compareMode ? 'bg-amber-500 hover:bg-amber-600 text-white' : ''}`}
+                    data-testid="group-compare-mode-btn"
+                  >
+                    {compareMode ? (
+                      <>
+                        <X className="w-3 h-3 mr-1" />
+                        Cancel
+                      </>
+                    ) : (
+                      <>
+                        <GitCompare className="w-3 h-3 mr-1" />
+                        Compare
+                      </>
+                    )}
+                  </Button>
+                )}
+                
+                {/* Compare Action Button */}
+                {compareMode && selectedForCompare.length === 2 && (
+                  <Button 
+                    onClick={openCompare}
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700 text-white text-xs animate-pulse"
+                    data-testid="group-open-compare-btn"
+                  >
+                    <Check className="w-3 h-3 mr-1" />
+                    Compare ({selectedForCompare.length})
+                  </Button>
+                )}
+                
+                <Button variant="outline" size="sm" onClick={onAddSetup} data-testid="group-add-setup-btn">
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add Setup
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <MoreHorizontal className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={onEditGroup} className="cursor-pointer">
+                      <Pencil className="w-4 h-4 mr-2" />
+                      Edit Group
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={onDeleteGroup} className="cursor-pointer text-destructive focus:text-destructive">
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete Group
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </DialogHeader>
+
+          {/* Compare Mode Instructions */}
+          {compareMode && (
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 flex items-center gap-3 mt-2">
+              <GitCompare className="w-5 h-5 text-amber-500 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-amber-600 dark:text-amber-400">
+                  Select 2 setups to compare
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {selectedForCompare.length}/2 selected
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="mt-4">
+            {setups.length === 0 ? (
+              <div className="py-12 text-center text-muted-foreground">
+                <Settings className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p className="text-lg">No setups in this group</p>
+                <p className="text-sm mt-1">Add setups to organize them together</p>
+                <Button onClick={onAddSetup} className="mt-4">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add First Setup
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {setups.map((setup, index) => {
+                  const isSelected = selectedForCompare.find(s => s.id === setup.id);
+                  
+                  return (
+                    <Card 
+                      key={setup.id}
+                      className={`bg-card border-border/50 transition-all animate-fade-in cursor-pointer ${
+                        isSelected 
+                          ? 'border-amber-500 ring-2 ring-amber-500/30' 
+                          : 'hover:border-primary/50'
+                      }`}
+                      style={{ animationDelay: `${index * 0.05}s` }}
+                      data-testid={`group-setup-card-${setup.id}`}
+                      onClick={() => compareMode ? handleCompareSelect(setup, { stopPropagation: () => {} }) : setViewingSetup(setup)}
+                    >
+                      <CardHeader className="pb-2">
+                        <div className="flex items-start justify-between">
+                          {/* Compare Mode Checkbox */}
+                          {compareMode && (
+                            <div 
+                              className="mr-3 mt-1"
+                              onClick={(e) => handleCompareSelect(setup, e)}
+                            >
+                              <Checkbox 
+                                checked={!!isSelected}
+                                className={`h-5 w-5 ${isSelected ? 'border-amber-500 bg-amber-500 text-white' : ''}`}
+                              />
+                            </div>
+                          )}
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              {setup.conditions && (
+                                <Badge variant="outline" className="text-xs flex items-center gap-1">
+                                  {getConditionIcon(setup.conditions)}
+                                  {setup.conditions}
+                                </Badge>
+                              )}
+                              {setup.tyre_compound && (
+                                <Badge variant="secondary" className="text-xs capitalize">
+                                  {setup.tyre_compound}
+                                </Badge>
+                              )}
+                            </div>
+                            <CardTitle className="text-lg tracking-tight flex items-center gap-2">
+                              <Settings className="w-4 h-4 text-blue-500" />
+                              {setup.name}
+                            </CardTitle>
+                            {setup.event_name && (
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {setup.event_name}
+                                {setup.event_date && ` • ${setup.event_date}`}
+                              </p>
+                            )}
+                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem 
+                                onClick={(e) => { e.stopPropagation(); setViewingSetup(setup); }} 
+                                className="cursor-pointer"
+                              >
+                                <Eye className="w-4 h-4 mr-2" />
+                                View Details
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={(e) => { e.stopPropagation(); onEditSetup(setup); }} 
+                                className="cursor-pointer"
+                              >
+                                <Pencil className="w-4 h-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={(e) => { e.stopPropagation(); onDuplicateSetup(setup); }} 
+                                className="cursor-pointer"
+                              >
+                                <Copy className="w-4 h-4 mr-2" />
+                                Duplicate
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                onClick={(e) => { e.stopPropagation(); onDeleteSetup(setup.id); }} 
+                                className="cursor-pointer text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Calendar className="w-4 h-4" />
+                            {formatDate(setup.created_at)}
+                          </div>
+                          {/* Quick Rating */}
+                          <div 
+                            className="flex items-center gap-0.5"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <button
+                                key={star}
+                                type="button"
+                                onClick={(e) => onQuickRating(setup.id, setup.rating === star ? 0 : star, e)}
+                                className="p-0.5 hover:scale-125 transition-transform"
+                              >
+                                <Star
+                                  className={`w-4 h-4 transition-colors ${
+                                    star <= setup.rating 
+                                      ? 'text-yellow-500 fill-yellow-500' 
+                                      : 'text-muted-foreground/30 hover:text-yellow-400'
+                                  }`}
+                                />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Setup View Dialog within Group */}
+      <GroupSetupViewDialog
+        setup={viewingSetup}
+        vehicleName={vehicleName}
+        onClose={() => setViewingSetup(null)}
+        onEdit={(setup) => { setViewingSetup(null); onEditSetup(setup); }}
+        onDuplicate={(setup) => { setViewingSetup(null); onDuplicateSetup(setup); }}
+      />
+
+      {/* Compare Dialog within Group */}
+      <Dialog open={compareDialogOpen} onOpenChange={(open) => { if (!open) setCompareDialogOpen(false); }}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="text-xl flex items-center gap-2">
+              <GitCompare className="w-5 h-5 text-amber-500" />
+              Compare Setups
+            </DialogTitle>
+            <DialogDescription>
+              Comparing setups in {group.name}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedForCompare.length === 2 && (
+            <SetupComparisonView 
+              setupA={selectedForCompare[0]} 
+              setupB={selectedForCompare[1]} 
+            />
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCompareDialogOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+// Setup View Dialog for Group context (simplified version)
+function GroupSetupViewDialog({ setup, vehicleName, onClose, onEdit, onDuplicate }) {
+  if (!setup) return null;
+
+  const hasAdvancedFields = () => {
+    return (
+      setup.ride_height_fl > 0 || setup.ride_height_fr > 0 || setup.ride_height_rl > 0 || setup.ride_height_rr > 0 ||
+      setup.camber_front !== 0 || setup.camber_rear !== 0 ||
+      setup.toe_front !== 0 || setup.toe_rear !== 0 ||
+      setup.spring_rate_front > 0 || setup.spring_rate_rear > 0 ||
+      setup.damper_front > 0 || setup.damper_rear > 0 ||
+      setup.arb_front > 0 || setup.arb_rear > 0 ||
+      (setup.aero_front && setup.aero_front !== '') || (setup.aero_rear && setup.aero_rear !== '')
+    );
+  };
+
+  const showAdvancedSections = hasAdvancedFields();
+
+  const formatValue = (value, unit = '') => {
+    if (value === 0 || value === '') return '-';
+    return `${value}${unit}`;
+  };
+
+  return (
+    <Dialog open={!!setup} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-card border-border">
         <DialogHeader>
           <div className="flex items-start justify-between">
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Button variant="ghost" size="sm" onClick={onClose} className="mr-2">
-                  <ArrowLeft className="w-4 h-4" />
-                </Button>
-                <Badge variant="secondary" className="font-medium">
+              <DialogTitle className="text-2xl tracking-tight uppercase flex items-center gap-2">
+                <Settings className="w-6 h-6 text-blue-500" />
+                {setup.name}
+              </DialogTitle>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
+                <Badge variant="secondary">
                   <Car className="w-3 h-3 mr-1" />
                   {vehicleName}
                 </Badge>
+                {setup.conditions && (
+                  <Badge variant="outline">{setup.conditions}</Badge>
+                )}
+                {setup.rating > 0 && (
+                  <div className="flex items-center gap-0.5 ml-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={`w-4 h-4 ${
+                          star <= setup.rating 
+                            ? 'text-yellow-500 fill-yellow-500' 
+                            : 'text-muted-foreground/30'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
-              <DialogTitle className="text-2xl tracking-tight uppercase flex items-center gap-2">
-                <FolderOpen className="w-6 h-6 text-primary" />
-                {group.name}
-              </DialogTitle>
-              {(group.track_name || group.date) && (
-                <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
-                  {group.track_name && (
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-3 h-3" />
-                      {group.track_name}
-                    </span>
-                  )}
-                  {group.track_name && group.date && <span>•</span>}
-                  {group.date && group.date}
-                </p>
-              )}
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={onAddSetup} data-testid="group-add-setup-btn">
-                <Plus className="w-4 h-4 mr-1" />
-                Add Setup
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onDuplicate(setup)}
+                className="text-xs"
+              >
+                <Copy className="w-3 h-3 mr-1" />
+                Duplicate
               </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={onEditGroup} className="cursor-pointer">
-                    <Pencil className="w-4 h-4 mr-2" />
-                    Edit Group
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={onDeleteGroup} className="cursor-pointer text-destructive focus:text-destructive">
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete Group
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onEdit(setup)}
+                className="text-xs"
+              >
+                <Pencil className="w-3 h-3 mr-1" />
+                Edit
+              </Button>
             </div>
           </div>
         </DialogHeader>
 
-        <div className="mt-4">
-          {setups.length === 0 ? (
-            <div className="py-12 text-center text-muted-foreground">
-              <Settings className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p className="text-lg">No setups in this group</p>
-              <p className="text-sm mt-1">Add setups to organize them together</p>
-              <Button onClick={onAddSetup} className="mt-4">
-                <Plus className="w-4 h-4 mr-2" />
-                Add First Setup
-              </Button>
+        <div className="space-y-6 mt-4">
+          {/* Event Info */}
+          {(setup.event_name || setup.event_date) && (
+            <div className="p-4 bg-secondary/30 rounded-lg">
+              <p className="text-xs text-muted-foreground tracking-widest uppercase mb-1">Event</p>
+              <p className="font-medium">{setup.event_name || 'Unnamed Event'}</p>
+              {setup.event_date && (
+                <p className="text-sm text-muted-foreground">{setup.event_date}</p>
+              )}
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {setups.map((setup, index) => (
-                <Card 
-                  key={setup.id}
-                  className="bg-card border-border/50 hover:border-primary/50 transition-all animate-fade-in"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                  data-testid={`group-setup-card-${setup.id}`}
-                >
-                  <CardHeader className="pb-2">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          {setup.conditions && (
-                            <Badge variant="outline" className="text-xs flex items-center gap-1">
-                              {getConditionIcon(setup.conditions)}
-                              {setup.conditions}
-                            </Badge>
-                          )}
-                        </div>
-                        <CardTitle className="text-lg tracking-tight flex items-center gap-2">
-                          <Settings className="w-4 h-4 text-blue-500" />
-                          {setup.name}
-                        </CardTitle>
-                        {setup.event_name && (
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {setup.event_name}
-                            {setup.event_date && ` • ${setup.event_date}`}
-                          </p>
-                        )}
-                      </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => onEditSetup(setup)} className="cursor-pointer">
-                            <Pencil className="w-4 h-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onDuplicateSetup(setup)} className="cursor-pointer">
-                            <Copy className="w-4 h-4 mr-2" />
-                            Duplicate
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => onDeleteSetup(setup.id)} className="cursor-pointer text-destructive focus:text-destructive">
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+          )}
+
+          {/* Tyre Information */}
+          {(setup.tyre_compound || setup.tyre_type || setup.tyre_size || setup.tyre_condition) && (
+            <div>
+              <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Tyre Information</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 bg-secondary/30 rounded">
+                  <p className="text-xs text-muted-foreground">Compound</p>
+                  <p className="text-lg capitalize">{formatValue(setup.tyre_compound)}</p>
+                </div>
+                <div className="p-3 bg-secondary/30 rounded">
+                  <p className="text-xs text-muted-foreground">Condition</p>
+                  <p className="text-lg capitalize">{formatValue(setup.tyre_condition)}</p>
+                </div>
+                <div className="p-3 bg-secondary/30 rounded">
+                  <p className="text-xs text-muted-foreground">Type</p>
+                  <p className="text-lg">{formatValue(setup.tyre_type)}</p>
+                </div>
+                <div className="p-3 bg-secondary/30 rounded">
+                  <p className="text-xs text-muted-foreground">Size</p>
+                  <p className="text-lg font-mono">{formatValue(setup.tyre_size)}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tyre Pressures */}
+          <div>
+            <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Tyre Pressures (PSI)</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-3 bg-secondary/30 rounded text-center">
+                <p className="text-xs text-muted-foreground">FL</p>
+                <p className="text-lg font-mono">{formatValue(setup.tyre_pressure_fl)}</p>
+              </div>
+              <div className="p-3 bg-secondary/30 rounded text-center">
+                <p className="text-xs text-muted-foreground">FR</p>
+                <p className="text-lg font-mono">{formatValue(setup.tyre_pressure_fr)}</p>
+              </div>
+              <div className="p-3 bg-secondary/30 rounded text-center">
+                <p className="text-xs text-muted-foreground">RL</p>
+                <p className="text-lg font-mono">{formatValue(setup.tyre_pressure_rl)}</p>
+              </div>
+              <div className="p-3 bg-secondary/30 rounded text-center">
+                <p className="text-xs text-muted-foreground">RR</p>
+                <p className="text-lg font-mono">{formatValue(setup.tyre_pressure_rr)}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Advanced Sections */}
+          {showAdvancedSections && (
+            <>
+              {/* Ride Heights */}
+              <div>
+                <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Ride Height (mm)</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 bg-secondary/30 rounded text-center">
+                    <p className="text-xs text-muted-foreground">FL</p>
+                    <p className="text-lg font-mono">{formatValue(setup.ride_height_fl)}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded text-center">
+                    <p className="text-xs text-muted-foreground">FR</p>
+                    <p className="text-lg font-mono">{formatValue(setup.ride_height_fr)}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded text-center">
+                    <p className="text-xs text-muted-foreground">RL</p>
+                    <p className="text-lg font-mono">{formatValue(setup.ride_height_rl)}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded text-center">
+                    <p className="text-xs text-muted-foreground">RR</p>
+                    <p className="text-lg font-mono">{formatValue(setup.ride_height_rr)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Alignment */}
+              <div>
+                <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Alignment</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">Camber Front</p>
+                    <p className="text-lg font-mono">{formatValue(setup.camber_front, '°')}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">Camber Rear</p>
+                    <p className="text-lg font-mono">{formatValue(setup.camber_rear, '°')}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">Toe Front</p>
+                    <p className="text-lg font-mono">{formatValue(setup.toe_front, 'mm')}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">Toe Rear</p>
+                    <p className="text-lg font-mono">{formatValue(setup.toe_rear, 'mm')}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Suspension */}
+              <div>
+                <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Suspension</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">Spring Rate Front</p>
+                    <p className="text-lg font-mono">{formatValue(setup.spring_rate_front)}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">Spring Rate Rear</p>
+                    <p className="text-lg font-mono">{formatValue(setup.spring_rate_rear)}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">Damper Front</p>
+                    <p className="text-lg font-mono">{formatValue(setup.damper_front)}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">Damper Rear</p>
+                    <p className="text-lg font-mono">{formatValue(setup.damper_rear)}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">ARB Front</p>
+                    <p className="text-lg font-mono">{formatValue(setup.arb_front)}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">ARB Rear</p>
+                    <p className="text-lg font-mono">{formatValue(setup.arb_rear)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Aero */}
+              {(setup.aero_front || setup.aero_rear) && (
+                <div>
+                  <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Aerodynamics</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-3 bg-secondary/30 rounded">
+                      <p className="text-xs text-muted-foreground">Front</p>
+                      <p className="text-lg">{formatValue(setup.aero_front)}</p>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="w-4 h-4" />
-                        {formatDate(setup.created_at)}
-                      </div>
-                      {/* Quick Rating */}
-                      <div className="flex items-center gap-0.5">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            type="button"
-                            onClick={(e) => onQuickRating(setup.id, setup.rating === star ? 0 : star, e)}
-                            className="p-0.5 hover:scale-125 transition-transform"
-                          >
-                            <Star
-                              className={`w-4 h-4 transition-colors ${
-                                star <= setup.rating 
-                                  ? 'text-yellow-500 fill-yellow-500' 
-                                  : 'text-muted-foreground/30 hover:text-yellow-400'
-                              }`}
-                            />
-                          </button>
-                        ))}
-                      </div>
+                    <div className="p-3 bg-secondary/30 rounded">
+                      <p className="text-xs text-muted-foreground">Rear</p>
+                      <p className="text-lg">{formatValue(setup.aero_rear)}</p>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Notes */}
+          {setup.notes && (
+            <div>
+              <p className="text-xs text-muted-foreground tracking-widest uppercase mb-2">Notes</p>
+              <p className="text-sm whitespace-pre-wrap">{setup.notes}</p>
             </div>
           )}
         </div>
