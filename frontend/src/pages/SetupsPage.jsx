@@ -697,6 +697,8 @@ export default function SetupsPage() {
         setup={viewingSetup} 
         vehicleName={viewingSetup ? getVehicleName(viewingSetup.vehicle_id) : ''}
         onClose={() => setViewingSetup(null)} 
+        onEdit={handleEdit}
+        onDuplicate={openDuplicateDialog}
       />
     </Layout>
   );
