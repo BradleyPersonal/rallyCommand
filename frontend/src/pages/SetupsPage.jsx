@@ -1027,3 +1027,146 @@ function SetupViewDialog({ setup, vehicleName, onClose, onEdit, onDuplicate }) {
     </Dialog>
   );
 }
+
+// Setup Comparison View Component
+function SetupComparisonView({ setupA, setupB }) {
+  if (!setupA || !setupB) return null;
+
+  const formatValue = (value, unit = '') => {
+    if (value === 0 || value === '' || value === null || value === undefined) return '-';
+    return `${value}${unit}`;
+  };
+
+  // Helper to determine if values are different
+  const isDifferent = (a, b) => {
+    const valA = a === null || a === undefined ? '' : a;
+    const valB = b === null || b === undefined ? '' : b;
+    return valA !== valB;
+  };
+
+  // Comparison row component
+  const CompareRow = ({ label, valueA, valueB, unit = '' }) => {
+    const different = isDifferent(valueA, valueB);
+    return (
+      <div className={`grid grid-cols-3 gap-4 py-2 px-3 rounded ${different ? 'bg-amber-500/10' : ''}`}>
+        <div className="text-sm text-muted-foreground">{label}</div>
+        <div className={`text-sm font-mono text-center ${different ? 'text-amber-600 dark:text-amber-400 font-semibold' : ''}`}>
+          {formatValue(valueA, unit)}
+        </div>
+        <div className={`text-sm font-mono text-center ${different ? 'text-amber-600 dark:text-amber-400 font-semibold' : ''}`}>
+          {formatValue(valueB, unit)}
+        </div>
+      </div>
+    );
+  };
+
+  // Section header
+  const SectionHeader = ({ title }) => (
+    <div className="grid grid-cols-3 gap-4 py-2 px-3 bg-secondary/50 rounded-t-lg border-b border-border/50">
+      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{title}</div>
+      <div className="text-xs font-semibold text-center text-primary uppercase tracking-wider">{setupA.name}</div>
+      <div className="text-xs font-semibold text-center text-primary uppercase tracking-wider">{setupB.name}</div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-6 mt-4" data-testid="setup-comparison-view">
+      {/* Basic Info */}
+      <div className="border border-border/50 rounded-lg overflow-hidden">
+        <SectionHeader title="Basic Info" />
+        <div className="divide-y divide-border/30">
+          <CompareRow label="Conditions" valueA={setupA.conditions} valueB={setupB.conditions} />
+          <CompareRow label="Event" valueA={setupA.event_name} valueB={setupB.event_name} />
+          <CompareRow label="Date" valueA={setupA.event_date} valueB={setupB.event_date} />
+          <CompareRow label="Rating" valueA={setupA.rating ? `${setupA.rating}/5` : '-'} valueB={setupB.rating ? `${setupB.rating}/5` : '-'} />
+        </div>
+      </div>
+
+      {/* Tyre Information */}
+      <div className="border border-border/50 rounded-lg overflow-hidden">
+        <SectionHeader title="Tyre Information" />
+        <div className="divide-y divide-border/30">
+          <CompareRow label="Compound" valueA={setupA.tyre_compound} valueB={setupB.tyre_compound} />
+          <CompareRow label="Type" valueA={setupA.tyre_type} valueB={setupB.tyre_type} />
+          <CompareRow label="Size" valueA={setupA.tyre_size} valueB={setupB.tyre_size} />
+          <CompareRow label="Condition" valueA={setupA.tyre_condition} valueB={setupB.tyre_condition} />
+        </div>
+      </div>
+
+      {/* Tyre Pressures */}
+      <div className="border border-border/50 rounded-lg overflow-hidden">
+        <SectionHeader title="Tyre Pressures (PSI)" />
+        <div className="divide-y divide-border/30">
+          <CompareRow label="Front Left" valueA={setupA.tyre_pressure_fl} valueB={setupB.tyre_pressure_fl} />
+          <CompareRow label="Front Right" valueA={setupA.tyre_pressure_fr} valueB={setupB.tyre_pressure_fr} />
+          <CompareRow label="Rear Left" valueA={setupA.tyre_pressure_rl} valueB={setupB.tyre_pressure_rl} />
+          <CompareRow label="Rear Right" valueA={setupA.tyre_pressure_rr} valueB={setupB.tyre_pressure_rr} />
+        </div>
+      </div>
+
+      {/* Ride Height */}
+      <div className="border border-border/50 rounded-lg overflow-hidden">
+        <SectionHeader title="Ride Height (mm)" />
+        <div className="divide-y divide-border/30">
+          <CompareRow label="Front Left" valueA={setupA.ride_height_fl} valueB={setupB.ride_height_fl} />
+          <CompareRow label="Front Right" valueA={setupA.ride_height_fr} valueB={setupB.ride_height_fr} />
+          <CompareRow label="Rear Left" valueA={setupA.ride_height_rl} valueB={setupB.ride_height_rl} />
+          <CompareRow label="Rear Right" valueA={setupA.ride_height_rr} valueB={setupB.ride_height_rr} />
+        </div>
+      </div>
+
+      {/* Alignment */}
+      <div className="border border-border/50 rounded-lg overflow-hidden">
+        <SectionHeader title="Alignment" />
+        <div className="divide-y divide-border/30">
+          <CompareRow label="Camber Front" valueA={setupA.camber_front} valueB={setupB.camber_front} unit="°" />
+          <CompareRow label="Camber Rear" valueA={setupA.camber_rear} valueB={setupB.camber_rear} unit="°" />
+          <CompareRow label="Toe Front" valueA={setupA.toe_front} valueB={setupB.toe_front} unit="mm" />
+          <CompareRow label="Toe Rear" valueA={setupA.toe_rear} valueB={setupB.toe_rear} unit="mm" />
+        </div>
+      </div>
+
+      {/* Suspension */}
+      <div className="border border-border/50 rounded-lg overflow-hidden">
+        <SectionHeader title="Suspension" />
+        <div className="divide-y divide-border/30">
+          <CompareRow label="Spring Rate Front" valueA={setupA.spring_rate_front} valueB={setupB.spring_rate_front} />
+          <CompareRow label="Spring Rate Rear" valueA={setupA.spring_rate_rear} valueB={setupB.spring_rate_rear} />
+          <CompareRow label="Damper Front" valueA={setupA.damper_front} valueB={setupB.damper_front} />
+          <CompareRow label="Damper Rear" valueA={setupA.damper_rear} valueB={setupB.damper_rear} />
+          <CompareRow label="ARB Front" valueA={setupA.arb_front} valueB={setupB.arb_front} />
+          <CompareRow label="ARB Rear" valueA={setupA.arb_rear} valueB={setupB.arb_rear} />
+        </div>
+      </div>
+
+      {/* Aero */}
+      <div className="border border-border/50 rounded-lg overflow-hidden">
+        <SectionHeader title="Aerodynamics" />
+        <div className="divide-y divide-border/30">
+          <CompareRow label="Front" valueA={setupA.aero_front} valueB={setupB.aero_front} />
+          <CompareRow label="Rear" valueA={setupA.aero_rear} valueB={setupB.aero_rear} />
+        </div>
+      </div>
+
+      {/* Notes */}
+      {(setupA.notes || setupB.notes) && (
+        <div className="border border-border/50 rounded-lg overflow-hidden">
+          <SectionHeader title="Notes" />
+          <div className="grid grid-cols-3 gap-4 p-3">
+            <div></div>
+            <div className="text-sm whitespace-pre-wrap">{setupA.notes || '-'}</div>
+            <div className="text-sm whitespace-pre-wrap">{setupB.notes || '-'}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Legend */}
+      <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground pt-2">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-amber-500/20 rounded"></div>
+          <span>Highlighted rows indicate differences</span>
+        </div>
+      </div>
+    </div>
+  );
+}
