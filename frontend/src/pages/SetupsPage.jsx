@@ -1035,6 +1035,103 @@ export default function SetupsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Group Create/Edit Dialog */}
+      <Dialog open={groupDialogOpen} onOpenChange={(open) => { if (!open) { setGroupDialogOpen(false); setEditingGroup(null); } }}>
+        <DialogContent className="max-w-md bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="text-xl flex items-center gap-2">
+              <FolderOpen className="w-5 h-5 text-primary" />
+              {editingGroup ? 'Edit Group' : 'New Setup Group'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingGroup ? 'Update group details' : 'Create a group to organize related setups'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {!editingGroup && (
+              <div className="space-y-2">
+                <Label>Vehicle</Label>
+                <Select 
+                  value={groupFormData.vehicle_id} 
+                  onValueChange={(value) => setGroupFormData(prev => ({ ...prev, vehicle_id: value }))}
+                >
+                  <SelectTrigger className="bg-secondary border-border">
+                    <SelectValue placeholder="Select a vehicle" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {vehicles.map((vehicle) => (
+                      <SelectItem key={vehicle.id} value={vehicle.id}>
+                        {vehicle.make} {vehicle.model}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="group-name">Group Name *</Label>
+              <Input
+                id="group-name"
+                value={groupFormData.name}
+                onChange={(e) => setGroupFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="e.g., Rally Finland Testing"
+                className="bg-secondary border-border"
+                autoFocus
+                data-testid="group-name-input"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="group-track">Track / Location</Label>
+              <Input
+                id="group-track"
+                value={groupFormData.track_name}
+                onChange={(e) => setGroupFormData(prev => ({ ...prev, track_name: e.target.value }))}
+                placeholder="e.g., Jyväskylä"
+                className="bg-secondary border-border"
+                data-testid="group-track-input"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="group-date">Date</Label>
+              <Input
+                id="group-date"
+                type="date"
+                value={groupFormData.date}
+                onChange={(e) => setGroupFormData(prev => ({ ...prev, date: e.target.value }))}
+                className="bg-secondary border-border"
+                data-testid="group-date-input"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setGroupDialogOpen(false); setEditingGroup(null); }}>
+              Cancel
+            </Button>
+            <Button onClick={handleGroupSave} disabled={!groupFormData.name.trim() || (!editingGroup && !groupFormData.vehicle_id)} data-testid="save-group-btn">
+              <FolderOpen className="w-4 h-4 mr-2" />
+              {editingGroup ? 'Update Group' : 'Create Group'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Group Dialog (shows setups in group) */}
+      <GroupViewDialog
+        group={viewingGroup}
+        vehicleName={viewingGroup ? getVehicleName(viewingGroup.vehicle_id) : ''}
+        setups={viewingGroup ? getGroupSetups(viewingGroup.id) : []}
+        onClose={() => setViewingGroup(null)}
+        onEditGroup={() => { openGroupDialog(viewingGroup); }}
+        onDeleteGroup={() => handleGroupDelete(viewingGroup.id)}
+        onAddSetup={() => addSetupToGroup(viewingGroup.id)}
+        onEditSetup={handleEdit}
+        onDeleteSetup={handleDelete}
+        onDuplicateSetup={openDuplicateDialog}
+        onQuickRating={handleQuickRating}
+        formatDate={formatDate}
+        getConditionIcon={getConditionIcon}
+      />
     </Layout>
   );
 }
