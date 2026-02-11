@@ -48,13 +48,18 @@ const TYRE_CONDITION_OPTIONS = [
   { value: 'worn', label: 'Worn' },
 ];
 
-export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehicles, preselectedVehicleId }) => {
+export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehicles, preselectedVehicleId, groups, preselectedGroupId }) => {
   const { getAuthHeader } = useAuth();
   const [loading, setLoading] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState(vehicleId || preselectedVehicleId || '');
+  const [selectedGroupId, setSelectedGroupId] = useState(preselectedGroupId || '');
   const [templateMode, setTemplateMode] = useState('basic'); // 'basic' or 'advanced'
   const isEditing = !!setup; // Only show rating when editing an existing setup
   const showVehicleSelector = !vehicleId && vehicles && vehicles.length > 0;
+  
+  // Filter groups by selected vehicle
+  const availableGroups = groups?.filter(g => g.vehicle_id === selectedVehicleId) || [];
+  
   const [formData, setFormData] = useState({
     name: '',
     conditions: '',
