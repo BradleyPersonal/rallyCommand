@@ -128,6 +128,7 @@ export default function SetupsPage() {
       
       let vehiclesData = [];
       let setupsData = [];
+      let groupsData = [];
       
       try {
         const vehiclesRes = await axios.get(`${API}/vehicles`, { headers });
@@ -136,7 +137,7 @@ export default function SetupsPage() {
         console.error('Failed to fetch vehicles:', vErr);
       }
       
-      // Fetch setups for all vehicles
+      // Fetch setups and groups for all vehicles
       for (const vehicle of vehiclesData) {
         try {
           const setupsRes = await axios.get(`${API}/setups/vehicle/${vehicle.id}`, { headers });
@@ -144,13 +145,22 @@ export default function SetupsPage() {
         } catch (sErr) {
           console.error(`Failed to fetch setups for vehicle ${vehicle.id}:`, sErr);
         }
+        
+        try {
+          const groupsRes = await axios.get(`${API}/setup-groups/vehicle/${vehicle.id}`, { headers });
+          groupsData = [...groupsData, ...groupsRes.data];
+        } catch (gErr) {
+          console.error(`Failed to fetch groups for vehicle ${vehicle.id}:`, gErr);
+        }
       }
       
       // Sort by created_at descending
       setupsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      groupsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
       
       setVehicles(vehiclesData);
       setSetups(setupsData);
+      setGroups(groupsData);
     } catch (error) {
       console.error('Failed to fetch data:', error);
       setError(true);
