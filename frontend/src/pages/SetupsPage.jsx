@@ -178,27 +178,37 @@ export default function SetupsPage() {
     fetchData();
   }, [fetchData]);
 
-  // Filter setups based on vehicle and search
+  // Filter setups and groups based on vehicle and search
   useEffect(() => {
-    let filtered = setups;
+    let filteredS = setups;
+    let filteredG = groups;
     
     // Filter by vehicle
     if (selectedVehicle !== 'all') {
-      filtered = filtered.filter(s => s.vehicle_id === selectedVehicle);
+      filteredS = filteredS.filter(s => s.vehicle_id === selectedVehicle);
+      filteredG = filteredG.filter(g => g.vehicle_id === selectedVehicle);
     }
     
     // Filter by search
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(s => 
+      filteredS = filteredS.filter(s => 
         s.name.toLowerCase().includes(query) ||
         s.event_name?.toLowerCase().includes(query) ||
         s.conditions?.toLowerCase().includes(query)
       );
+      filteredG = filteredG.filter(g =>
+        g.name.toLowerCase().includes(query) ||
+        g.track_name?.toLowerCase().includes(query)
+      );
     }
     
-    setFilteredSetups(filtered);
-  }, [selectedVehicle, searchQuery, setups]);
+    // Only show ungrouped setups in main list (grouped ones show in group view)
+    const ungroupedSetups = filteredS.filter(s => !s.group_id);
+    
+    setFilteredSetups(ungroupedSetups);
+    setFilteredGroups(filteredG);
+  }, [selectedVehicle, searchQuery, setups, groups]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this setup?')) return;
@@ -212,6 +222,84 @@ export default function SetupsPage() {
     } catch (error) {
       toast.error('Failed to delete setup');
     }
+  };
+
+  // Group handlers
+  const openGroupDialog = (group = null) => {
+    if (group) {
+      setEditingGroup(group);
+      setGroupFormData({
+        name: group.name,
+        track_name: group.track_name || '',
+        date: group.date || '',
+        vehicle_id: group.vehicle_id
+      });
+    } else {
+      setEditingGroup(null);
+      setGroupFormData({
+        name: '',
+        track_name: '',
+        date: '',
+        vehicle_id: selectedVehicle !== 'all' ? selectedVehicle : vehicles[0]?.id || ''
+      });
+    }
+    setGroupDialogOpen(true);
+  };
+
+  const handleGroupSave = async () => {
+    if (!groupFormData.name.trim()) {
+      toast.error('Please enter a group name');
+      return;
+    }
+    if (!groupFormData.vehicle_id) {
+      toast.error('Please select a vehicle');
+      return;
+    }
+
+    try {
+      if (editingGroup) {
+        await axios.put(`${API}/setup-groups/${editingGroup.id}`, {
+          name: groupFormData.name,
+          track_name: groupFormData.track_name,
+          date: groupFormData.date
+        }, { headers: getAuthHeader() });
+        toast.success('Group updated');
+      } else {
+        await axios.post(`${API}/setup-groups`, groupFormData, {
+          headers: getAuthHeader()
+        });
+        toast.success('Group created');
+      }
+      setGroupDialogOpen(false);
+      setEditingGroup(null);
+      fetchData();
+    } catch (error) {
+      toast.error(editingGroup ? 'Failed to update group' : 'Failed to create group');
+    }
+  };
+
+  const handleGroupDelete = async (groupId) => {
+    if (!window.confirm('Delete this group? Setups in this group will be ungrouped, not deleted.')) return;
+    
+    try {
+      await axios.delete(`${API}/setup-groups/${groupId}`, {
+        headers: getAuthHeader()
+      });
+      toast.success('Group deleted');
+      setViewingGroup(null);
+      fetchData();
+    } catch (error) {
+      toast.error('Failed to delete group');
+    }
+  };
+
+  const getGroupSetups = (groupId) => {
+    return setups.filter(s => s.group_id === groupId);
+  };
+
+  const addSetupToGroup = (groupId) => {
+    setPreselectedGroupId(groupId);
+    setDialogOpen(true);
   };
 
   const handleQuickRating = async (setupId, newRating, e) => {
