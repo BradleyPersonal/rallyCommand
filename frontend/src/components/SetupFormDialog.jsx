@@ -213,7 +213,11 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
     setLoading(true);
     try {
       if (setup) {
-        await axios.put(`${API}/setups/${setup.id}`, formData, {
+        // Include group_id in update
+        await axios.put(`${API}/setups/${setup.id}`, {
+          ...formData,
+          group_id: selectedGroupId || null
+        }, {
           headers: getAuthHeader()
         });
         toast.success('Setup updated successfully');
@@ -223,7 +227,8 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
         const payload = {
           ...newSetupData,
           rating: 0, // Always start with 0 rating for new setups
-          vehicle_id: effectiveVehicleId
+          vehicle_id: effectiveVehicleId,
+          group_id: selectedGroupId || null
         };
         console.log('Creating setup with payload:', payload);
         await axios.post(`${API}/setups`, payload, {
