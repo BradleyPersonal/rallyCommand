@@ -644,7 +644,7 @@ export default function SetupsPage() {
               </Link>
             </CardContent>
           </Card>
-        ) : setups.length === 0 ? (
+        ) : setups.length === 0 && groups.length === 0 ? (
           <Card className="bg-card border-border/50">
             <CardContent className="py-16 text-center text-muted-foreground">
               <Settings className="w-16 h-16 mx-auto mb-4 opacity-50" />
@@ -662,7 +662,7 @@ export default function SetupsPage() {
               </Button>
             </CardContent>
           </Card>
-        ) : filteredSetups.length === 0 ? (
+        ) : filteredSetups.length === 0 && filteredGroups.length === 0 ? (
           <Card className="bg-card border-border/50">
             <CardContent className="py-16 text-center text-muted-foreground">
               <Settings className="w-16 h-16 mx-auto mb-4 opacity-50" />
@@ -680,24 +680,149 @@ export default function SetupsPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredSetups.map((setup, index) => {
-              const isSelected = selectedForCompare.find(s => s.id === setup.id);
-              const canSelect = !compareMode || selectedForCompare.length < 2 || isSelected || 
-                (selectedForCompare.length === 1 && selectedForCompare[0].vehicle_id === setup.vehicle_id);
-              const isDisabledForCompare = compareMode && selectedForCompare.length === 1 && 
-                selectedForCompare[0].vehicle_id !== setup.vehicle_id;
-              
-              return (
-                <Card 
-                  key={setup.id}
-                  className={`bg-card border-border/50 transition-all animate-fade-in cursor-pointer ${
-                    isSelected 
-                      ? 'border-amber-500 ring-2 ring-amber-500/30' 
-                      : 'hover:border-primary/50'
-                  } ${isDisabledForCompare ? 'opacity-40' : ''}`}
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                  data-testid={`setup-card-${setup.id}`}
+          <div className="space-y-6">
+            {/* Setup Groups Section */}
+            {filteredGroups.length > 0 && (
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                  <FolderOpen className="w-5 h-5" />
+                  Setup Groups
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {filteredGroups.map((group, index) => {
+                    const groupSetups = getGroupSetups(group.id);
+                    return (
+                      <Card 
+                        key={group.id}
+                        className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/30 hover:border-primary/50 transition-all animate-fade-in cursor-pointer"
+                        style={{ animationDelay: `${index * 0.05}s` }}
+                        data-testid={`group-card-${group.id}`}
+                        onClick={() => setViewingGroup(group)}
+                      >
+                        <CardHeader className="pb-2">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <Badge variant="secondary" className="font-medium">
+                                  <Car className="w-3 h-3 mr-1" />
+                                  {getVehicleName(group.vehicle_id)}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs bg-primary/10 border-primary/30 text-primary">
+                                  <FolderOpen className="w-3 h-3 mr-1" />
+                                  {groupSetups.length} setup{groupSetups.length !== 1 ? 's' : ''}
+                                </Badge>
+                              </div>
+                              <CardTitle className="text-xl tracking-tight flex items-center gap-2">
+                                <FolderOpen className="w-5 h-5 text-primary" />
+                                {group.name}
+                              </CardTitle>
+                              {(group.track_name || group.date) && (
+                                <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+                                  {group.track_name && (
+                                    <span className="flex items-center gap-1">
+                                      <MapPin className="w-3 h-3" />
+                                      {group.track_name}
+                                    </span>
+                                  )}
+                                  {group.track_name && group.date && <span>•</span>}
+                                  {group.date && group.date}
+                                </p>
+                              )}
+                              {/* Show up to 3 setup names */}
+                              {groupSetups.length > 0 && (
+                                <p className="text-xs text-muted-foreground/70 mt-2 truncate">
+                                  {groupSetups.slice(0, 3).map(s => s.name).join(', ')}
+                                  {groupSetups.length > 3 && ` +${groupSetups.length - 3} more`}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {/* Add Setup to Group Button */}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-primary hover:bg-primary/20"
+                                onClick={(e) => { e.stopPropagation(); addSetupToGroup(group.id); }}
+                                title="Add setup to group"
+                                data-testid={`add-to-group-${group.id}`}
+                              >
+                                <Plus className="w-4 h-4" />
+                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                    <MoreHorizontal className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem 
+                                    onClick={(e) => { e.stopPropagation(); setViewingGroup(group); }}
+                                    className="cursor-pointer"
+                                  >
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    View Group
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    onClick={(e) => { e.stopPropagation(); openGroupDialog(group); }}
+                                    className="cursor-pointer"
+                                  >
+                                    <Pencil className="w-4 h-4 mr-2" />
+                                    Edit
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    onClick={(e) => { e.stopPropagation(); handleGroupDelete(group.id); }}
+                                    className="cursor-pointer text-destructive focus:text-destructive"
+                                  >
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between pt-2 border-t border-primary/20">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Calendar className="w-4 h-4" />
+                              {formatDate(group.created_at)}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Individual Setups Section */}
+            {filteredSetups.length > 0 && (
+              <div className="space-y-4">
+                {filteredGroups.length > 0 && (
+                  <h2 className="text-lg font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                    <Settings className="w-5 h-5" />
+                    Individual Setups
+                  </h2>
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {filteredSetups.map((setup, index) => {
+                    const isSelected = selectedForCompare.find(s => s.id === setup.id);
+                    const canSelect = !compareMode || selectedForCompare.length < 2 || isSelected || 
+                      (selectedForCompare.length === 1 && selectedForCompare[0].vehicle_id === setup.vehicle_id);
+                    const isDisabledForCompare = compareMode && selectedForCompare.length === 1 && 
+                      selectedForCompare[0].vehicle_id !== setup.vehicle_id;
+                    
+                    return (
+                      <Card 
+                        key={setup.id}
+                        className={`bg-card border-border/50 transition-all animate-fade-in cursor-pointer ${
+                          isSelected 
+                            ? 'border-amber-500 ring-2 ring-amber-500/30' 
+                            : 'hover:border-primary/50'
+                        } ${isDisabledForCompare ? 'opacity-40' : ''}`}
+                        style={{ animationDelay: `${index * 0.05}s` }}
+                        data-testid={`setup-card-${setup.id}`}
                   onClick={() => compareMode ? handleCompareSelect(setup, { stopPropagation: () => {} }) : setViewingSetup(setup)}
                 >
                   <CardHeader className="pb-2">
