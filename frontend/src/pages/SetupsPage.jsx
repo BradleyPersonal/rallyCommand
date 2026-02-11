@@ -939,6 +939,9 @@ export default function SetupsPage() {
               </Card>
               );
             })}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
