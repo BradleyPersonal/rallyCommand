@@ -44,8 +44,15 @@ import {
   Cloud,
   CloudRain,
   Sun,
-  Droplets
+  Droplets,
+  GitCompare,
+  Copy,
+  X,
+  Check
 } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { DialogFooter, DialogDescription } from '@/components/ui/dialog';
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
