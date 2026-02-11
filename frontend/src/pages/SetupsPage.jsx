@@ -954,6 +954,8 @@ export default function SetupsPage() {
         setup={editingSetup}
         vehicles={vehicles}
         preselectedVehicleId={selectedVehicle !== 'all' ? selectedVehicle : vehicles[0]?.id}
+        groups={groups}
+        preselectedGroupId={preselectedGroupId}
       />
 
       {/* View Setup Dialog */}
