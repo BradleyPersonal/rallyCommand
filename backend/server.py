@@ -195,6 +195,7 @@ class CornerValues(BaseModel):
 class SetupCreate(BaseModel):
     name: str
     vehicle_id: str
+    group_id: Optional[str] = None  # Optional group assignment
     conditions: str = ""  # e.g., raining, sunny, dry, wet, mixed
     # Tyre information
     tyre_compound: str = ""  # hard, medium, soft
@@ -229,6 +230,7 @@ class SetupCreate(BaseModel):
 
 class SetupUpdate(BaseModel):
     name: Optional[str] = None
+    group_id: Optional[str] = None  # Can be set to assign to group, or "" to remove from group
     conditions: Optional[str] = None
     tyre_compound: Optional[str] = None
     tyre_type: Optional[str] = None
