@@ -508,7 +508,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
           </div>
 
           {/* Advanced Mode Only Sections */}
-          {(templateMode === 'advanced' || isEditing) && (
+          {templateMode === 'advanced' && (
             <>
               <Separator className="bg-border/50" />
 
