@@ -1239,6 +1239,109 @@ async def delete_setup(setup_id: str, current_user: dict = Depends(get_current_u
     
     return {"message": "Setup deleted successfully"}
 
+# ============== SETUP GROUPS ENDPOINTS ==============
+
+@api_router.post("/setup-groups", response_model=SetupGroup)
+async def create_setup_group(group: SetupGroupCreate, current_user: dict = Depends(get_current_user)):
+    # Verify vehicle exists and belongs to user
+    vehicle = await db.vehicles.find_one(
+        {"id": group.vehicle_id, "user_id": current_user["id"]}
+    )
+    if not vehicle:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    
+    group_id = str(uuid.uuid4())
+    now = datetime.now(timezone.utc).isoformat()
+    
+    group_doc = {
+        "id": group_id,
+        "name": group.name,
+        "vehicle_id": group.vehicle_id,
+        "user_id": current_user["id"],
+        "track_name": group.track_name,
+        "date": group.date,
+        "created_at": now,
+        "updated_at": now
+    }
+    await db.setup_groups.insert_one(group_doc)
+    
+    return SetupGroup(**group_doc)
+
+@api_router.get("/setup-groups/vehicle/{vehicle_id}", response_model=List[SetupGroup])
+async def get_vehicle_setup_groups(vehicle_id: str, current_user: dict = Depends(get_current_user)):
+    groups = await db.setup_groups.find(
+        {"vehicle_id": vehicle_id, "user_id": current_user["id"]},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    return [SetupGroup(**g) for g in groups]
+
+@api_router.get("/setup-groups/{group_id}", response_model=SetupGroup)
+async def get_setup_group(group_id: str, current_user: dict = Depends(get_current_user)):
+    group = await db.setup_groups.find_one(
+        {"id": group_id, "user_id": current_user["id"]},
+        {"_id": 0}
+    )
+    if not group:
+        raise HTTPException(status_code=404, detail="Setup group not found")
+    return SetupGroup(**group)
+
+@api_router.get("/setup-groups/{group_id}/setups", response_model=List[Setup])
+async def get_group_setups(group_id: str, current_user: dict = Depends(get_current_user)):
+    # Verify group exists
+    group = await db.setup_groups.find_one(
+        {"id": group_id, "user_id": current_user["id"]}
+    )
+    if not group:
+        raise HTTPException(status_code=404, detail="Setup group not found")
+    
+    setups = await db.setups.find(
+        {"group_id": group_id, "user_id": current_user["id"]},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    return [Setup(**s) for s in setups]
+
+@api_router.put("/setup-groups/{group_id}", response_model=SetupGroup)
+async def update_setup_group(
+    group_id: str,
+    update: SetupGroupUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    group = await db.setup_groups.find_one(
+        {"id": group_id, "user_id": current_user["id"]}
+    )
+    if not group:
+        raise HTTPException(status_code=404, detail="Setup group not found")
+    
+    update_data = {k: v for k, v in update.model_dump().items() if v is not None}
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.setup_groups.update_one(
+        {"id": group_id},
+        {"$set": update_data}
+    )
+    
+    updated_group = await db.setup_groups.find_one({"id": group_id}, {"_id": 0})
+    return SetupGroup(**updated_group)
+
+@api_router.delete("/setup-groups/{group_id}")
+async def delete_setup_group(group_id: str, current_user: dict = Depends(get_current_user)):
+    group = await db.setup_groups.find_one(
+        {"id": group_id, "user_id": current_user["id"]}
+    )
+    if not group:
+        raise HTTPException(status_code=404, detail="Setup group not found")
+    
+    # Remove group_id from all setups in this group (don't delete the setups)
+    await db.setups.update_many(
+        {"group_id": group_id},
+        {"$set": {"group_id": None}}
+    )
+    
+    # Delete the group
+    await db.setup_groups.delete_one({"id": group_id})
+    
+    return {"message": "Setup group deleted successfully"}
+
 # ============== ROOT ROUTE ==============
 
 @api_router.get("/")
