@@ -1106,6 +1106,14 @@ async def create_setup(setup: SetupCreate, current_user: dict = Depends(get_curr
     if not vehicle:
         raise HTTPException(status_code=404, detail="Vehicle not found")
     
+    # Verify group exists if provided
+    if setup.group_id:
+        group = await db.setup_groups.find_one(
+            {"id": setup.group_id, "user_id": current_user["id"], "vehicle_id": setup.vehicle_id}
+        )
+        if not group:
+            raise HTTPException(status_code=404, detail="Setup group not found")
+    
     setup_id = str(uuid.uuid4())
     now = datetime.now(timezone.utc).isoformat()
     
@@ -1114,6 +1122,7 @@ async def create_setup(setup: SetupCreate, current_user: dict = Depends(get_curr
         "name": setup.name,
         "vehicle_id": setup.vehicle_id,
         "user_id": current_user["id"],
+        "group_id": setup.group_id,
         "conditions": setup.conditions,
         "tyre_compound": setup.tyre_compound,
         "tyre_type": setup.tyre_type,
