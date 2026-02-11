@@ -1202,6 +1202,21 @@ async def update_setup(
         raise HTTPException(status_code=404, detail="Setup not found")
     
     update_data = {k: v for k, v in update.model_dump().items() if v is not None}
+    
+    # Handle group_id - allow setting to empty string to remove from group
+    if "group_id" in update.model_dump():
+        group_id_value = update.group_id
+        if group_id_value == "" or group_id_value is None:
+            update_data["group_id"] = None
+        else:
+            # Verify group exists and belongs to same vehicle
+            group = await db.setup_groups.find_one(
+                {"id": group_id_value, "user_id": current_user["id"], "vehicle_id": setup["vehicle_id"]}
+            )
+            if not group:
+                raise HTTPException(status_code=404, detail="Setup group not found or belongs to different vehicle")
+            update_data["group_id"] = group_id_value
+    
     if "rating" in update_data:
         update_data["rating"] = min(max(update_data["rating"], 0), 5)
     update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
