@@ -1533,3 +1533,182 @@ function SetupComparisonView({ setupA, setupB }) {
     </div>
   );
 }
+
+// Group View Dialog Component - shows setups within a group
+function GroupViewDialog({ 
+  group, 
+  vehicleName, 
+  setups, 
+  onClose, 
+  onEditGroup, 
+  onDeleteGroup, 
+  onAddSetup,
+  onEditSetup,
+  onDeleteSetup,
+  onDuplicateSetup,
+  onQuickRating,
+  formatDate,
+  getConditionIcon
+}) {
+  if (!group) return null;
+
+  return (
+    <Dialog open={!!group} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card border-border">
+        <DialogHeader>
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Button variant="ghost" size="sm" onClick={onClose} className="mr-2">
+                  <ArrowLeft className="w-4 h-4" />
+                </Button>
+                <Badge variant="secondary" className="font-medium">
+                  <Car className="w-3 h-3 mr-1" />
+                  {vehicleName}
+                </Badge>
+              </div>
+              <DialogTitle className="text-2xl tracking-tight uppercase flex items-center gap-2">
+                <FolderOpen className="w-6 h-6 text-primary" />
+                {group.name}
+              </DialogTitle>
+              {(group.track_name || group.date) && (
+                <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+                  {group.track_name && (
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-3 h-3" />
+                      {group.track_name}
+                    </span>
+                  )}
+                  {group.track_name && group.date && <span>•</span>}
+                  {group.date && group.date}
+                </p>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={onAddSetup} data-testid="group-add-setup-btn">
+                <Plus className="w-4 h-4 mr-1" />
+                Add Setup
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <MoreHorizontal className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={onEditGroup} className="cursor-pointer">
+                    <Pencil className="w-4 h-4 mr-2" />
+                    Edit Group
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={onDeleteGroup} className="cursor-pointer text-destructive focus:text-destructive">
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete Group
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </DialogHeader>
+
+        <div className="mt-4">
+          {setups.length === 0 ? (
+            <div className="py-12 text-center text-muted-foreground">
+              <Settings className="w-12 h-12 mx-auto mb-3 opacity-50" />
+              <p className="text-lg">No setups in this group</p>
+              <p className="text-sm mt-1">Add setups to organize them together</p>
+              <Button onClick={onAddSetup} className="mt-4">
+                <Plus className="w-4 h-4 mr-2" />
+                Add First Setup
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {setups.map((setup, index) => (
+                <Card 
+                  key={setup.id}
+                  className="bg-card border-border/50 hover:border-primary/50 transition-all animate-fade-in"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                  data-testid={`group-setup-card-${setup.id}`}
+                >
+                  <CardHeader className="pb-2">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          {setup.conditions && (
+                            <Badge variant="outline" className="text-xs flex items-center gap-1">
+                              {getConditionIcon(setup.conditions)}
+                              {setup.conditions}
+                            </Badge>
+                          )}
+                        </div>
+                        <CardTitle className="text-lg tracking-tight flex items-center gap-2">
+                          <Settings className="w-4 h-4 text-blue-500" />
+                          {setup.name}
+                        </CardTitle>
+                        {setup.event_name && (
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {setup.event_name}
+                            {setup.event_date && ` • ${setup.event_date}`}
+                          </p>
+                        )}
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => onEditSetup(setup)} className="cursor-pointer">
+                            <Pencil className="w-4 h-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onDuplicateSetup(setup)} className="cursor-pointer">
+                            <Copy className="w-4 h-4 mr-2" />
+                            Duplicate
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => onDeleteSetup(setup.id)} className="cursor-pointer text-destructive focus:text-destructive">
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Calendar className="w-4 h-4" />
+                        {formatDate(setup.created_at)}
+                      </div>
+                      {/* Quick Rating */}
+                      <div className="flex items-center gap-0.5">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={(e) => onQuickRating(setup.id, setup.rating === star ? 0 : star, e)}
+                            className="p-0.5 hover:scale-125 transition-transform"
+                          >
+                            <Star
+                              className={`w-4 h-4 transition-colors ${
+                                star <= setup.rating 
+                                  ? 'text-yellow-500 fill-yellow-500' 
+                                  : 'text-muted-foreground/30 hover:text-yellow-400'
+                              }`}
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
