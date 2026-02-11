@@ -545,39 +545,64 @@ export default function SetupsPage() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredSetups.map((setup, index) => (
-              <Card 
-                key={setup.id}
-                className="bg-card border-border/50 hover:border-primary/50 transition-colors animate-fade-in cursor-pointer"
-                style={{ animationDelay: `${index * 0.05}s` }}
-                data-testid={`setup-card-${setup.id}`}
-                onClick={() => setViewingSetup(setup)}
-              >
-                <CardHeader className="pb-2">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Badge variant="secondary" className="font-medium">
-                          <Car className="w-3 h-3 mr-1" />
-                          {getVehicleName(setup.vehicle_id)}
-                        </Badge>
-                        {setup.conditions && (
-                          <Badge variant="outline" className="text-xs flex items-center gap-1">
-                            {getConditionIcon(setup.conditions)}
-                            {setup.conditions}
-                          </Badge>
-                        )}
-                      </div>
-                      <CardTitle className="text-xl tracking-tight flex items-center gap-2">
-                        <Settings className="w-5 h-5 text-blue-500" />
-                        {setup.name}
-                      </CardTitle>
-                      {setup.event_name && (
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {setup.event_name}
-                          {setup.event_date && ` • ${setup.event_date}`}
-                        </p>
+            {filteredSetups.map((setup, index) => {
+              const isSelected = selectedForCompare.find(s => s.id === setup.id);
+              const canSelect = !compareMode || selectedForCompare.length < 2 || isSelected || 
+                (selectedForCompare.length === 1 && selectedForCompare[0].vehicle_id === setup.vehicle_id);
+              const isDisabledForCompare = compareMode && selectedForCompare.length === 1 && 
+                selectedForCompare[0].vehicle_id !== setup.vehicle_id;
+              
+              return (
+                <Card 
+                  key={setup.id}
+                  className={`bg-card border-border/50 transition-all animate-fade-in cursor-pointer ${
+                    isSelected 
+                      ? 'border-amber-500 ring-2 ring-amber-500/30' 
+                      : 'hover:border-primary/50'
+                  } ${isDisabledForCompare ? 'opacity-40' : ''}`}
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                  data-testid={`setup-card-${setup.id}`}
+                  onClick={() => compareMode ? handleCompareSelect(setup, { stopPropagation: () => {} }) : setViewingSetup(setup)}
+                >
+                  <CardHeader className="pb-2">
+                    <div className="flex items-start justify-between">
+                      {/* Compare Mode Checkbox */}
+                      {compareMode && (
+                        <div 
+                          className="mr-3 mt-1"
+                          onClick={(e) => handleCompareSelect(setup, e)}
+                        >
+                          <Checkbox 
+                            checked={!!isSelected}
+                            disabled={isDisabledForCompare}
+                            className={`h-5 w-5 ${isSelected ? 'border-amber-500 bg-amber-500 text-white' : ''}`}
+                            data-testid={`compare-checkbox-${setup.id}`}
+                          />
+                        </div>
                       )}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <Badge variant="secondary" className="font-medium">
+                            <Car className="w-3 h-3 mr-1" />
+                            {getVehicleName(setup.vehicle_id)}
+                          </Badge>
+                          {setup.conditions && (
+                            <Badge variant="outline" className="text-xs flex items-center gap-1">
+                              {getConditionIcon(setup.conditions)}
+                              {setup.conditions}
+                            </Badge>
+                          )}
+                        </div>
+                        <CardTitle className="text-xl tracking-tight flex items-center gap-2">
+                          <Settings className="w-5 h-5 text-blue-500" />
+                          {setup.name}
+                        </CardTitle>
+                        {setup.event_name && (
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {setup.event_name}
+                            {setup.event_date && ` • ${setup.event_date}`}
+                          </p>
+                        )}
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
