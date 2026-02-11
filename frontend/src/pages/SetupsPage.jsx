@@ -226,6 +226,115 @@ export default function SetupsPage() {
     return vehicle ? `${vehicle.make} ${vehicle.model}` : 'Unknown Vehicle';
   };
 
+  // Compare mode handlers
+  const toggleCompareMode = () => {
+    if (compareMode) {
+      setCompareMode(false);
+      setSelectedForCompare([]);
+    } else {
+      setCompareMode(true);
+      setSelectedForCompare([]);
+    }
+  };
+
+  const handleCompareSelect = (setup, e) => {
+    e.stopPropagation();
+    
+    // Check if already selected
+    if (selectedForCompare.find(s => s.id === setup.id)) {
+      setSelectedForCompare(prev => prev.filter(s => s.id !== setup.id));
+      return;
+    }
+    
+    // If already have 2 selected, remove the first one
+    if (selectedForCompare.length >= 2) {
+      setSelectedForCompare(prev => [...prev.slice(1), setup]);
+      return;
+    }
+    
+    // Check if from same vehicle (only if one is already selected)
+    if (selectedForCompare.length === 1 && selectedForCompare[0].vehicle_id !== setup.vehicle_id) {
+      toast.error('Can only compare setups from the same vehicle');
+      return;
+    }
+    
+    setSelectedForCompare(prev => [...prev, setup]);
+  };
+
+  const openCompareDialog = () => {
+    if (selectedForCompare.length === 2) {
+      setCompareDialogOpen(true);
+    }
+  };
+
+  // Duplicate handlers
+  const openDuplicateDialog = (setup) => {
+    setDuplicatingSetup(setup);
+    setDuplicateName(`${setup.name} (Copy)`);
+    setDuplicateDialogOpen(true);
+  };
+
+  const handleDuplicate = async () => {
+    if (!duplicatingSetup || !duplicateName.trim()) {
+      toast.error('Please enter a name for the duplicate');
+      return;
+    }
+
+    try {
+      // Create duplicate setup data
+      const duplicateData = {
+        name: duplicateName.trim(),
+        vehicle_id: duplicatingSetup.vehicle_id,
+        conditions: duplicatingSetup.conditions || '',
+        tyre_compound: duplicatingSetup.tyre_compound || '',
+        tyre_type: duplicatingSetup.tyre_type || '',
+        tyre_size: duplicatingSetup.tyre_size || '',
+        tyre_condition: duplicatingSetup.tyre_condition || '',
+        tyre_pressure_fl: duplicatingSetup.tyre_pressure_fl || 0,
+        tyre_pressure_fr: duplicatingSetup.tyre_pressure_fr || 0,
+        tyre_pressure_rl: duplicatingSetup.tyre_pressure_rl || 0,
+        tyre_pressure_rr: duplicatingSetup.tyre_pressure_rr || 0,
+        ride_height_fl: duplicatingSetup.ride_height_fl || 0,
+        ride_height_fr: duplicatingSetup.ride_height_fr || 0,
+        ride_height_rl: duplicatingSetup.ride_height_rl || 0,
+        ride_height_rr: duplicatingSetup.ride_height_rr || 0,
+        camber_front: duplicatingSetup.camber_front || 0,
+        camber_rear: duplicatingSetup.camber_rear || 0,
+        toe_front: duplicatingSetup.toe_front || 0,
+        toe_rear: duplicatingSetup.toe_rear || 0,
+        spring_rate_front: duplicatingSetup.spring_rate_front || 0,
+        spring_rate_rear: duplicatingSetup.spring_rate_rear || 0,
+        damper_front: duplicatingSetup.damper_front || 0,
+        damper_rear: duplicatingSetup.damper_rear || 0,
+        arb_front: duplicatingSetup.arb_front || 0,
+        arb_rear: duplicatingSetup.arb_rear || 0,
+        aero_front: duplicatingSetup.aero_front || '',
+        aero_rear: duplicatingSetup.aero_rear || '',
+        event_name: duplicatingSetup.event_name || '',
+        event_date: duplicatingSetup.event_date || '',
+        rating: 0, // Start fresh rating for duplicate
+        notes: duplicatingSetup.notes || ''
+      };
+
+      const response = await axios.post(`${API}/setups`, duplicateData, {
+        headers: getAuthHeader()
+      });
+
+      toast.success('Setup duplicated!');
+      setDuplicateDialogOpen(false);
+      setDuplicatingSetup(null);
+      setDuplicateName('');
+      setViewingSetup(null); // Close view dialog if open
+      
+      // Refresh and open the new setup for editing
+      await fetchData();
+      setEditingSetup(response.data);
+      setDialogOpen(true);
+    } catch (error) {
+      toast.error('Failed to duplicate setup');
+    }
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
