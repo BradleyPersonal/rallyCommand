@@ -88,6 +88,20 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
     notes: ''
   });
 
+  // Check if a setup has any advanced fields populated
+  const hasAdvancedFields = (s) => {
+    if (!s) return false;
+    return (
+      s.ride_height_fl > 0 || s.ride_height_fr > 0 || s.ride_height_rl > 0 || s.ride_height_rr > 0 ||
+      s.camber_front !== 0 || s.camber_rear !== 0 ||
+      s.toe_front !== 0 || s.toe_rear !== 0 ||
+      s.spring_rate_front > 0 || s.spring_rate_rear > 0 ||
+      s.damper_front > 0 || s.damper_rear > 0 ||
+      s.arb_front > 0 || s.arb_rear > 0 ||
+      (s.aero_front && s.aero_front !== '') || (s.aero_rear && s.aero_rear !== '')
+    );
+  };
+
   useEffect(() => {
     if (setup) {
       setFormData({
@@ -123,8 +137,8 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
         notes: setup.notes || ''
       });
       setSelectedVehicleId(setup.vehicle_id || vehicleId || preselectedVehicleId || '');
-      // Always use advanced mode when editing to show all fields
-      setTemplateMode('advanced');
+      // Set mode based on whether setup has advanced fields
+      setTemplateMode(hasAdvancedFields(setup) ? 'advanced' : 'basic');
     } else {
       setFormData({
         name: '',
