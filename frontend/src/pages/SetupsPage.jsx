@@ -605,74 +605,106 @@ function SetupViewDialog({ setup, vehicleName, onClose }) {
             </div>
           </div>
 
-          {/* Ride Heights */}
-          <div>
-            <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Ride Height (mm)</p>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 bg-secondary/30 rounded text-center">
-                <p className="text-xs text-muted-foreground">FL</p>
-                <p className="text-lg font-mono">{formatValue(setup.ride_height_fl)}</p>
+          {/* Advanced Sections - Only show if setup has advanced fields */}
+          {showAdvancedSections && (
+            <>
+              {/* Ride Heights */}
+              <div>
+                <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Ride Height (mm)</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 bg-secondary/30 rounded text-center">
+                    <p className="text-xs text-muted-foreground">FL</p>
+                    <p className="text-lg font-mono">{formatValue(setup.ride_height_fl)}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded text-center">
+                    <p className="text-xs text-muted-foreground">FR</p>
+                    <p className="text-lg font-mono">{formatValue(setup.ride_height_fr)}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded text-center">
+                    <p className="text-xs text-muted-foreground">RL</p>
+                    <p className="text-lg font-mono">{formatValue(setup.ride_height_rl)}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded text-center">
+                    <p className="text-xs text-muted-foreground">RR</p>
+                    <p className="text-lg font-mono">{formatValue(setup.ride_height_rr)}</p>
+                  </div>
+                </div>
               </div>
-              <div className="p-3 bg-secondary/30 rounded text-center">
-                <p className="text-xs text-muted-foreground">FR</p>
-                <p className="text-lg font-mono">{formatValue(setup.ride_height_fr)}</p>
-              </div>
-              <div className="p-3 bg-secondary/30 rounded text-center">
-                <p className="text-xs text-muted-foreground">RL</p>
-                <p className="text-lg font-mono">{formatValue(setup.ride_height_rl)}</p>
-              </div>
-              <div className="p-3 bg-secondary/30 rounded text-center">
-                <p className="text-xs text-muted-foreground">RR</p>
-                <p className="text-lg font-mono">{formatValue(setup.ride_height_rr)}</p>
-              </div>
-            </div>
-          </div>
 
-          {/* Alignment */}
-          <div>
-            <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Alignment</p>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 bg-secondary/30 rounded">
-                <p className="text-xs text-muted-foreground">Camber Front</p>
-                <p className="text-lg font-mono">{formatValue(setup.camber_front, '°')}</p>
+              {/* Alignment */}
+              <div>
+                <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Alignment</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">Camber Front</p>
+                    <p className="text-lg font-mono">{formatValue(setup.camber_front, '°')}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">Camber Rear</p>
+                    <p className="text-lg font-mono">{formatValue(setup.camber_rear, '°')}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">Toe Front</p>
+                    <p className="text-lg font-mono">{formatValue(setup.toe_front, 'mm')}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">Toe Rear</p>
+                    <p className="text-lg font-mono">{formatValue(setup.toe_rear, 'mm')}</p>
+                  </div>
+                </div>
               </div>
-              <div className="p-3 bg-secondary/30 rounded">
-                <p className="text-xs text-muted-foreground">Camber Rear</p>
-                <p className="text-lg font-mono">{formatValue(setup.camber_rear, '°')}</p>
-              </div>
-              <div className="p-3 bg-secondary/30 rounded">
-                <p className="text-xs text-muted-foreground">Toe Front</p>
-                <p className="text-lg font-mono">{formatValue(setup.toe_front, 'mm')}</p>
-              </div>
-              <div className="p-3 bg-secondary/30 rounded">
-                <p className="text-xs text-muted-foreground">Toe Rear</p>
-                <p className="text-lg font-mono">{formatValue(setup.toe_rear, 'mm')}</p>
-              </div>
-            </div>
-          </div>
 
-          {/* Suspension */}
-          <div>
-            <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Suspension</p>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 bg-secondary/30 rounded">
-                <p className="text-xs text-muted-foreground">Spring Rate Front</p>
-                <p className="text-lg font-mono">{formatValue(setup.spring_rate_front)}</p>
+              {/* Suspension */}
+              <div>
+                <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Suspension</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">Spring Rate Front</p>
+                    <p className="text-lg font-mono">{formatValue(setup.spring_rate_front)}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">Spring Rate Rear</p>
+                    <p className="text-lg font-mono">{formatValue(setup.spring_rate_rear)}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">Damper Front</p>
+                    <p className="text-lg font-mono">{formatValue(setup.damper_front)}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">Damper Rear</p>
+                    <p className="text-lg font-mono">{formatValue(setup.damper_rear)}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">ARB Front</p>
+                    <p className="text-lg font-mono">{formatValue(setup.arb_front)}</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded">
+                    <p className="text-xs text-muted-foreground">ARB Rear</p>
+                    <p className="text-lg font-mono">{formatValue(setup.arb_rear)}</p>
+                  </div>
+                </div>
               </div>
-              <div className="p-3 bg-secondary/30 rounded">
-                <p className="text-xs text-muted-foreground">Spring Rate Rear</p>
-                <p className="text-lg font-mono">{formatValue(setup.spring_rate_rear)}</p>
-              </div>
-              <div className="p-3 bg-secondary/30 rounded">
-                <p className="text-xs text-muted-foreground">Damper Front</p>
-                <p className="text-lg font-mono">{formatValue(setup.damper_front)}</p>
-              </div>
-              <div className="p-3 bg-secondary/30 rounded">
-                <p className="text-xs text-muted-foreground">Damper Rear</p>
-                <p className="text-lg font-mono">{formatValue(setup.damper_rear)}</p>
-              </div>
-              <div className="p-3 bg-secondary/30 rounded">
-                <p className="text-xs text-muted-foreground">ARB Front</p>
+
+              {/* Aero */}
+              {(setup.aero_front || setup.aero_rear) && (
+                <div>
+                  <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Aerodynamics</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-3 bg-secondary/30 rounded">
+                      <p className="text-xs text-muted-foreground">Front</p>
+                      <p className="text-lg">{formatValue(setup.aero_front)}</p>
+                    </div>
+                    <div className="p-3 bg-secondary/30 rounded">
+                      <p className="text-xs text-muted-foreground">Rear</p>
+                      <p className="text-lg">{formatValue(setup.aero_rear)}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Notes */}
                 <p className="text-lg font-mono">{formatValue(setup.arb_front)}</p>
               </div>
               <div className="p-3 bg-secondary/30 rounded">
