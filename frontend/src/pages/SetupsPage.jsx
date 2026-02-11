@@ -81,6 +81,16 @@ export default function SetupsPage() {
   const [selectedVehicle, setSelectedVehicle] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewingSetup, setViewingSetup] = useState(null);
+  
+  // Compare mode state
+  const [compareMode, setCompareMode] = useState(false);
+  const [selectedForCompare, setSelectedForCompare] = useState([]);
+  const [compareDialogOpen, setCompareDialogOpen] = useState(false);
+  
+  // Duplicate state
+  const [duplicateDialogOpen, setDuplicateDialogOpen] = useState(false);
+  const [duplicatingSetup, setDuplicatingSetup] = useState(null);
+  const [duplicateName, setDuplicateName] = useState('');
 
   // Sync local filter with global vehicle filter
   useEffect(() => {
