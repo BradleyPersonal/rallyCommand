@@ -492,6 +492,21 @@ export default function SetupsPage() {
 function SetupViewDialog({ setup, vehicleName, onClose }) {
   if (!setup) return null;
 
+  // Check if a setup has any advanced fields populated
+  const hasAdvancedFields = () => {
+    return (
+      setup.ride_height_fl > 0 || setup.ride_height_fr > 0 || setup.ride_height_rl > 0 || setup.ride_height_rr > 0 ||
+      setup.camber_front !== 0 || setup.camber_rear !== 0 ||
+      setup.toe_front !== 0 || setup.toe_rear !== 0 ||
+      setup.spring_rate_front > 0 || setup.spring_rate_rear > 0 ||
+      setup.damper_front > 0 || setup.damper_rear > 0 ||
+      setup.arb_front > 0 || setup.arb_rear > 0 ||
+      (setup.aero_front && setup.aero_front !== '') || (setup.aero_rear && setup.aero_rear !== '')
+    );
+  };
+
+  const showAdvancedSections = hasAdvancedFields();
+
   const formatValue = (value, unit = '') => {
     if (value === 0 || value === '') return '-';
     return `${value}${unit}`;
