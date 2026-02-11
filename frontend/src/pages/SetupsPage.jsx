@@ -96,6 +96,15 @@ export default function SetupsPage() {
   const [duplicateDialogOpen, setDuplicateDialogOpen] = useState(false);
   const [duplicatingSetup, setDuplicatingSetup] = useState(null);
   const [duplicateName, setDuplicateName] = useState('');
+  
+  // Group state
+  const [groups, setGroups] = useState([]);
+  const [filteredGroups, setFilteredGroups] = useState([]);
+  const [groupDialogOpen, setGroupDialogOpen] = useState(false);
+  const [editingGroup, setEditingGroup] = useState(null);
+  const [viewingGroup, setViewingGroup] = useState(null);
+  const [groupFormData, setGroupFormData] = useState({ name: '', track_name: '', date: '', vehicle_id: '' });
+  const [preselectedGroupId, setPreselectedGroupId] = useState(null);
 
   // Sync local filter with global vehicle filter
   useEffect(() => {
