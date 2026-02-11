@@ -700,6 +700,75 @@ export default function SetupsPage() {
         onEdit={handleEdit}
         onDuplicate={openDuplicateDialog}
       />
+
+      {/* Duplicate Setup Dialog */}
+      <Dialog open={duplicateDialogOpen} onOpenChange={(open) => { if (!open) { setDuplicateDialogOpen(false); setDuplicatingSetup(null); setDuplicateName(''); } }}>
+        <DialogContent className="max-w-md bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="text-xl flex items-center gap-2">
+              <Copy className="w-5 h-5 text-primary" />
+              Duplicate Setup
+            </DialogTitle>
+            <DialogDescription>
+              Create a copy of "{duplicatingSetup?.name}"
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="duplicate-name">New Setup Name</Label>
+              <Input
+                id="duplicate-name"
+                value={duplicateName}
+                onChange={(e) => setDuplicateName(e.target.value)}
+                placeholder="Enter name for the duplicate"
+                className="bg-secondary border-border"
+                autoFocus
+                data-testid="duplicate-name-input"
+              />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              The duplicate will be created for the same vehicle. You can change the vehicle when editing.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setDuplicateDialogOpen(false); setDuplicatingSetup(null); setDuplicateName(''); }}>
+              Cancel
+            </Button>
+            <Button onClick={handleDuplicate} disabled={!duplicateName.trim()} data-testid="confirm-duplicate-btn">
+              <Copy className="w-4 h-4 mr-2" />
+              Duplicate & Edit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Compare Setups Dialog */}
+      <Dialog open={compareDialogOpen} onOpenChange={(open) => { if (!open) setCompareDialogOpen(false); }}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="text-xl flex items-center gap-2">
+              <GitCompare className="w-5 h-5 text-amber-500" />
+              Compare Setups
+            </DialogTitle>
+            {selectedForCompare.length === 2 && (
+              <DialogDescription>
+                Comparing setups for {getVehicleName(selectedForCompare[0].vehicle_id)}
+              </DialogDescription>
+            )}
+          </DialogHeader>
+          {selectedForCompare.length === 2 && (
+            <SetupComparisonView 
+              setupA={selectedForCompare[0]} 
+              setupB={selectedForCompare[1]} 
+            />
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCompareDialogOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 }
