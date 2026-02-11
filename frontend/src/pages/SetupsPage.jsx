@@ -703,7 +703,7 @@ export default function SetupsPage() {
 }
 
 // Setup View Dialog Component
-function SetupViewDialog({ setup, vehicleName, onClose }) {
+function SetupViewDialog({ setup, vehicleName, onClose, onEdit, onDuplicate }) {
   if (!setup) return null;
 
   // Check if a setup has any advanced fields populated
@@ -730,32 +730,58 @@ function SetupViewDialog({ setup, vehicleName, onClose }) {
     <Dialog open={!!setup} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-card border-border">
         <DialogHeader>
-          <DialogTitle className="text-2xl tracking-tight uppercase flex items-center gap-2">
-            <Settings className="w-6 h-6 text-blue-500" />
-            {setup.name}
-          </DialogTitle>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Badge variant="secondary">
-              <Car className="w-3 h-3 mr-1" />
-              {vehicleName}
-            </Badge>
-            {setup.conditions && (
-              <Badge variant="outline">{setup.conditions}</Badge>
-            )}
-            {setup.rating > 0 && (
-              <div className="flex items-center gap-0.5 ml-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    className={`w-4 h-4 ${
-                      star <= setup.rating 
-                        ? 'text-yellow-500 fill-yellow-500' 
-                        : 'text-muted-foreground/30'
-                    }`}
-                  />
-                ))}
+          <div className="flex items-start justify-between">
+            <div>
+              <DialogTitle className="text-2xl tracking-tight uppercase flex items-center gap-2">
+                <Settings className="w-6 h-6 text-blue-500" />
+                {setup.name}
+              </DialogTitle>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
+                <Badge variant="secondary">
+                  <Car className="w-3 h-3 mr-1" />
+                  {vehicleName}
+                </Badge>
+                {setup.conditions && (
+                  <Badge variant="outline">{setup.conditions}</Badge>
+                )}
+                {setup.rating > 0 && (
+                  <div className="flex items-center gap-0.5 ml-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={`w-4 h-4 ${
+                          star <= setup.rating 
+                            ? 'text-yellow-500 fill-yellow-500' 
+                            : 'text-muted-foreground/30'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onDuplicate(setup)}
+                className="text-xs"
+                data-testid="view-duplicate-btn"
+              >
+                <Copy className="w-3 h-3 mr-1" />
+                Duplicate
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onEdit(setup)}
+                className="text-xs"
+                data-testid="view-edit-btn"
+              >
+                <Pencil className="w-3 h-3 mr-1" />
+                Edit
+              </Button>
+            </div>
           </div>
         </DialogHeader>
 
