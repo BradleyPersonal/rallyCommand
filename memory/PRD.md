@@ -278,6 +278,52 @@ Build an app that can keep track of inventory for a rally car.
     - Shows import statistics (vehicles, inventory, repairs, setups, stocktakes)
   - Descriptive blurb explaining backup/transfer use case
 
+### Phase 16 - Setup Form Templates & Comparison (Feb 11, 2026)
+- ✅ **Basic/Advanced template toggle** in Setup form:
+  - Basic mode: Event info, conditions, tyre info, tyre pressures, notes only
+  - Advanced mode: All fields (ride height, geometry, suspension, aero)
+  - Toggle visible for new setups and when editing
+  - Auto-detects mode based on whether setup has advanced fields
+- ✅ **Quick Rating on setup cards**:
+  - Clickable star rating directly on card footer
+  - Updates rating without opening edit dialog
+  - Click same star to clear rating
+- ✅ **Compare Setups feature**:
+  - Compare button toggles multi-select mode
+  - Checkbox selection on cards (2 max)
+  - Side-by-side comparison dialog with differences highlighted in amber
+  - Only compare setups from same vehicle
+- ✅ **Duplicate Setup feature**:
+  - Accessible from card dropdown menu and view dialog
+  - Prompts for new name first
+  - Creates copy and opens in edit mode
+
+### Phase 17 - Setup Groups (Feb 11, 2026)
+- ✅ **Setup Groups** for organizing related setups:
+  - Groups are per-vehicle
+  - Fields: name, track/location, date
+  - Setups can belong to one group max (or ungrouped)
+- ✅ **NEW dropdown button** replaces "New Setup":
+  - Options: Setup, Group
+- ✅ **Group cards** displayed at top of Setups page:
+  - Distinctive gradient styling with folder icon
+  - Shows vehicle badge, setup count badge
+  - Track name and date
+  - Up to 3 setup names preview
+  - "+" button to add setup to group
+  - Three-dot menu (View, Edit, Delete)
+- ✅ **Group View Dialog**:
+  - Shows all setups in the group
+  - Compare button for comparing setups within group
+  - Add Setup button
+  - Click setup cards to view details
+  - View Details, Edit, Duplicate, Delete actions on each setup
+  - Quick rating on cards
+- ✅ **Group selector in Setup form**:
+  - Dropdown to assign setup to existing group
+  - Only shows groups for selected vehicle
+  - Can be changed when editing
+
 ### Phase 16 - Setup Form Templates (Feb 11, 2026)
 - ✅ **Basic/Advanced template toggle** in Setup form:
   - Basic mode: Event info, conditions, tyre info, tyre pressures, notes only
