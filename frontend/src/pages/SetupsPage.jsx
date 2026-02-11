@@ -320,12 +320,14 @@ export default function SetupsPage() {
 
   const handleEdit = (setup) => {
     setEditingSetup(setup);
+    setPreselectedGroupId(null);
     setDialogOpen(true);
   };
 
   const handleDialogClose = () => {
     setDialogOpen(false);
     setEditingSetup(null);
+    setPreselectedGroupId(null);
   };
 
   const handleSaved = () => {
