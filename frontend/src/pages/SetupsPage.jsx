@@ -408,17 +408,72 @@ export default function SetupsPage() {
               {filteredSetups.length} setup{filteredSetups.length !== 1 ? 's' : ''} {selectedVehicle !== 'all' || searchQuery ? 'found' : 'saved'}
             </p>
           </div>
-          <Button 
-            onClick={() => setDialogOpen(true)}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm font-bold uppercase tracking-wider text-sm"
-            data-testid="add-setup-btn"
-            disabled={vehicles.length === 0}
-          >
-            <Plus className="w-4 h-4 mr-1 md:mr-2" />
-            <span className="hidden sm:inline">New Setup</span>
-            <span className="sm:hidden">New</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            {/* Compare Mode Toggle */}
+            {setups.length >= 2 && (
+              <Button 
+                onClick={toggleCompareMode}
+                variant={compareMode ? "default" : "outline"}
+                className={`rounded-sm font-bold uppercase tracking-wider text-sm ${
+                  compareMode ? 'bg-amber-500 hover:bg-amber-600 text-white' : ''
+                }`}
+                data-testid="compare-mode-btn"
+              >
+                {compareMode ? (
+                  <>
+                    <X className="w-4 h-4 mr-1 md:mr-2" />
+                    <span className="hidden sm:inline">Cancel</span>
+                  </>
+                ) : (
+                  <>
+                    <GitCompare className="w-4 h-4 mr-1 md:mr-2" />
+                    <span className="hidden sm:inline">Compare</span>
+                  </>
+                )}
+              </Button>
+            )}
+            
+            {/* Compare Action Button (shows when 2 selected) */}
+            {compareMode && selectedForCompare.length === 2 && (
+              <Button 
+                onClick={openCompareDialog}
+                className="bg-green-600 hover:bg-green-700 text-white rounded-sm font-bold uppercase tracking-wider text-sm animate-pulse"
+                data-testid="open-compare-btn"
+              >
+                <Check className="w-4 h-4 mr-1 md:mr-2" />
+                <span className="hidden sm:inline">Compare ({selectedForCompare.length})</span>
+                <span className="sm:hidden">Go</span>
+              </Button>
+            )}
+            
+            <Button 
+              onClick={() => setDialogOpen(true)}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm font-bold uppercase tracking-wider text-sm"
+              data-testid="add-setup-btn"
+              disabled={vehicles.length === 0}
+            >
+              <Plus className="w-4 h-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">New Setup</span>
+              <span className="sm:hidden">New</span>
+            </Button>
+          </div>
         </div>
+
+        {/* Compare Mode Instructions */}
+        {compareMode && (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 flex items-center gap-3">
+            <GitCompare className="w-5 h-5 text-amber-500 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-amber-600 dark:text-amber-400">
+                Compare Mode Active
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Select 2 setups from the same vehicle to compare. {selectedForCompare.length}/2 selected
+                {selectedForCompare.length === 1 && ` (${getVehicleName(selectedForCompare[0].vehicle_id)})`}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Search */}
         {vehicles.length > 0 && setups.length > 0 && (
