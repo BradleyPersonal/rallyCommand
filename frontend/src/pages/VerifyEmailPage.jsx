@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -13,9 +13,14 @@ export default function VerifyEmailPage() {
   
   const [status, setStatus] = useState('verifying'); // 'verifying', 'success', 'error'
   const [message, setMessage] = useState('');
+  const hasVerified = useRef(false);
 
   useEffect(() => {
     const verifyEmail = async () => {
+      // Prevent double verification (React StrictMode calls useEffect twice)
+      if (hasVerified.current) return;
+      hasVerified.current = true;
+
       if (!token) {
         setStatus('error');
         setMessage('No verification token provided');
@@ -27,13 +32,16 @@ export default function VerifyEmailPage() {
         setStatus('success');
         setMessage(response.data.message || 'Email verified successfully!');
       } catch (error) {
-        setStatus('error');
-        setMessage(error.response?.data?.detail || 'Failed to verify email. The link may be invalid or expired.');
+        // Only set error if we haven't already succeeded
+        if (status !== 'success') {
+          setStatus('error');
+          setMessage(error.response?.data?.detail || 'Failed to verify email. The link may be invalid or expired.');
+        }
       }
     };
 
     verifyEmail();
-  }, [token]);
+  }, [token, status]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
