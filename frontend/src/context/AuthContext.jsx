@@ -41,11 +41,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (email, password, name) => {
+    // Registration no longer returns a token - user must verify email first
     const response = await axios.post(`${API}/auth/register`, { email, password, name });
-    const { token, user: userData } = response.data;
-    localStorage.setItem('token', token);
-    setUser(userData);
-    return userData;
+    // Return the response data (includes message and email_sent status)
+    return response.data;
+  };
+
+  const resendVerification = async (email) => {
+    const response = await axios.post(`${API}/auth/resend-verification`, { email });
+    return response.data;
   };
 
   const logout = () => {
@@ -73,7 +77,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, getAuthHeader, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, getAuthHeader, refreshUser, resendVerification }}>
       {children}
     </AuthContext.Provider>
   );
