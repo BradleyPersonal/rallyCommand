@@ -77,11 +77,15 @@ class UserResponse(BaseModel):
     id: str
     email: str
     name: str
+    email_verified: bool = False
     created_at: str
 
 class TokenResponse(BaseModel):
     token: str
     user: UserResponse
+
+class ResendVerificationRequest(BaseModel):
+    email: str
 
 class AccountUpdate(BaseModel):
     name: Optional[str] = None
