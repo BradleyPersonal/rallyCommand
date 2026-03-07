@@ -5,13 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Gauge, LogIn } from 'lucide-react';
+import { Gauge, LogIn, Mail, Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, resendVerification } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showResend, setShowResend] = useState(false);
+  const [resendEmail, setResendEmail] = useState('');
+  const [resending, setResending] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,13 +24,36 @@ export default function LoginPage() {
     }
 
     setLoading(true);
+    setShowResend(false);
     try {
       await login(email, password);
       toast.success('Welcome back!');
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Login failed');
+      const errorMessage = error.response?.data?.detail || 'Login failed';
+      toast.error(errorMessage);
+      
+      // Show resend option if email not verified
+      if (error.response?.status === 403 && errorMessage.includes('verify')) {
+        setShowResend(true);
+        setResendEmail(email);
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!resendEmail) return;
+    
+    setResending(true);
+    try {
+      await resendVerification(resendEmail);
+      toast.success('Verification email sent! Check your inbox.');
+      setShowResend(false);
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to send verification email');
+    } finally {
+      setResending(false);
     }
   };
 
@@ -87,6 +113,39 @@ export default function LoginPage() {
                 data-testid="login-password-input"
               />
             </div>
+
+            {/* Resend Verification Email Option */}
+            {showResend && (
+              <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                <p className="text-sm text-amber-600 dark:text-amber-400 font-medium mb-2">
+                  Email not verified
+                </p>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Please check your inbox for the verification link, or click below to resend it.
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleResendVerification}
+                  disabled={resending}
+                  className="w-full"
+                  data-testid="resend-verification-btn"
+                >
+                  {resending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="w-4 h-4 mr-2" />
+                      Resend Verification Email
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
 
             <Button
               type="submit"
