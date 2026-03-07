@@ -12,13 +12,12 @@ export default defineConfig({
   server: {
     port: 3000,
     host: '0.0.0.0',
-    // Allow all hosts for preview environment
-    allowedHosts: ['.emergentagent.com', '.preview.emergentagent.com', 'localhost'],
+    allowedHosts: true,
   },
   preview: {
     port: 3000,
     host: '0.0.0.0',
-    allowedHosts: ['.emergentagent.com', '.preview.emergentagent.com', 'localhost'],
+    allowedHosts: true,
   },
   build: {
     outDir: 'build',

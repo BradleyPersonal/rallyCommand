@@ -5,15 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Gauge, UserPlus } from 'lucide-react';
+import { Gauge, UserPlus, Mail, CheckCircle, Loader2 } from 'lucide-react';
 
 export default function RegisterPage() {
-  const { register } = useAuth();
+  const { register, resendVerification } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
+  const [resending, setResending] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,13 +39,87 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(email, password, name);
-      toast.success('Account created successfully!');
+      setRegisteredEmail(email);
+      setRegistrationSuccess(true);
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Registration failed');
     } finally {
       setLoading(false);
     }
   };
+
+  const handleResendVerification = async () => {
+    if (!registeredEmail) return;
+    
+    setResending(true);
+    try {
+      await resendVerification(registeredEmail);
+      toast.success('Verification email sent! Check your inbox.');
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to send verification email');
+    } finally {
+      setResending(false);
+    }
+  };
+
+  // Show success state after registration
+  if (registrationSuccess) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-card border border-border rounded-lg p-8 text-center">
+          {/* Success Icon */}
+          <div className="mx-auto w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mb-6">
+            <Mail className="w-10 h-10 text-green-500" />
+          </div>
+          
+          {/* Success Message */}
+          <h2 className="text-2xl font-bold tracking-tight text-foreground mb-2">
+            Check Your Email
+          </h2>
+          <p className="text-muted-foreground mb-6">
+            We've sent a verification link to <span className="text-foreground font-medium">{registeredEmail}</span>. 
+            Please click the link in the email to verify your account.
+          </p>
+          
+          {/* Divider */}
+          <div className="border-t border-border my-6" />
+          
+          {/* Resend Section */}
+          <p className="text-sm text-muted-foreground mb-4">
+            Didn't receive the email? Check your spam folder or
+          </p>
+          <Button
+            variant="outline"
+            onClick={handleResendVerification}
+            disabled={resending}
+            className="w-full mb-4"
+            data-testid="resend-verification-btn"
+          >
+            {resending ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              <>
+                <Mail className="w-4 h-4 mr-2" />
+                Resend Verification Email
+              </>
+            )}
+          </Button>
+          
+          {/* Back to Login */}
+          <Link 
+            to="/login" 
+            className="text-primary hover:underline text-sm font-medium"
+            data-testid="back-to-login-link"
+          >
+            Back to Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex">

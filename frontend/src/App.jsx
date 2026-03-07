@@ -5,6 +5,7 @@ import { VehicleFilterProvider } from "@/context/VehicleFilterContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
+import VerifyEmailPage from "@/pages/VerifyEmailPage";
 import DashboardPage from "@/pages/DashboardPage";
 import InventoryPage from "@/pages/InventoryPage";
 import ItemDetailPage from "@/pages/ItemDetailPage";
@@ -76,6 +77,10 @@ function App() {
                     <RegisterPage />
                   </PublicRoute>
                 }
+              />
+              <Route
+                path="/verify-email"
+                element={<VerifyEmailPage />}
               />
               <Route
                 path="/dashboard"
