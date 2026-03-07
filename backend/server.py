@@ -349,6 +349,65 @@ def create_token(user_id: str, email: str) -> str:
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
+def create_verification_token() -> str:
+    """Generate a random verification token"""
+    return str(uuid.uuid4()) + str(uuid.uuid4()).replace('-', '')
+
+async def send_verification_email(email: str, name: str, verification_token: str) -> bool:
+    """Send email verification link using Resend"""
+    # Get the frontend URL from environment or use default
+    frontend_url = os.environ.get('FRONTEND_URL', 'https://rally-inventory.preview.emergentagent.com')
+    verification_link = f"{frontend_url}/verify-email?token={verification_token}"
+    
+    email_html = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h1 style="color: #dc2626; margin-bottom: 24px;">Welcome to RallyCommand!</h1>
+        <p style="color: #333; font-size: 16px;">Hi {name},</p>
+        <p style="color: #333; font-size: 16px;">Thank you for registering. Please verify your email address by clicking the button below:</p>
+        <div style="text-align: center; margin: 32px 0;">
+            <a href="{verification_link}" style="background-color: #dc2626; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                Verify Email Address
+            </a>
+        </div>
+        <p style="color: #666; font-size: 14px;">Or copy and paste this link into your browser:</p>
+        <p style="color: #dc2626; font-size: 14px; word-break: break-all;">{verification_link}</p>
+        <p style="color: #666; font-size: 14px; margin-top: 32px;">This link will expire in 24 hours.</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 32px 0;">
+        <p style="color: #999; font-size: 12px;">If you didn't create an account with RallyCommand, you can safely ignore this email.</p>
+    </div>
+    """
+    
+    if not RESEND_API_KEY:
+        logging.warning("RESEND_API_KEY not configured - cannot send verification email")
+        return False
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                RESEND_API_URL,
+                headers={
+                    "Authorization": f"Bearer {RESEND_API_KEY}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "from": "RallyCommand <onboarding@resend.dev>",
+                    "to": [email],
+                    "subject": "Verify your RallyCommand account",
+                    "html": email_html
+                },
+                timeout=30.0
+            )
+            
+            if response.status_code in [200, 201]:
+                logging.info(f"Verification email sent to {email}")
+                return True
+            else:
+                logging.error(f"Failed to send verification email: {response.status_code} - {response.text}")
+                return False
+    except Exception as e:
+        logging.error(f"Error sending verification email: {str(e)}")
+        return False
+
 def verify_token(token: str) -> dict:
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
