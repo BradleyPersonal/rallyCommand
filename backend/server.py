@@ -40,17 +40,19 @@ db = client[db_name]
 JWT_SECRET = os.environ.get('JWT_SECRET', 'rallycommand-secret-key-2024')
 JWT_ALGORITHM = "HS256"
 
-# Resend Configuration (using HTTP API)
-# Check multiple possible env var names for flexibility
-RESEND_API_KEY = os.environ.get('RESEND_API_KEY') or os.environ.get('resend_api_key') or os.environ.get('RESEND_KEY') or ''
-RESEND_API_URL = "https://api.resend.com/emails"
+# Brevo Configuration (using HTTP API)
+BREVO_API_KEY = os.environ.get('BREVO_API_KEY') or ''
+BREVO_API_URL = "https://api.brevo.com/v3/smtp/email"
+SENDER_EMAIL = os.environ.get('SENDER_EMAIL') or 'francisdevstudios@gmail.com'
+SENDER_NAME = os.environ.get('SENDER_NAME') or 'Rally Command'
 FEEDBACK_RECIPIENT = "francisdevstudios@gmail.com"
 
 # Log API key status on startup
-if RESEND_API_KEY:
-    print(f"✓ Resend API key configured (starts with: {RESEND_API_KEY[:10]}...)")
+if BREVO_API_KEY:
+    print(f"✓ Brevo API key configured (starts with: {BREVO_API_KEY[:12]}...)")
+    print(f"  Sender: {SENDER_NAME} <{SENDER_EMAIL}>")
 else:
-    print("⚠ WARNING: RESEND_API_KEY not found in environment variables!")
+    print("⚠ WARNING: BREVO_API_KEY not found in environment variables!")
 
 # Create the main app
 # Disable redirect_slashes to prevent 405 errors on POST requests in production
@@ -371,7 +373,7 @@ def create_verification_token() -> str:
     return str(uuid.uuid4()) + str(uuid.uuid4()).replace('-', '')
 
 async def send_verification_email(email: str, name: str, verification_token: str) -> bool:
-    """Send email verification link using Resend"""
+    """Send email verification link using Brevo"""
     # Get the frontend URL from environment or use default
     frontend_url = os.environ.get('FRONTEND_URL', 'https://rally-verify.preview.emergentagent.com')
     verification_link = f"{frontend_url}/verify-email?token={verification_token}"
@@ -394,23 +396,24 @@ async def send_verification_email(email: str, name: str, verification_token: str
     </div>
     """
     
-    if not RESEND_API_KEY:
-        logging.warning("RESEND_API_KEY not configured - cannot send verification email")
+    if not BREVO_API_KEY:
+        logging.warning("BREVO_API_KEY not configured - cannot send verification email")
         return False
     
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                RESEND_API_URL,
+                BREVO_API_URL,
                 headers={
-                    "Authorization": f"Bearer {RESEND_API_KEY}",
-                    "Content-Type": "application/json"
+                    "api-key": BREVO_API_KEY,
+                    "content-type": "application/json",
+                    "accept": "application/json"
                 },
                 json={
-                    "from": "RallyCommand <onboarding@resend.dev>",
-                    "to": [email],
+                    "sender": {"name": SENDER_NAME, "email": SENDER_EMAIL},
+                    "to": [{"email": email, "name": name}],
                     "subject": "Verify your RallyCommand account",
-                    "html": email_html
+                    "htmlContent": email_html
                 },
                 timeout=30.0
             )
@@ -1831,16 +1834,18 @@ class FeedbackRequest(BaseModel):
 @api_router.get("/feedback/status")
 async def check_feedback_status():
     """Check if email service is configured (for debugging)"""
-    api_key_configured = bool(RESEND_API_KEY) and len(RESEND_API_KEY) > 10
+    api_key_configured = bool(BREVO_API_KEY) and len(BREVO_API_KEY) > 10
     return {
         "email_configured": api_key_configured,
-        "api_key_prefix": RESEND_API_KEY[:10] + "..." if api_key_configured else "NOT SET",
+        "provider": "Brevo",
+        "api_key_prefix": BREVO_API_KEY[:12] + "..." if api_key_configured else "NOT SET",
+        "sender": f"{SENDER_NAME} <{SENDER_EMAIL}>",
         "recipient": FEEDBACK_RECIPIENT
     }
 
 @api_router.post("/feedback")
 async def send_feedback(feedback: FeedbackRequest):
-    """Send feedback/bug report via email using Resend HTTP API"""
+    """Send feedback/bug report via email using Brevo HTTP API"""
     
     # Validate email if provided
     if feedback.email:
@@ -1854,7 +1859,7 @@ async def send_feedback(feedback: FeedbackRequest):
     feedback_type_label = "Bug Report" if feedback.feedback_type == "bug" else "Feature Request"
     
     # Log the API key status for debugging
-    logging.info(f"RESEND_API_KEY configured: {bool(RESEND_API_KEY)}, length: {len(RESEND_API_KEY) if RESEND_API_KEY else 0}")
+    logging.info(f"BREVO_API_KEY configured: {bool(BREVO_API_KEY)}, length: {len(BREVO_API_KEY) if BREVO_API_KEY else 0}")
     
     # Store in database first (always)
     feedback_doc = {
@@ -1869,7 +1874,7 @@ async def send_feedback(feedback: FeedbackRequest):
     }
     
     # Try to send email if API key is configured
-    if RESEND_API_KEY:
+    if BREVO_API_KEY:
         # Build email row only if email was provided
         email_row = ""
         if feedback.email:
@@ -1914,46 +1919,47 @@ async def send_feedback(feedback: FeedbackRequest):
         """
         
         email_payload = {
-            "from": "onboarding@resend.dev",
-            "to": [FEEDBACK_RECIPIENT],
+            "sender": {"name": SENDER_NAME, "email": SENDER_EMAIL},
+            "to": [{"email": FEEDBACK_RECIPIENT}],
             "subject": f"[RallyCommand] {feedback_type_label}: {feedback.name}",
-            "html": html_content
+            "htmlContent": html_content
         }
         
         # Only add reply_to if email was provided
         if feedback.email:
-            email_payload["reply_to"] = feedback.email
+            email_payload["replyTo"] = {"email": feedback.email}
         
         headers = {
-            "Authorization": f"Bearer {RESEND_API_KEY}",
-            "Content-Type": "application/json"
+            "api-key": BREVO_API_KEY,
+            "content-type": "application/json",
+            "accept": "application/json"
         }
         
-        logging.info(f"Sending feedback email via HTTP POST from {feedback.email} to {FEEDBACK_RECIPIENT}")
+        logging.info(f"Sending feedback email via Brevo from {feedback.email} to {FEEDBACK_RECIPIENT}")
         
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.post(
-                    RESEND_API_URL,
+                    BREVO_API_URL,
                     json=email_payload,
                     headers=headers,
                     timeout=30.0
                 )
                 
-                if response.status_code == 200:
+                if response.status_code in [200, 201]:
                     result = response.json()
                     logging.info(f"Email sent successfully: {result}")
                     feedback_doc["email_sent"] = True
-                    feedback_doc["email_id"] = result.get("id")
+                    feedback_doc["email_id"] = result.get("messageId")
                 else:
-                    logging.error(f"Resend API error: {response.status_code} - {response.text}")
+                    logging.error(f"Brevo API error: {response.status_code} - {response.text}")
                     feedback_doc["email_error"] = f"{response.status_code}: {response.text}"
         except Exception as e:
             logging.error(f"Failed to send email via HTTP: {type(e).__name__}: {str(e)}")
             feedback_doc["email_error"] = str(e)
             # Continue - we'll still save to database
     else:
-        logging.warning("RESEND_API_KEY not configured - storing feedback in database only")
+        logging.warning("BREVO_API_KEY not configured - storing feedback in database only")
         feedback_doc["email_error"] = "API key not configured"
     
     # Save to database
