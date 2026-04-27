@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
+import sys
 import logging
-import asyncio
 import httpx
 import re
 from pathlib import Path
@@ -15,7 +15,10 @@ import uuid
 from datetime import datetime, timezone, timedelta
 import hashlib
 import jwt
-import re
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -25,8 +28,11 @@ mongo_url = os.environ.get('MONGO_URL')
 db_name = os.environ.get('DB_NAME', 'rallycommand')
 
 if not mongo_url:
-    raise RuntimeError("MONGO_URL environment variable is required. Please set it in your deployment environment.")
+    logger.error("MONGO_URL environment variable is required!")
+    logger.error(f"Available env vars: {list(os.environ.keys())}")
+    sys.exit(1)
 
+logger.info(f"Connecting to MongoDB database: {db_name}")
 client = AsyncIOMotorClient(mongo_url)
 db = client[db_name]
 
@@ -62,6 +68,12 @@ app.add_middleware(
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
+
+# Health check endpoint (outside /api prefix for Render health checks)
+@app.get("/health")
+@app.get("/api/health")
+async def health_check():
+    return {"status": "healthy", "database": db_name}
 
 # Security
 security = HTTPBearer()
