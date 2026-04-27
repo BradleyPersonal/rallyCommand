@@ -7,7 +7,7 @@ import requests
 import os
 import uuid
 
-BASE_URL = os.environ.get('VITE_BACKEND_URL', 'https://email-check-6.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('VITE_BACKEND_URL', 'https://rally-verify.preview.emergentagent.com').rstrip('/')
 
 # Test credentials
 TEST_EMAIL = "demo@rallyteam.com"

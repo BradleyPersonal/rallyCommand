@@ -373,7 +373,7 @@ def create_verification_token() -> str:
 async def send_verification_email(email: str, name: str, verification_token: str) -> bool:
     """Send email verification link using Resend"""
     # Get the frontend URL from environment or use default
-    frontend_url = os.environ.get('FRONTEND_URL', 'https://email-check-6.preview.emergentagent.com')
+    frontend_url = os.environ.get('FRONTEND_URL', 'https://rally-verify.preview.emergentagent.com')
     verification_link = f"{frontend_url}/verify-email?token={verification_token}"
     
     email_html = f"""
