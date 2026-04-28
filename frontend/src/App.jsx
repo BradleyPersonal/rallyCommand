@@ -7,6 +7,8 @@ import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import VerifyEmailPage from "@/pages/VerifyEmailPage";
 import DashboardPage from "@/pages/DashboardPage";
+import DashboardPreviewA from "@/pages/DashboardPreviewA";
+import DashboardPreviewD from "@/pages/DashboardPreviewD";
 import InventoryPage from "@/pages/InventoryPage";
 import ItemDetailPage from "@/pages/ItemDetailPage";
 import GaragePage from "@/pages/GaragePage";
@@ -87,6 +89,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard-preview-a"
+              element={
+                <ProtectedRoute>
+                  <DashboardPreviewA />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard-preview-d"
+              element={
+                <ProtectedRoute>
+                  <DashboardPreviewD />
                 </ProtectedRoute>
               }
             />
