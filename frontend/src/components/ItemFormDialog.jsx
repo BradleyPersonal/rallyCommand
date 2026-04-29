@@ -56,7 +56,7 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
     category: 'parts',
     subcategory: '',
     condition: '',
-    quantity: 0,
+    quantity: 1,
     location: '',
     part_number: '',
     supplier: '',
@@ -98,7 +98,7 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
         category: 'parts',
         subcategory: '',
         condition: '',
-        quantity: 0,
+        quantity: 1,
         location: '',
         part_number: '',
         supplier: '',
@@ -377,19 +377,22 @@ export const ItemFormDialog = ({ open, onClose, onSaved, item }) => {
               />
             </div>
 
-            {/* Price */}
-            <div className="col-span-2 space-y-2">
-              <Label htmlFor="price" className="form-label">Unit Price ($)</Label>
-              <Input
-                id="price"
-                type="number"
-                min="0"
-                step="0.01"
-                value={formData.price}
-                onChange={(e) => handleChange('price', parseFloat(e.target.value) || 0)}
-                className="bg-secondary border-border focus:border-primary font-mono"
-                data-testid="item-price-input"
-              />
+          {/* Price */}
+          <div className="col-span-2 space-y-2">
+              <Label htmlFor="price" className="form-label">Unit Price</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none">$</span>
+                <Input
+                  id="price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.price || ''}
+                  onChange={(e) => handleChange('price', parseFloat(e.target.value) || 0)}
+                  className="bg-secondary border-border focus:border-primary font-mono pl-7"
+                  data-testid="item-price-input"
+                />
+              </div>
             </div>
 
             {/* Applicable Vehicles */}

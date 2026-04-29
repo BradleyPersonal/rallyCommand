@@ -498,7 +498,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
                 <Input
                   type="number"
                   step="0.1"
-                  value={formData.tyre_pressure_fl}
+                  value={formData.tyre_pressure_fl || ''}
                   onChange={(e) => handleNumberChange('tyre_pressure_fl', e.target.value)}
                   placeholder="FL"
                   className="bg-secondary border-border focus:border-primary font-mono"
@@ -510,7 +510,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
                 <Input
                   type="number"
                   step="0.1"
-                  value={formData.tyre_pressure_fr}
+                  value={formData.tyre_pressure_fr || ''}
                   onChange={(e) => handleNumberChange('tyre_pressure_fr', e.target.value)}
                   placeholder="FR"
                   className="bg-secondary border-border focus:border-primary font-mono"
@@ -522,7 +522,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
                 <Input
                   type="number"
                   step="0.1"
-                  value={formData.tyre_pressure_rl}
+                  value={formData.tyre_pressure_rl || ''}
                   onChange={(e) => handleNumberChange('tyre_pressure_rl', e.target.value)}
                   placeholder="RL"
                   className="bg-secondary border-border focus:border-primary font-mono"
@@ -534,7 +534,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
                 <Input
                   type="number"
                   step="0.1"
-                  value={formData.tyre_pressure_rr}
+                  value={formData.tyre_pressure_rr || ''}
                   onChange={(e) => handleNumberChange('tyre_pressure_rr', e.target.value)}
                   placeholder="RR"
                   className="bg-secondary border-border focus:border-primary font-mono"
@@ -558,7 +558,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
                 <Input
                   type="number"
                   step="0.5"
-                  value={formData.ride_height_fl}
+                  value={formData.ride_height_fl || ''}
                   onChange={(e) => handleNumberChange('ride_height_fl', e.target.value)}
                   placeholder="FL"
                   className="bg-secondary border-border focus:border-primary font-mono"
@@ -570,7 +570,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
                 <Input
                   type="number"
                   step="0.5"
-                  value={formData.ride_height_fr}
+                  value={formData.ride_height_fr || ''}
                   onChange={(e) => handleNumberChange('ride_height_fr', e.target.value)}
                   placeholder="FR"
                   className="bg-secondary border-border focus:border-primary font-mono"
@@ -582,7 +582,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
                 <Input
                   type="number"
                   step="0.5"
-                  value={formData.ride_height_rl}
+                  value={formData.ride_height_rl || ''}
                   onChange={(e) => handleNumberChange('ride_height_rl', e.target.value)}
                   placeholder="RL"
                   className="bg-secondary border-border focus:border-primary font-mono"
@@ -594,7 +594,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
                 <Input
                   type="number"
                   step="0.5"
-                  value={formData.ride_height_rr}
+                  value={formData.ride_height_rr || ''}
                   onChange={(e) => handleNumberChange('ride_height_rr', e.target.value)}
                   placeholder="RR"
                   className="bg-secondary border-border focus:border-primary font-mono"
@@ -616,7 +616,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
                 <Input
                   type="number"
                   step="0.1"
-                  value={formData.camber_front}
+                  value={formData.camber_front || ''}
                   onChange={(e) => handleNumberChange('camber_front', e.target.value)}
                   className="bg-secondary border-border focus:border-primary font-mono"
                   data-testid="camber-front-input"
@@ -627,7 +627,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
                 <Input
                   type="number"
                   step="0.1"
-                  value={formData.camber_rear}
+                  value={formData.camber_rear || ''}
                   onChange={(e) => handleNumberChange('camber_rear', e.target.value)}
                   className="bg-secondary border-border focus:border-primary font-mono"
                   data-testid="camber-rear-input"
@@ -638,7 +638,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
                 <Input
                   type="number"
                   step="0.1"
-                  value={formData.toe_front}
+                  value={formData.toe_front || ''}
                   onChange={(e) => handleNumberChange('toe_front', e.target.value)}
                   className="bg-secondary border-border focus:border-primary font-mono"
                   data-testid="toe-front-input"
@@ -649,7 +649,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
                 <Input
                   type="number"
                   step="0.1"
-                  value={formData.toe_rear}
+                  value={formData.toe_rear || ''}
                   onChange={(e) => handleNumberChange('toe_rear', e.target.value)}
                   className="bg-secondary border-border focus:border-primary font-mono"
                   data-testid="toe-rear-input"
@@ -669,7 +669,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
                 <Input
                   type="number"
                   step="1"
-                  value={formData.spring_rate_front}
+                  value={formData.spring_rate_front || ''}
                   onChange={(e) => handleNumberChange('spring_rate_front', e.target.value)}
                   className="bg-secondary border-border focus:border-primary font-mono"
                   data-testid="spring-front-input"
@@ -680,7 +680,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
                 <Input
                   type="number"
                   step="1"
-                  value={formData.spring_rate_rear}
+                  value={formData.spring_rate_rear || ''}
                   onChange={(e) => handleNumberChange('spring_rate_rear', e.target.value)}
                   className="bg-secondary border-border focus:border-primary font-mono"
                   data-testid="spring-rear-input"
@@ -691,7 +691,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
                 <Input
                   type="number"
                   step="1"
-                  value={formData.damper_front}
+                  value={formData.damper_front || ''}
                   onChange={(e) => handleNumberChange('damper_front', e.target.value)}
                   className="bg-secondary border-border focus:border-primary font-mono"
                   data-testid="damper-front-input"
@@ -702,7 +702,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
                 <Input
                   type="number"
                   step="1"
-                  value={formData.damper_rear}
+                  value={formData.damper_rear || ''}
                   onChange={(e) => handleNumberChange('damper_rear', e.target.value)}
                   className="bg-secondary border-border focus:border-primary font-mono"
                   data-testid="damper-rear-input"
@@ -713,7 +713,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
                 <Input
                   type="number"
                   step="1"
-                  value={formData.arb_front}
+                  value={formData.arb_front || ''}
                   onChange={(e) => handleNumberChange('arb_front', e.target.value)}
                   className="bg-secondary border-border focus:border-primary font-mono"
                   data-testid="arb-front-input"
@@ -724,7 +724,7 @@ export const SetupFormDialog = ({ open, onClose, onSaved, setup, vehicleId, vehi
                 <Input
                   type="number"
                   step="1"
-                  value={formData.arb_rear}
+                  value={formData.arb_rear || ''}
                   onChange={(e) => handleNumberChange('arb_rear', e.target.value)}
                   className="bg-secondary border-border focus:border-primary font-mono"
                   data-testid="arb-rear-input"
