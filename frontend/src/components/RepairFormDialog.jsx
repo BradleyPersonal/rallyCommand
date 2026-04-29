@@ -356,15 +356,18 @@ export const RepairFormDialog = ({ open, onClose, onSaved, repair, vehicles }) =
                     className="bg-secondary border-border"
                     data-testid="new-part-name"
                   />
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={newPart.cost}
-                    onChange={(e) => setNewPart(prev => ({ ...prev, cost: parseFloat(e.target.value) || 0 }))}
-                    placeholder="Cost"
-                    className="bg-secondary border-border"
-                    data-testid="new-part-cost"
-                  />
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none">$</span>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={newPart.cost}
+                      onChange={(e) => setNewPart(prev => ({ ...prev, cost: parseFloat(e.target.value) || 0 }))}
+                      placeholder="Cost"
+                      className="bg-secondary border-border pl-7"
+                      data-testid="new-part-cost"
+                    />
+                  </div>
                 </div>
               )}
 

@@ -21,7 +21,9 @@ import {
   Pencil,
   Trash2,
   Hash,
-  FileText
+  FileText,
+  Settings,
+  Wrench
 } from 'lucide-react';
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
@@ -214,17 +216,29 @@ export default function GaragePage() {
                     </div>
                   )}
 
-                  {/* View Setups Link */}
-                  <Link to={`/vehicle/${vehicle.id}`}>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full mt-2"
-                      data-testid={`view-setups-${vehicle.id}`}
-                    >
-                      View Setups
-                    </Button>
-                  </Link>
+                  {/* Setups + Repairs quick actions (matches Dashboard cards) */}
+                  <div className="flex gap-2 mt-2">
+                    <Link to={`/vehicle/${vehicle.id}/setups`} className="flex-1">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="w-full text-xs uppercase tracking-wider"
+                        data-testid={`view-setups-${vehicle.id}`}
+                      >
+                        <Settings className="w-3 h-3 mr-1" /> Setups
+                      </Button>
+                    </Link>
+                    <Link to={`/vehicle/${vehicle.id}/repairs`} className="flex-1">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="w-full text-xs uppercase tracking-wider"
+                        data-testid={`view-repairs-${vehicle.id}`}
+                      >
+                        <Wrench className="w-3 h-3 mr-1" /> Repairs
+                      </Button>
+                    </Link>
+                  </div>
                 </CardContent>
               </Card>
             ))}
